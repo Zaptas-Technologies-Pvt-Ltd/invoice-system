@@ -4,7 +4,6 @@ import Spinner from './Spinner'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useAlert } from "react-alert";
-import { useNavigate } from 'react-router-dom';
 
 export default function CustomerEditForm({
   setSelectedShowCustomerForm,
@@ -12,7 +11,6 @@ export default function CustomerEditForm({
   selectedCustomer
 }){
   const alert = useAlert();
-  const navigation = useNavigate()
   const [loading, setLoading] = useState(false)
   const [ID, setID] = useState(selectedCustomer._id)
   const [customername, setCustomerName] = useState("")

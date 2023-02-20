@@ -1,7 +1,5 @@
-import axios from 'axios';
 import React, { useState } from 'react';
 import Services from '../service/Services'
-import Tilt from 'react-parallax-tilt';
 import { useAlert } from "react-alert";
 import Spinner from '../components/Spinner';
 import image from '../photos/backg.jpg';

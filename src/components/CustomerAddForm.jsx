@@ -1,16 +1,14 @@
-import React, { useEffect,useState } from 'react'
+import React, { useState } from 'react'
 import Services from '../service/Services'
 import Spinner from './Spinner'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useAlert } from "react-alert";
-import { useNavigate } from 'react-router-dom';
 
 export default function CustomerAddForm({
   setShowCustomerForm,
 }){
   const alert = useAlert();
-  const navigation = useNavigate()
   const [loading, setLoading] = useState(false)
   const [customername, setCustomerName] = useState("")
   const [gstno, setGSTNo] = useState("")

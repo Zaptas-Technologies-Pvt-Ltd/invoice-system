@@ -1,29 +1,18 @@
 import axios from 'axios';
-import * as FileSaver from 'file-saver';
-import * as XLSX from 'xlsx';
-import FileDownload from 'js-file-download'
-import { saveAs } from 'file-saver';
 import React, { useEffect, useState } from 'react'
 import TaxReportList from '../components/TaxReportList'
-import Spinner from '../components/Spinner';
 import moment from 'moment';
 import { format } from 'date-fns';
-import fs from 'fs';
 import { useAlert } from "react-alert";
 
 const date = new Date();
 let prevStartDate = format(new Date(date.getFullYear(),date.getMonth() - 1, 1),'yyyy-MM-dd');
 let preEndDate = format(new Date(date.getFullYear(),date.getMonth() - 1 + 1, 0),'yyyy-MM-dd');
 
-//const futureDate = date.getDate() + 3;
-//date.setDate(futureDate);
-//const defaultValue = date.toLocaleDateString('en-CA');
-//console.log(Moment(prevStartDate).locale('en').format('dd-MM-yyyy'))
 export default function TaxReports() {
     const alert = useAlert();
     const [loading, setLoading] = useState(false)
     const [SACCode, setSACCode] = useState([])
-    //const [FromDates, setFromDate] = useState(Moment(prevStartDate).format('DD-MM-YYYY'))
     const [FromDates, setFromDate] = useState(prevStartDate)
     const [ToTODates, setToTODate] = useState(preEndDate)
     const [SACCodeFilts, setSACCodeFilt] = useState([])

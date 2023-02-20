@@ -3,7 +3,6 @@ import axios from 'axios'
 import DataTable from 'react-data-table-component'
 import ServicesAddForm from '../components/ServicesAddForm';
 import Spinner from '../components/Spinner';
-//import ServicesEditForm from '../components/ServicesEditForm';
 import ServicesEditForm from '../components/ServicesEdit';
 
 export default function Services() {

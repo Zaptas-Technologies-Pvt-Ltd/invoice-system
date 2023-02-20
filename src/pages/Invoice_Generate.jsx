@@ -4,7 +4,6 @@ import axios from 'axios'
 import Spinner from '../components/Spinner'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import DatePicker from 'react-datetime';
 import moment from 'moment';
 import 'react-datetime/css/react-datetime.css';
 import { useAlert } from "react-alert";

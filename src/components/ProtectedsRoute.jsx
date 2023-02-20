@@ -1,10 +1,6 @@
 import React, {  useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios';
-//import {Provider, useDispatch, useSelector } from 'react-redux';
-import { SetUser } from '../redux/usersSlice';
-import { HideLoading, ShowLoading } from '../redux/alertsSlice';
-import Sidebar from './shared/Sidebar';
 import Layout from './shared/Layout';
 
 

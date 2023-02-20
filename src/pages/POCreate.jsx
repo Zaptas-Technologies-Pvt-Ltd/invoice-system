@@ -1,21 +1,17 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react'
 import Spinner from '../components/Spinner'
-import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import DatePicker from 'react-datetime';
 import moment from 'moment';
 import 'react-datetime/css/react-datetime.css';
-import { HiMinusCircle, HiOutlineLogout, HiPlusCircle } from 'react-icons/hi';
+import { HiMinusCircle, HiPlusCircle } from 'react-icons/hi';
 import Services from '../service/Services';
-import { useNavigate } from 'react-router-dom';
 import { useAlert } from "react-alert";
 import POCreatedList from '../components/POCreatedList';
 
 export default function POCreate() {
 
   const alert = useAlert();
-  const navigation = useNavigate()
   const [loading, setLoading] = useState(false)
   const [customer, setCustomer] =useState("")
   const [purchaseorder, setPurchaseOrder] =useState("")

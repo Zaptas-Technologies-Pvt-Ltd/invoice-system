@@ -1,17 +1,14 @@
-import React, { useEffect, useState } from 'react'
-import axios from 'axios'
-import DataTable from 'react-data-table-component'
-import Spinner from '../components/Spinner';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 
 export default function POCreatedList() {
   const [loading, setLoading] = useState(false)
   const [dataList, setDataList] = useState([])
   const [filterDataList, setFilteredData] = useState([])
-  const [searchreport, setSearchReport] = useState('')
   
   const getPoList = async () =>{
     try{
-    setLoading(true)
+      setLoading(true)
       const response = await axios.get("poLists");
       setLoading(false)
       setDataList(response.data);
