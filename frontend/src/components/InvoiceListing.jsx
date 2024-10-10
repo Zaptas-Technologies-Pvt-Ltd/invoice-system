@@ -61,7 +61,11 @@ export default function InvoiceListing() {
         },
         {
             name: 'P.O. Date',
-            selector: (row) => row.podate,
+            selector: (row) => {
+                const podate = row.podate;
+                // Check for null or NaN
+                return podate === null || podate === 'NaN-NaN-NaN' ? '-' : podate;
+            },
         },
         {
             name: 'Issue Date',
@@ -69,25 +73,31 @@ export default function InvoiceListing() {
         },
         {
             name: 'Status',
-            selector: (row) => row.status?'Active':'InActive'
+            selector: (row) => (row.status ? 'Active' : 'InActive'),
         },
         {
             name: "Action",
-            cell:(row) => <div>
-                {/* <PDFDownloadLink document={<InvoicePDF />}  filename="FORM" onClick={() => {InvoicePDF(row._id)}}> */}
-                {/* <PDFDownloadLink document={<InvoicePDF />}  filename="FORM" onClick={() => {Invoice(row._id)}}>
-                {({loading}) => (loading ? <button>Loading Document...</button> : <button className='rounded-lg px-2 py-1 bg-green-300 hover:bg-green-400 duration-300'>Download</button> )}
-                </PDFDownloadLink> */}
-                <a href={'/InvoiceView/'+row._id} className="rounded-lg ml-2 px-2 py-1 bg-blue-600 text-blue-100 hover:bg-black-700 duration-300">View</a>
-                {/* <button className="rounded-lg ml-2 px-2 py-1 bg-red-600 text-red-100 hover:bg-red-700 duration-300"
-                 onClick={(e) => Invoice(row._id)} value={row._id}>  TTTTTT</button> */}
-                  <button className="rounded-lg ml-2 px-2 py-1 bg-red-600 text-red-100 hover:bg-red-700 duration-300" onClick={() => {
-                    cancelInvoice(row._id)
-                  }}>  Cancel</button>
-            </div>
-                                
+            cell: (row) => (
+                <div>
+                    <a
+                        href={'/InvoiceView/' + row._id}
+                        className="rounded-lg ml-2 px-2 py-1 bg-blue-600 text-blue-100 hover:bg-black-700 duration-300"
+                    >
+                        View
+                    </a>
+                    <button
+                        className="rounded-lg ml-2 px-2 py-1 bg-red-600 text-red-100 hover:bg-red-700 duration-300"
+                        onClick={() => {
+                            cancelInvoice(row._id);
+                        }}
+                    >
+                        Cancel
+                    </button>
+                </div>
+            ),
         },
     ];
+    
     useEffect(() => {
         getCountries()
     }, []);
