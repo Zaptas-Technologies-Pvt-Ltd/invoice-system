@@ -60,7 +60,7 @@ export default function InvoiceNo() {
             <Text style={styles.label}>GSTIN:</Text>
             <Text style={styles.invoiceGSTContainer}>{GSTNo}</Text>
         </View >
-        <InvoiceTitle title='Invoice'/>
+        <InvoiceTitle title='Tax Invoice'/>
     </Fragment>
   )
 }
