@@ -40,7 +40,5 @@ app.use('/v1', require('./server/routes/router'));
 app.listen(PORT, async () => {
 
   await connectDB();
-  console.log(`Server is running on http://localhost:${PORT}`,
-
-    process.env.MONGO_URI)
+  console.log(`Server is running on http://localhost:${PORT}`)
 });
