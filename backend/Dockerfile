@@ -5,16 +5,16 @@ FROM node:20.17.0
 WORKDIR /usr/src/app
 
 # Copy package.json and package-lock.json (if available)
-COPY backend/package*.json ./backend/
+COPY package*.json ./ 
 
 # Install the dependencies
-RUN npm install --prefix ./backend
+RUN npm install
 
 # Copy the rest of the application code
-COPY backend/ ./backend/
+COPY . ./
 
 # Expose the port your app runs on
 EXPOSE 8080
 
 # Command to run the application
-CMD ["node", "backend/server.js"]
+CMD ["node", "server.js"]
