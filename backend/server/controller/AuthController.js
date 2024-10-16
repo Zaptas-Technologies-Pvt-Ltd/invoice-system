@@ -37,6 +37,7 @@ exports.companyCreate =async  (req , res)=>{
         });
     }else{
     const hashPassword = await bcrypt.hash('12345', 5);
+    console.log(req.body,"D")
     req.body.password = hashPassword;
     const companyProfile = new authdb({
         userName : req.body.userName,

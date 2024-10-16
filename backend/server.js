@@ -8,7 +8,7 @@ require('dotenv').config();
 const connectDB = require('./server/database/connection');
 
 const app = express();
-
+app.use(express.json()); 
 dotenv.config({ path: 'config.env' })
 const PORT = process.env.PORT || 8080
 
