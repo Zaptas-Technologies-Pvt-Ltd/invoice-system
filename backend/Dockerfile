@@ -7,7 +7,8 @@ WORKDIR /usr/src/app/backend
 # Copy package.json and package-lock.json (if available) for backend
 COPY backend/package*.json ./
 
-# Install the backend dependencies
+# Install the backend 
+
 RUN npm install
 
 # Copy the rest of the backend application code
