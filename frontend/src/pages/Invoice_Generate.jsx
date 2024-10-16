@@ -127,7 +127,7 @@ export default function Invoice_Generate() {
           Authorization: `Bearer ${token}`,
         },
       };
-      const response = await axios.get("http://localhost:8080/v1/api/customer", config);
+      const response = await axios.get("https://invoice-system-h9ds.onrender.com/v1/api/customer", config);
       setCustomerList(response.data.data);
     } catch (error) {
       console.log(error);
@@ -159,7 +159,7 @@ export default function Invoice_Generate() {
       setCustomer(e);
       console.log(e, "eeee");
 
-      const response = await axios.get("http://localhost:8080/v1/api/poList/" + e, config);
+      const response = await axios.get("https://invoice-system-h9ds.onrender.com/v1/api/poList/" + e, config);
       console.log("API Response:", response.data); // Log the API response
 
       if (response?.data?.data && Array.isArray(response.data.data) && response.data.data.length > 0) {
@@ -192,7 +192,7 @@ export default function Invoice_Generate() {
           Authorization: `Bearer ${token}`,
         },
       };
-      const response = await axios.get("http://localhost:8080/v1/api/poDetail/" + e, config);
+      const response = await axios.get("https://invoice-system-h9ds.onrender.com/v1/api/poDetail/" + e, config);
       //console.log(response.data)
       if (response?.data?.data && Array.isArray(response.data.data) && response.data.data.length > 0) {
         setProfile({ data: [] });

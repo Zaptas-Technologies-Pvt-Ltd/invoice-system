@@ -29,7 +29,7 @@ export default function Services() {
                 },
             };
             setLoading(true)
-            const response = await axios.get("http://localhost:8080/v1/api/services",config);
+            const response = await axios.get("https://invoice-system-h9ds.onrender.com/v1/api/services",config);
             setLoading(false)
             setCountries(response.data.data);
             setFilteredCountries(response.data.data);

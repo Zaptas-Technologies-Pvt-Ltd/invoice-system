@@ -148,7 +148,7 @@ const handleSubmit = (e) =>{
               Authorization: `Bearer ${token}`,
           },
       };
-        const response = await axios.get("http://localhost:8080/v1/api/customer",config);
+        const response = await axios.get("https://invoice-system-h9ds.onrender.com/v1/api/customer",config);
         setCustomerList(response.data.data);
       }catch(error) {
           console.log(error);
@@ -168,7 +168,7 @@ const handleSubmit = (e) =>{
               Authorization: `Bearer ${token}`,
           },
       };
-        const response = await axios.get("http://localhost:8080/v1/api/services",config);
+        const response = await axios.get("https://invoice-system-h9ds.onrender.com/v1/api/services",config);
         setServiceList(response.data.data);
     }catch(error) {
         console.log(error);
@@ -188,7 +188,7 @@ const handleSubmit = (e) =>{
               Authorization: `Bearer ${token}`,
           },
       };
-        const response = await axios.get("http://localhost:8080/v1/api/tax",config);
+        const response = await axios.get("https://invoice-system-h9ds.onrender.com/v1/api/tax",config);
         settaxList(response.data.data);
     }catch(error) {
         console.log(error);

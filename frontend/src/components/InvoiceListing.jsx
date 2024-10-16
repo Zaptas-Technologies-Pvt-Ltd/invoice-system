@@ -26,7 +26,7 @@ export default function InvoiceListing() {
               },
             };
             setLoading(true)
-            const response = await axios.get("http://localhost:8080/v1/api/getInvoice",config);
+            const response = await axios.get("https://invoice-system-h9ds.onrender.com/v1/api/getInvoice",config);
             setLoading(false)
             setCountries(response.data.data);
             setFilteredCountries(response.data.data);

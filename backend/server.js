@@ -27,6 +27,9 @@ app.set("view engine", "ejs")
 app.use(bodyparser.urlencoded({ extended: true }))
 
 // load routers
+app.get("/check",(res)=>{
+  res.send("hello")
+})
 app.use('/v1', require('./server/routes/router'));
 
 // app.use(express.static(path.join(__dirname, 'public')))

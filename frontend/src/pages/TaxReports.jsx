@@ -33,7 +33,7 @@ export default function TaxReports() {
                 },
             };
             setLoading(true)
-            const response = await axios.get("http://localhost:8080/v1/api/services",config);
+            const response = await axios.get("https://invoice-system-h9ds.onrender.com/v1/api/services",config);
             setLoading(false)
             setSACCode(response.data.data);
         }catch(error) {
@@ -64,9 +64,9 @@ export default function TaxReports() {
                 Authorization: `Bearer ${token}`,
             },
         };
-        const response = await axios.get('http://localhost:8080/v1/api/exportExcelxlsxAll?fromdate='+FromDates+'&todate='+ToTODates+'&saccode='+SACCodeFilts,config);
+        const response = await axios.get('https://invoice-system-h9ds.onrender.com/v1/api/exportExcelxlsxAll?fromdate='+FromDates+'&todate='+ToTODates+'&saccode='+SACCodeFilts,config);
         if(response.status === 200){
-            window.open('http://localhost:8080/api/exportExcelxlsxAll?fromdate='+FromDates+'&todate='+ToTODates+'&saccode='+SACCodeFilts+'',"blank")
+            window.open('https://invoice-system-h9ds.onrender.com/api/exportExcelxlsxAll?fromdate='+FromDates+'&todate='+ToTODates+'&saccode='+SACCodeFilts+'',"blank")
         }else{
             console.log('error');
         }
@@ -84,10 +84,10 @@ export default function TaxReports() {
                 Authorization: `Bearer ${token}`,
             },
         };
-        const response = await axios.get('http://localhost:8080/v1/api/exportExcelxlsxTaxReport?fromdate='+FromDates+'&todate='+ToTODates+'&saccode='+SACCodeFilts,config);
+        const response = await axios.get('https://invoice-system-h9ds.onrender.com/v1/api/exportExcelxlsxTaxReport?fromdate='+FromDates+'&todate='+ToTODates+'&saccode='+SACCodeFilts,config);
         console.log(response)
         if(response.status === 200){
-            window.open('http://localhost:8080/api/exportExcelxlsxTaxReport?fromdate='+FromDates+'&todate='+ToTODates+'&saccode='+SACCodeFilts+'',"blank")
+            window.open('https://invoice-system-h9ds.onrender.com/api/exportExcelxlsxTaxReport?fromdate='+FromDates+'&todate='+ToTODates+'&saccode='+SACCodeFilts+'',"blank")
         }
         else{
             console.log('error');
@@ -106,7 +106,7 @@ export default function TaxReports() {
                 Authorization: `Bearer ${token}`,
             },
         };
-        const response = await axios.get('http://localhost:8080/v1/api/exportExcelxlsxSACCode?fromdate='+FromDates+'&todate='+ToTODates+'&saccode='+SACCodeFilts,config);
+        const response = await axios.get('https://invoice-system-h9ds.onrender.com/v1/api/exportExcelxlsxSACCode?fromdate='+FromDates+'&todate='+ToTODates+'&saccode='+SACCodeFilts,config);
        // console.log(response.data)
         if(response.status === 200){
             // const blob = new Blob([response.data], {
@@ -117,7 +117,7 @@ export default function TaxReports() {
             //     type:
             //     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             //   });
-            window.open('http://localhost:8080/api/exportExcelxlsxSACCode?fromdate='+FromDates+'&todate='+ToTODates+'&saccode='+SACCodeFilts+'',"blank")
+            window.open('https://invoice-system-h9ds.onrender.com/api/exportExcelxlsxSACCode?fromdate='+FromDates+'&todate='+ToTODates+'&saccode='+SACCodeFilts+'',"blank")
         }else{
             console.log('error');
         }

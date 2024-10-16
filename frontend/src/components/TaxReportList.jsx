@@ -35,7 +35,7 @@ export default function TaxReportList({FromDate,ToTODate,SACCodeFilt,resetForm})
                 Authorization: `Bearer ${token}`,
               },
             };
-            const response = await axios.get("http://localhost:8080/v1/api/getInvoice?fromdate="+FromDate+"&todate="+ToTODate+"&saccode="+SACCodeFilt,config);
+            const response = await axios.get("https://invoice-system-h9ds.onrender.com/v1/api/getInvoice?fromdate="+FromDate+"&todate="+ToTODate+"&saccode="+SACCodeFilt,config);
             //if(response.data.length >0){
                 setLoading(false)
                 setCountries(response.data?.data);

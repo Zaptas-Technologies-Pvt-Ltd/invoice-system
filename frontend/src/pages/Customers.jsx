@@ -26,7 +26,7 @@ export default function Customers() {
       }
   
       // Pass the token in the headers
-      const response = await axios.get('http://localhost:8080/v1/api/customer', {
+      const response = await axios.get('https://invoice-system-h9ds.onrender.com/v1/api/customer', {
         headers: {
           Authorization: `Bearer ${token}`,
         },

@@ -30,10 +30,10 @@ export default function DashboardStatsGrid() {
 		  };
 	  
 		  // Make multiple API requests with the same headers
-		  const response = await axios.get("http://localhost:8080/v1/api/customer", config);
-		  const response1 = await axios.get("http://localhost:8080/v1/api/getInvoice", config);
-		  const response2 = await axios.get("http://localhost:8080/v1/api/getInvoice", config); // This seems to be a duplicate, consider removing one if not needed
-		  const response3 = await axios.get("http://localhost:8080/v1/api/services", config);
+		  const response = await axios.get("https://invoice-system-h9ds.onrender.com/v1/api/customer", config);
+		  const response1 = await axios.get("https://invoice-system-h9ds.onrender.com/v1/api/getInvoice", config);
+		  const response2 = await axios.get("https://invoice-system-h9ds.onrender.com/v1/api/getInvoice", config); // This seems to be a duplicate, consider removing one if not needed
+		  const response3 = await axios.get("https://invoice-system-h9ds.onrender.com/v1/api/services", config);
 	  
 		  setLoading(false);
 	  

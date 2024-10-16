@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 
 export const GetLoginUserDetails = async () => {
     try{
-        const response = await axios.post("http://localhost:8080/v1/api/getprofileDetail", 
+        const response = await axios.post("https://invoice-system-h9ds.onrender.com/v1/api/getprofileDetail", 
         {}, 
         {
             headers: {

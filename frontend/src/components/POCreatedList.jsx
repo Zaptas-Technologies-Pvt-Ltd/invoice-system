@@ -21,7 +21,7 @@ export default function POCreatedList() {
 			},
 		  };
       setLoading(true)
-      const response = await axios.get("http://localhost:8080/v1/api/poLists",config);
+      const response = await axios.get("https://invoice-system-h9ds.onrender.com/v1/api/poLists",config);
       setLoading(false)
       setDataList(response.data);
       setFilteredData(response.data);
