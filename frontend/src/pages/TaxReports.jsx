@@ -108,19 +108,19 @@ export default function TaxReports() {
                 Authorization: `Bearer ${token}`,
             },
         };
-        const response = await axios.get('https://invoice-system-h9ds.onrender.com/v1/api/exportExcelxlsxSACCode?fromdate='+FromDates+'&todate='+ToTODates+'&saccode='+SACCodeFilts,config);
+        const response = await axios.get('https://invoice-system-h9ds.onrender.com/v1/api/exportExcelxlsxSACCode?fromdate='+FromDates+'&todate='+ToTODates+'&saccode='+SACCodeFilts,config,{
+            responseType: 'blob' 
+        });
        // console.log(response.data)
-        if(response.status === 200){
-            // const blob = new Blob([response.data], {
-            //     type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            //   });
-            //   saveAs(blob, "file.xlsx");
-            // const blob = new Blob([response.data], {
-            //     type:
-            //     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            //   });
-            window.open('https://invoice-system-h9ds.onrender.com/api/exportExcelxlsxSACCode?fromdate='+FromDates+'&todate='+ToTODates+'&saccode='+SACCodeFilts+'',"blank")
-        }else{
+       if (response.status === 200) {
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `invoiceSACCode_${FromDates}_to_${ToTODates}.xlsx`); // Set the file name
+        document.body.appendChild(link);
+        link.click();  // Trigger the download
+        link.remove(); // Clean up
+    }else{
             console.log('error');
         }
       }
