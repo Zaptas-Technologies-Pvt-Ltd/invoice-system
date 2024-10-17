@@ -81,12 +81,14 @@ export default function InvoiceListing() {
             name: "Action",
             cell: (row) => (
                 <div>
-                    <a
-                        href={'/InvoiceView/' + row._id}
+                    <button
+                        onClick={() => {
+                            navigate('/InvoiceView/' + row._id);
+                        }}
                         className="rounded-lg ml-2 px-2 py-1 bg-blue-600 text-blue-100 hover:bg-black-700 duration-300"
                     >
                         View
-                    </a>
+                    </button>
                     <button
                         className="rounded-lg ml-2 px-2 py-1 bg-red-600 text-red-100 hover:bg-red-700 duration-300"
                         onClick={() => {
@@ -97,6 +99,7 @@ export default function InvoiceListing() {
                     </button>
                 </div>
             ),
+            
         },
     ];
     

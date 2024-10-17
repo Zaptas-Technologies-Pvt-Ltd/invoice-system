@@ -32,13 +32,13 @@ app.get("/check",(res)=>{
 })
 app.use('/v1', require('./server/routes/router'));
 
-// app.use(express.static(path.join(__dirname, 'public')))
+app.use(express.static(path.join(__dirname, 'public')))
 
-// app.get('*', (req, res) => {
-//   res.sendFile(path.join(__dirname, 'public', 'index.html'))
-// })
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'))
+})
 
-// app.use("/files", express.static("./public/files"));
+app.use("/files", express.static("./public/files"));
 
 app.listen(PORT, async () => {
 
