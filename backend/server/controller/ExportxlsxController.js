@@ -39,7 +39,7 @@ exports.xlsxDataAll = async (req, res)=>{
         await invoicedb.find(query)
         .sort(mysort)
         .populate({ path: 'customer', select: ['name','address','gstno'] })
-        .populate({ path: 'taxe', select: 'tax' })
+        .populate({ path: 'tax', select: 'tax' })
         .populate({ path: 'service', select: ['sr_name','price','qty' ,'sac_code'] })
         .then(function(result){
         if (result.length > 0) {
@@ -261,7 +261,7 @@ exports.xlsxDataSACCode = async (req, res)=>{
         await invoicedb.find(query)
         .sort(mysort)
         //.populate({ path: 'customer', select: ['name','address','gstno'] })
-        .populate({ path: 'taxe', select: 'tax' })
+        .populate({ path: 'tax', select: 'tax' })
         //.populate({ path: 'service', select: ['sr_name','price','qty' ,'sac_code'] })
         .then(function(result){
         if (result.length > 0) {
@@ -466,7 +466,7 @@ exports.xlsxDataTaxReport = async (req, res)=>{
         await invoicedb.find(query)
         .sort(mysort)
         .populate({ path: 'customer', select: ['name','address','gstno'] })
-        .populate({ path: 'taxe', select: 'tax' })
+        .populate({ path: 'tax', select: 'tax' })
         .populate({ path: 'service', select: ['sr_name','price','qty' ,'sac_code'] })
         .then(function(result){
         if (result.length > 0) {

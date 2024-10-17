@@ -11,6 +11,6 @@ var schema = new mongoose.Schema({
     }
 })
 
-const taxdb = mongoose.model('taxe', schema);
+const taxdb = mongoose.model('tax', schema);
 
 module.exports = taxdb;
