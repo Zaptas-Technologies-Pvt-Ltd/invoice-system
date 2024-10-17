@@ -3,9 +3,11 @@ import Services from '../service/Services'
 import { useAlert } from "react-alert";
 import Spinner from '../components/Spinner';
 import image from '../photos/backg.jpg';
+import { useNavigate } from 'react-router-dom';
 
 export default function LoginForm() {
     const alert = useAlert();
+    const navigate = useNavigate();
     const [loading, setLoading] = useState(false)
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
@@ -41,7 +43,7 @@ export default function LoginForm() {
                     localStorage.setItem("token", result.data);
                     alert.success(result.message);
                     setLoading(false)
-                    window.location = "/";
+                navigate("/");
                 } else {
                     alert.error(result.message);
                     setLoading(false)

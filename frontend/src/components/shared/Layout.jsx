@@ -1,12 +1,13 @@
 import React from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import Headers from './Headers';
 import Sidebar from './Sidebar';
 
 export default function Layout({children}) {
+  const navigate = useNavigate();
  // render() {
     if (localStorage.getItem('token') == '' || localStorage.getItem('token') == null) {
-       window.location='/login'
+     navigate('/login')
     }
   return (
     <div className='bg-neutral-100 h-screen w-screen overflow-hidden flex flex-row'>

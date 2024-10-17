@@ -5,10 +5,10 @@ import classNames from 'classnames'
 import { useNavigate, useParams } from 'react-router-dom'
 
 export default function Headers() {
-   const navigation = useNavigate()
+  const navigate = useNavigate();
    const logout = () => {
     localStorage.removeItem('token');
-    window.location = 'login';
+    navigate('login');
   };
 
   return (
@@ -98,7 +98,7 @@ export default function Headers() {
                 {({ active }) => 
                 <div className={classNames(active && 'bg-gray-100',
                 'text-gray-700 focus:bg-gray-200 cursor-pointer rounded-sm px-4 py-2')}
-                 onClick={() => navigation('/profile') }>Your Profile
+                 onClick={() => navigate('/profile') }>Your Profile
                  </div> }
               </Menu.Item>
               {/* <Menu.Item>

@@ -4,12 +4,14 @@ import TaxReportList from '../components/TaxReportList'
 import moment from 'moment';
 import { format } from 'date-fns';
 import { useAlert } from "react-alert";
+import { useNavigate } from 'react-router-dom';
 
 const date = new Date();
 let prevStartDate = format(new Date(date.getFullYear(),date.getMonth() - 1, 1),'yyyy-MM-dd');
 let preEndDate = format(new Date(date.getFullYear(),date.getMonth() - 1 + 1, 0),'yyyy-MM-dd');
 
 export default function TaxReports() {
+    const navigate = useNavigate();
     const alert = useAlert();
     const [loading, setLoading] = useState(false)
     const [SACCode, setSACCode] = useState([])
@@ -44,7 +46,7 @@ export default function TaxReports() {
     const handleSubmit = (e) =>{
         e.preventDefault();
         e.target.reset();
-        window.location = "/reports";
+       navigate("/reports");
         setFromDate('');
         setToTODate('');
         setSACCodeFilt('');

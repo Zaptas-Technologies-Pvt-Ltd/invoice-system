@@ -4,8 +4,10 @@ import DataTable from 'react-data-table-component'
 import Moment from 'moment'
 import Services from '../service/Services'
 import Spinner from '../components/Spinner'
+import { useNavigate } from 'react-router-dom'
 
 export default function InvoiceListing() {
+    const navigate = useNavigate();
     const [loading, setLoading] = useState(false)
     const [search, setSearch] = useState('')
     const [countries, setCountries] = useState([])
@@ -41,7 +43,7 @@ export default function InvoiceListing() {
                     Services.Common.invoice_update(id).then(function(result) {
                         //alert('Invoice cancel successfully');
                     setLoading(false)
-                        window.location = "/invoices";
+                      navigate("/invoices");
                     });
                 }
                 

@@ -1,7 +1,9 @@
 import React, {useState} from 'react'
 import Spinner from './Spinner'
+import { useNavigate } from 'react-router-dom';
 
 export default function ReportDownload({setShowDownloadForm}) {
+  const navigate = useNavigate();
     const [loading, setLoading] = useState(false)
     const [fromDate, setFromDate] = useState("")
     const [SACCode, setSACCode] = useState("")
@@ -37,7 +39,7 @@ export default function ReportDownload({setShowDownloadForm}) {
                 toDate:toDate,
                 SACCode:SACCode,
             };
-            window.location = "api/invoice/download?fromdate="+fromDate+"&todate="+toDate;
+          navigate("api/invoice/download?fromdate="+fromDate+"&todate="+toDate);
             // Services.Common.service_create(data).then(function(result) {
             //     window.location = "/services";
             // });

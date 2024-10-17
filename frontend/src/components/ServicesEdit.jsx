@@ -4,6 +4,7 @@ import Spinner from './Spinner'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useAlert } from "react-alert";
+import { useNavigate } from 'react-router-dom';
 
 export default function ServicesEdit({
   setSelectShowServicesForm,
@@ -12,6 +13,7 @@ export default function ServicesEdit({
   setService,
   selectedService
 }) {
+  const navigate = useNavigate();
     const alert = useAlert();
     const [loading, setLoading] = useState(false)
     const [ID, setID] = useState(selectedService._id)
@@ -67,7 +69,7 @@ export default function ServicesEdit({
               if(result.success == true){
                 setLoading(false)
                 alert.success(result.message);
-                window.location="/services";
+             navigate("/services");
               }
            });
         }

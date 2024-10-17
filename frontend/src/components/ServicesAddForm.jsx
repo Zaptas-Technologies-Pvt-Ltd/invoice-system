@@ -4,10 +4,12 @@ import Spinner from './Spinner'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useAlert } from "react-alert";
+import { useNavigate } from 'react-router-dom';
 
 export default function ServicesAddForm({
   setShowServicesForm
 }) {
+  const navigate = useNavigate();
     const alert = useAlert();
     const [loading, setLoading] = useState(false)
     const [serviceName, setServiceName] = useState("")
@@ -55,7 +57,7 @@ export default function ServicesAddForm({
               if(result.success == true){
               alert.success(result.message);
               setLoading(false)
-                window.location="/services";
+                navigate("/services");
               }
             });
         }

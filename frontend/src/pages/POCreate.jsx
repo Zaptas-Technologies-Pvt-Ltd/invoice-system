@@ -8,9 +8,10 @@ import { HiMinusCircle, HiPlusCircle } from 'react-icons/hi';
 import Services from '../service/Services';
 import { useAlert } from "react-alert";
 import POCreatedList from '../components/POCreatedList';
+import { useNavigate } from 'react-router-dom';
 
 export default function POCreate() {
-
+  const navigate = useNavigate();
   const alert = useAlert();
   const [loading, setLoading] = useState(false)
   const [customer, setCustomer] =useState("")
@@ -126,7 +127,7 @@ const handleSubmit = (e) =>{
         if(result.success == true){
           setLoading(false)
           alert.success(result.message);
-          window.location="/pocreates";
+         navigate("/pocreates");
         }
    });
   }
