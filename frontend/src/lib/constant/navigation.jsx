@@ -1,11 +1,8 @@
-import {HiDocumentDuplicate, HiOutlineCalculator, HiOutlineCog, 
-    HiOutlineDocumentReport, 
-    HiOutlineFilm, 
+import {HiOutlineCalculator, HiOutlineCog, 
     HiOutlineHome, 
     HiOutlineQuestionMarkCircle,
     HiOutlineReceiptTax,
     HiOutlineServer,
-    HiOutlineUserGroup,
     HiOutlineViewList,
     HiPlusCircle,
     HiUserGroup
@@ -46,8 +43,14 @@ export const Dashboard_Sidebar_Link = [
     },
     {
         key: 'generates',
-        label: 'Invoice Create',
+        label: 'Invoice PO Create',
         path: '/generates',
+        icon: <HiOutlineCalculator />
+    },
+    {
+        key: 'withoutpogenerates',
+        label: 'Invoice Create',
+        path: '/withoutpogenerates',
         icon: <HiOutlineCalculator />
     },
     {

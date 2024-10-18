@@ -47,7 +47,7 @@ export default function InvoiceTableHeader() {
   return (
     <View style={styles.container}>
         <Text style={styles.saccode}>SAC CODE</Text>
-        <Text style={styles.description}>SERVICES</Text>
+        <Text style={styles.description}>Services</Text>
         <Text style={styles.rate}>Rate</Text>
         <Text style={styles.qty}>QTY</Text>
         <Text style={styles.amount}>Amount (INR)</Text>

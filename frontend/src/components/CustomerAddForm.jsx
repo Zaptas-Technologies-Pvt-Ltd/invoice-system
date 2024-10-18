@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import Services from '../service/Services'
 import Spinner from './Spinner'
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useAlert } from "react-alert";
 import { useNavigate } from 'react-router-dom';
@@ -9,12 +9,13 @@ import { useNavigate } from 'react-router-dom';
 export default function CustomerAddForm({
   setShowCustomerForm,
 }){
-  const navigate = useNavigate();
+  const navigation = useNavigate()
   const alert = useAlert();
   const [loading, setLoading] = useState(false)
   const [customername, setCustomerName] = useState("")
   const [gstno, setGSTNo] = useState("")
   const [address, setAddress] = useState("")
+  const [open , setGSTYes] =useState(true)
 
   const [customernameerror, setCustomerNameerror ] = useState("")
   const [gstnoerror, setGSTNoerror ] = useState("")
@@ -25,7 +26,7 @@ export default function CustomerAddForm({
       if(customername ===''){
           errors.customername = 'Enter the customer name'
       }
-      if(GSTValidation(gstno) == false){
+      if(open == true && GSTValidation(gstno) === false){
           errors.gstno = 'Enter the GST OR correct GST Number'
       }if(address ===''){
           errors.address = 'Enter the Address'
@@ -43,15 +44,16 @@ export default function CustomerAddForm({
       }else{
         const data = {
           cname:customername,
-          cgst:gstno,
+          cgst:(gstno)?gstno:'',
           caddress:address
         };
           setLoading(true)
           Services.Common.customercreate(data).then(function(result) {
-            if(result.success == true){
+            if(result.success === true){
             alert.success(result.message);
             setLoading(false)
-             navigate("/customers");
+            navigation('/');
+            // window.location="/customers";
             }
           });
       }
@@ -78,14 +80,21 @@ export default function CustomerAddForm({
                   placeholder="Enter Customer Name"
                   className="shadow appearance-none border rounded w-full py-2 px-1 text-black" />
                   <div className='text-red-500 text-sm'>{customernameerror}</div>
+                    <label className='block text-black text-sm font-bold mb-1 pt-3'>
+                      GST Yes/No<span className="text-red-500">&nbsp;*</span>
+                    </label>
+                    <div className='text-white-500 text-sm'>
+                      <input type='radio' name="gst" onChange={(e)=>{setGSTYes(true) }} defaultChecked /> Yes 
+                      <input type='radio' name="gst" onChange={(e)=>{setGSTYes(false) }} style={{marginLeft: '17px'}}/> NO
+                    </div>
                   <label className="block text-black text-sm font-bold mb-1 pt-3">
                     GST No<span className="text-red-500">&nbsp;*</span>
                   </label>
                   <input type="text" name="" 
                   onChange={(e)=>{setGSTNo(e.target.value)}}
+                  disabled={open ? false : true }
                   placeholder="Enter Customer GST No"
                   className="shadow appearance-none border rounded w-full py-2 px-1 text-black"
-                    
                   />
                   <div className='text-red-500 text-sm'>{gstnoerror}</div>
                   <label className="block text-black text-sm font-bold mb-1 pt-3">

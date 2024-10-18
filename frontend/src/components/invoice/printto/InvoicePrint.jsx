@@ -1,16 +1,16 @@
 import React, { useEffect, useState, Fragment } from 'react'
 import {useParams} from 'react-router-dom';
-import { Page, Document, Image, StyleSheet, View } from '@react-pdf/renderer';
+import { Page, Document, Image, StyleSheet, View, Text } from '@react-pdf/renderer';
 import {PDFViewer} from '@react-pdf/renderer'
-import Services from '../../service/Services';
-import Header from "../../photos/header.jpg";
-import Footer from "../../photos/footer.jpeg";
-import InvoiceNo from './InvoiceNo';
-import InvoiceThankYouMsg from './InvoiceThankYouMsg';
-import BillTo from './BillTo';
-import InvoiceItemsTable from './InvoiceItemsTable';
-import Spinner from '../Spinner';
-import BankDetails from './BankDetails';
+import Services from '../../../service/Services';
+// import Header from "../../photos/header.jpg";
+// import Footer from "../../photos/footer.jpeg";
+import InvoiceNo from '../InvoiceNo';
+import InvoiceThankYouMsg from '../InvoiceThankYouMsg';
+import BillTo from '../BillTo';
+import InvoiceItemsTable from '../InvoiceItemsTable';
+import Spinner from '../../Spinner';
+import BankDetails from '../BankDetails';
 
 const styles = StyleSheet.create({
     page: {
@@ -33,9 +33,18 @@ const styles = StyleSheet.create({
         left:50,
         bottom:0,
         right:50,
-    }
+    },
+    marginTop:{
+        marginTop: 77,
+    },
+    reportTitle:{
+      fontSize: 12,
+      textAlign: 'right',
+      justifyContent: 'flex-end',
+      // textTransform: 'uppercase',
+  },
   });
-function Invoice() {
+function InvoicePrint() {
     const [loading, setLoading] = useState(false)
     const [invoiceData, setIvoicedata] = useState('')
     const {id} = useParams();
@@ -114,15 +123,16 @@ function Invoice() {
       <PDFViewer width="1060" height="550" className="app" showToolbar={true}>
         <Document>
             <Page size="A4" style={styles.page}>
-              <Image style={styles.logo} src={Header} fixed/>
-              
+              {/* <Image style={styles.logo} src={Header} fixed/> */}
+            <View style={styles.marginTop}></View>
             <InvoiceNo invoice={invoice}/>
             <BillTo invoice={invoice}/>
             <InvoiceItemsTable invoice={invoice} />
             <BankDetails />
-            <InvoiceThankYouMsg />
+            <Text style={styles.reportTitle}>Authorized Signatory</Text>
+            {/* <InvoiceThankYouMsg /> */}
             </Page>
-            <View><Image style={styles.fotter} src={Footer} fixed/></View>
+            {/* <View><Image style={styles.fotter} src={Footer} fixed/></View> */}
         </Document>
       </PDFViewer>
     </Fragment>
@@ -130,5 +140,5 @@ function Invoice() {
 
 }
 
-export default Invoice
+export default InvoicePrint
 

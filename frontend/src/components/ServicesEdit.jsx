@@ -1,22 +1,22 @@
 import React, {useEffect, useState} from 'react'
 import Services from '../service/Services'
 import Spinner from './Spinner'
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useAlert } from "react-alert";
 import { useNavigate } from 'react-router-dom';
 
 export default function ServicesEdit({
   setSelectShowServicesForm,
-  type="add",
-  getServices,
-  setService,
+  // type="add",
+  // getServices,
+  // setService,
   selectedService
 }) {
-  const navigate = useNavigate();
+  const navigation = useNavigate()
     const alert = useAlert();
     const [loading, setLoading] = useState(false)
-    const [ID, setID] = useState(selectedService._id)
+    //const [ID, setID] = useState(selectedService._id)
     const [serviceName, setServiceName] = useState("")
     const [SACCode, setSACCode] = useState("")
    // const [price, setPrice] = useState("")
@@ -65,11 +65,12 @@ export default function ServicesEdit({
                 sqty:0,
             };
             setLoading(true)
-            Services.Common.service_update(ID, data).then(function(result) {
-              if(result.success == true){
+            Services.Common.service_update(selectedService._id, data).then(function(result) {
+              if(result.success === true){
                 setLoading(false)
                 alert.success(result.message);
-             navigate("/services");
+                navigation('/')
+                //window.location="/services";
               }
            });
         }

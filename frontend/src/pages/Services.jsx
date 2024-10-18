@@ -16,23 +16,17 @@ export default function Services() {
   
     const getServices = async () => {
         try{
-            const token = localStorage.getItem('token'); // Ensure 'token' is the correct key
-    
-            if (!token) {
-                throw new Error('No token found');
-            }
-      
-            // Set the headers with the token
-            const config = {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            };
             setLoading(true)
-            const response = await axios.get("https://invoice-system-h9ds.onrender.com/v1/api/services",config);
-            setLoading(false)
-            setCountries(response.data.data);
-            setFilteredCountries(response.data.data);
+            const response = await axios.get("https://invoice-system-h9ds.onrender.com/api/services",{ headers: {"authorization" : `Bearer ${localStorage.getItem('token')}`} });
+            if(response.data.success ===true){
+                setLoading(false)
+                setCountries(response.data.data);
+                setFilteredCountries(response.data.data);
+              }else{
+                setLoading(false);
+                setCountries([]);
+                setFilteredCountries([]);
+              }
         }catch(error) {
             setLoading(false)
             console.log(error);
@@ -59,7 +53,7 @@ export default function Services() {
         // },
         {
             name: "Action",
-            cell:(row,record) => <button className='rounded px-2 py-1 text-xs border-2 border-gray-500 text-gray-500 hover:bg-gray-500 hover:text-gray-100 duration-300'
+            cell:(row) => <button className='rounded px-2 py-1 text-xs border-2 border-gray-500 text-gray-500 hover:bg-gray-500 hover:text-gray-100 duration-300'
              onClick={() => {
                 setService(row)
                 setSelectShowServicesForm(true)
@@ -96,7 +90,7 @@ export default function Services() {
             >Add Services</button>}
         subHeader
         subHeaderComponent={
-            <input type="text" placeholder="Search here..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-25 form-control" />
+            <input type="text" placeholder="Search Name here..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-25 form-control" />
         }
         subHeaderAlign='left'
         />

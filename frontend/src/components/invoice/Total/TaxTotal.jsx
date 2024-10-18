@@ -25,13 +25,14 @@ const styles = StyleSheet.create({
         paddingRight: 8,
     },
   });
-export default function TaxTotal({items,tax,dd,profile}) {
+export default function TaxTotal({tax,profile}) {
     const amounts = profile?.map((transaction) => transaction.rate);
     const total= amounts?.reduce((acc, item) => (Number(acc) + Number(item)), 0).toFixed(2);
-    if(tax == 1){
-        var amount =((total*18)/100)
-    }else if(tax == 2){
-        var amount =((total*18)/100)
+    var amount ='';
+    if(tax === 1){
+        amount =((total*18)/100)
+    }else if(tax === 2){
+        amount =((total*18)/100)
     }
 
 return(    

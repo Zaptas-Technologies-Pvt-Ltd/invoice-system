@@ -4,34 +4,29 @@ import DataTable from 'react-data-table-component'
 import Moment from 'moment'
 import Services from '../service/Services'
 import Spinner from '../components/Spinner'
-import { useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom';
 
 export default function InvoiceListing() {
-    const navigate = useNavigate();
+    const navigation = useNavigate()
     const [loading, setLoading] = useState(false)
     const [search, setSearch] = useState('')
-    const [countries, setCountries] = useState([])
+    const [invoiceList, setInvoiceList] = useState([])
     const [filteredcountries, setFilteredCountries] = useState([])
   
-    const getCountries = async () => {
+    const getInvoiceList = async () => {
         try{
-            const token = localStorage.getItem('token'); // Ensure 'token' is the correct key
-	  
-            if (!token) {
-              throw new Error('No token found');
-            }
-        
-            // Set the headers with the token
-            const config = {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            };
             setLoading(true)
-            const response = await axios.get("https://invoice-system-h9ds.onrender.com/v1/api/getInvoice",config);
-            setLoading(false)
-            setCountries(response.data.data);
-            setFilteredCountries(response.data.data);
+            const response = await axios.get("https://invoice-system-h9ds.onrender.com/api/getInvoice",{ headers: {"authorization" : `Bearer ${localStorage.getItem('token')}`} });
+            if(response.data.success === true) {
+                setLoading(false)
+                setInvoiceList(response.data.data);
+                setFilteredCountries(response.data.data);
+            }else{
+                setLoading(false)
+                setInvoiceList([]);
+                setFilteredCountries([]);
+            }
         }catch(error) {
             console.log(error);
         }
@@ -43,7 +38,8 @@ export default function InvoiceListing() {
                     Services.Common.invoice_update(id).then(function(result) {
                         //alert('Invoice cancel successfully');
                     setLoading(false)
-                      navigate("/invoices");
+                    navigation('/')
+                        //window.location = "/invoices";
                     });
                 }
                 
@@ -54,60 +50,67 @@ export default function InvoiceListing() {
     }
     const columns = [
         {
-            name: 'Invoice',
+            name: 'Invoice No.',
+            sortable: true,
+            grow: 0.4,
+            style: {
+                //background: "#c5b9b9",
+                fontWeight: 'bold',
+                width:5,
+              },
             selector: (row) => row.invoice,
+        },
+        {
+            name: 'Invoice Date',
+            grow: 0.5,
+            selector: (row) => Moment(row.createdAt).format("DD-MM-YYYY"),
         },
         {
             name: 'Customer',
             selector: (row) => row.customer.name,
         },
-        {
-            name: 'P.O. Date',
-            selector: (row) => {
-                const podate = row.podate;
-                // Check for null or NaN
-                return podate === null || podate === 'NaN-NaN-NaN' ? '-' : podate;
-            },
-        },
-        {
-            name: 'Issue Date',
-            selector: (row) => Moment(row.createdAt).format("DD-MM-YYYY"),
-        },
+        // {
+        //     name: 'P.O. Date',
+        //     grow: 0.5,
+        //     selector: (row) => row.podate,
+        // },
         {
             name: 'Status',
-            selector: (row) => (row.status ? 'Active' : 'InActive'),
+            grow: 0.5,
+            cell:(row) =>
+            <>
+              {(row.status === true)?
+              <button className="rounded-lg px-2 py-0 text-green-600 ring-2 ring-green-600 text-green-600 duration-300" 
+              onClick={() => {  }}> Active</button>
+              :
+              <button className="rounded-lg px-2 py-0 text-red-600 ring-2 ring-red-700 duration-300" 
+              onClick={() => {  }}> InActive</button>
+              }
+            </>
         },
         {
             name: "Action",
-            cell: (row) => (
-                <div>
-                    <button
-                        onClick={() => {
-                            navigate('/InvoiceView/' + row._id);
-                        }}
-                        className="rounded-lg ml-2 px-2 py-1 bg-blue-600 text-blue-100 hover:bg-black-700 duration-300"
-                    >
-                        View
-                    </button>
-                    <button
-                        className="rounded-lg ml-2 px-2 py-1 bg-red-600 text-red-100 hover:bg-red-700 duration-300"
-                        onClick={() => {
-                            cancelInvoice(row._id);
-                        }}
-                    >
-                        Cancel
-                    </button>
-                </div>
-            ),
-            
+            cell:(row) => <div>
+                {/* <PDFDownloadLink document={<InvoicePDF />}  filename="FORM" onClick={() => {InvoicePDF(row._id)}}> */}
+                {/* <PDFDownloadLink document={<InvoicePDF />}  filename="FORM" onClick={() => {Invoice(row._id)}}>
+                {({loading}) => (loading ? <button>Loading Document...</button> : <button className='rounded-lg px-2 py-1 bg-green-300 hover:bg-green-400 duration-300'>Download</button> )}
+                </PDFDownloadLink> */}
+                <Link to={'/InvoiceView/'+row._id} className="rounded-lg px-2 py-1 bg-blue-600 text-blue-100 hover:bg-black-700 duration-300">View</Link>
+                <Link to={'/InvoicePrint/'+row._id} className="rounded-lg ml-2 px-2 py-1 bg-rose-500 text-blue-100 hover:bg-black-700 duration-300">Print</Link>
+                {/* <button className="rounded-lg ml-2 px-2 py-1 bg-red-600 text-red-100 hover:bg-red-700 duration-300"
+                 onClick={(e) => Invoice(row._id)} value={row._id}>  TTTTTT</button> */}
+                  <button className="rounded-lg ml-2 px-2 py-1 bg-red-600 text-red-100 hover:bg-red-700 duration-300" onClick={() => {
+                    cancelInvoice(row._id)
+                  }}>  Cancel</button>
+            </div>
+                                
         },
     ];
-    
     useEffect(() => {
-        getCountries()
+        getInvoiceList()
     }, []);
     useEffect(() => {
-        const result = countries.filter((country) => {
+        const result = invoiceList.filter((country) => {
             return country.customer.name.toLowerCase().match(search.toLowerCase());
         });
         setFilteredCountries(result)
@@ -128,7 +131,7 @@ export default function InvoiceListing() {
         highlightOnHover
         subHeader
         subHeaderComponent={
-            <input type="text" placeholder="Search here..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-25 form-control" style={{marginLeft: -8}} />
+            <input type="text" placeholder="Search Customer Name..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-25 form-control" style={{marginLeft: -8}} />
         }
         subHeaderAlign='left'
         />

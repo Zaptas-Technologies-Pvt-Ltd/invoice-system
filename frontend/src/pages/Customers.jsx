@@ -14,33 +14,24 @@ export default function Customers() {
   const [countries, setCountries] = useState([])
   const [filteredcountries, setFilteredCountries] = useState([])
 
-  const getCountries = async () => {
-    try {
-      setLoading(true);
-  
-      // Retrieve the token from localStorage
-      const token = localStorage.getItem('token'); // Make sure 'token' is the key you used to store it
-  
-      if (!token) {
-        throw new Error('No token found');
-      }
-  
-      // Pass the token in the headers
-      const response = await axios.get('https://invoice-system-h9ds.onrender.com/v1/api/customer', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-  
-      setLoading(false);
-      setCountries(response.data.data);
-      setFilteredCountries(response.data.data);
-    } catch (error) {
-      setLoading(false);
-      console.log(error);
-    }
+  const getCustomerList = async () => {
+        try{
+            setLoading(true);
+            const response = await axios.get('https://invoice-system-h9ds.onrender.com/api/customer',{ headers: {"authorization" : `Bearer ${localStorage.getItem('token')}`} });
+            if(response.data.success ===true){
+            setLoading(false);
+            setCountries(response.data.data);
+            setFilteredCountries(response.data.data);
+            }else{
+            setLoading(false);
+            setCountries([]);
+            setFilteredCountries([]);
+            }
+        }catch(error) {
+            setLoading(false)
+            console.log(error);
+        }
   };
-  
   
   const columns = [
       {
@@ -69,7 +60,7 @@ export default function Customers() {
       },
   ];
   useEffect(() => {
-      getCountries()
+      getCustomerList()
       
   }, []);
   useEffect(() => {
@@ -99,7 +90,7 @@ return (
             >Add Customer</button>}
         subHeader
         subHeaderComponent={
-            <input type="text" placeholder="Search here..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-25 form-control" />
+            <input type="text" placeholder="Search Name here..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-25 form-control" />
         }
         subHeaderAlign='left'
         />
@@ -114,7 +105,7 @@ return (
            // type={selectedService ? "edit" : "add"} 
             selectedCustomer ={selectedCustomer}    ///this is prop
             setSelectedCustomer={setSelectedCustomer}
-            getCountries={getCountries}
+            getCountries={getCustomerList}
             />
         }
     </div>

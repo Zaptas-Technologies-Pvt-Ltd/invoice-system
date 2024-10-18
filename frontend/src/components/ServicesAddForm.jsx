@@ -1,15 +1,16 @@
 import React, { useState } from 'react'
 import Services from '../service/Services'
 import Spinner from './Spinner'
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useAlert } from "react-alert";
 import { useNavigate } from 'react-router-dom';
 
+
 export default function ServicesAddForm({
   setShowServicesForm
 }) {
-  const navigate = useNavigate();
+    const navigation = useNavigate()
     const alert = useAlert();
     const [loading, setLoading] = useState(false)
     const [serviceName, setServiceName] = useState("")
@@ -54,10 +55,11 @@ export default function ServicesAddForm({
             };
             setLoading(true)
             Services.Common.service_create(data).then(function(result) {
-              if(result.success == true){
-              alert.success(result.message);
-              setLoading(false)
-                navigate("/services");
+              if(result.success === true){
+                alert.success(result.message);
+                setLoading(false)
+                navigation('/');
+                //window.location="/services";
               }
             });
         }

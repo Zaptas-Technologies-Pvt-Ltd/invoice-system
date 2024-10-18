@@ -3,21 +3,24 @@ import React, { useEffect, useState } from 'react'
 import Spinner from '../components/Spinner'
 import 'react-toastify/dist/ReactToastify.css';
 import moment from 'moment';
+import { format } from 'date-fns';
 import 'react-datetime/css/react-datetime.css';
 import { HiMinusCircle, HiPlusCircle } from 'react-icons/hi';
 import Services from '../service/Services';
 import { useAlert } from "react-alert";
-import POCreatedList from '../components/POCreatedList';
 import { useNavigate } from 'react-router-dom';
 
-export default function POCreate() {
+let curentDate = format(new Date(),'yyyy-MM-dd');
+
+export default function InvoiceGenerateWithoutpo() {
   const navigation = useNavigate()
   const alert = useAlert();
   const [loading, setLoading] = useState(false)
   const [customer, setCustomer] =useState("")
-  const [purchaseorder, setPurchaseOrder] =useState("")
-  const [podate, setPodate] =useState("")
+  const [purchaseorder, setPurchaseOrder] =useState("null")
+  const [podate, setPodate] =useState("null")
   const [taxdata, setTax] =useState("")
+  const [ invoiceDate, setInvoiceDate] =useState(curentDate)
   // const [serviceType, setService] =useState({
   //   languages: [],
   //   response: [],
@@ -71,7 +74,8 @@ const validation =()=> {
       errors.customer = 'This field cannot be left blank'
   }if(purchaseorder ===''){
       errors.purchaseorder = 'This field cannot be left blank'
-  }if(podate ===''){
+  }
+  if(podate ===''){
       errors.podate = 'This field cannot be left blank'
   }
   if(taxdata ===''){
@@ -101,14 +105,12 @@ const handleSubmit = (e) =>{
    // var fNameData = '';
    
    // this functionality use for radio in service
+    var profilesDetails = formValues; 
     var fNameData =serviceRadioType.split(',')[1];
     var SACCodeData = serviceRadioType.split(',')[2];
     var fIDData = serviceRadioType.split(',')[0];
-    var polistData = formValues;
       setLoading(true)
-      Services.poCreate.create(customer,fIDData,fNameData,SACCodeData,
-        polistData,taxdata,purchaseorder,podate
-        ).then(function(result) {
+      Services.Invoice.create(customer , fIDData,fNameData, SACCodeData, profilesDetails, taxdata , purchaseorder , podate,invoiceDate, 'Cheque').then(function(result) {
         if(result.success === true){
           setLoading(false)
           alert.success(result.message);
@@ -141,6 +143,7 @@ const handleSubmit = (e) =>{
         }else{
           setServiceList([]);
         }
+        
     }catch(error) {
         console.log(error);
     }
@@ -181,19 +184,21 @@ const handleSubmit = (e) =>{
               </select>
               <div className='text-red-500 text-sm'>{customererror}</div>
           </div>
-          <div>
+          {/* <div>
             <label for="first_name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">PO Number</label>
             <input type="text" onChange={(e)=>{setPurchaseOrder(e.target.value)}} id="first_name" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-[24rem] p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Purchase Order" />
             <div className='text-red-500 text-sm'>{purchaseordererror}</div>
-          </div>
+          </div> */}
           <div>
-            <label for="last_name" className="ml-24 block mb-2 text-sm font-medium text-gray-900 dark:text-white">PO Date</label>
+            <label for="last_name" className="ml-15 block mb-2 text-sm font-medium text-gray-900 dark:text-white">Invoice Date</label>
             <input type="date" 
-             max={moment().format("YYYY-MM-DD")}
-            onChange={(e)=>{setPodate(e.target.value)}} 
-            id="last_name" className="ml-24 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-[14rem] p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
-            <div className='text-red-500 text-sm ml-24'>{podateerror}</div>
+            // max={moment().format("YYYY-MM-DD")}
+             value={invoiceDate}
+            onChange={(e)=>{setInvoiceDate(e.target.value)}} 
+            id="last_name" className="ml-15 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-[12rem] p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+            <div className='text-red-500 text-sm ml-15'>{podateerror}</div>
           </div>
+          <br />
           <div>
             <label for="last_name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select Tax</label>
             {taxlist.map(taxes => (
@@ -231,8 +236,11 @@ const handleSubmit = (e) =>{
             <div className='w-[21rem]'>
               <label for="last_name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Profile Name</label>
             </div>
-            <div className=''>
+            <div className='w-[15.2rem]'>
               <label for="first_name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Rate</label>
+            </div>
+            <div className=''>
+              <label for="first_name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Remark</label>
             </div>
           </div>
           {formValues.map((element, index) => (
@@ -256,6 +264,15 @@ const handleSubmit = (e) =>{
                   <div className='text-red-500 text-sm'>{purchaseordererror}</div>
                 </div>
                 <div>
+                  <input 
+                  type="text" 
+                  name='remark'
+                  value={element.remark || ""} 
+                  onChange={e => handleChange(index, e)}
+                  className="ml-2 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-[15rem] p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Enter the remark..." />
+                  <div className='text-red-500 text-sm'>{purchaseordererror}</div>
+                </div>
+                <div>
                   <div className='mt-2'>
                     {
                       formValues.length!==1 &&
@@ -270,11 +287,10 @@ const handleSubmit = (e) =>{
           ))}
         </div>
         <div className="button-section">
-          <button type="submit" className="flex flex-nowrap text-white text-bg-color active:bg-purple-200 font-bold uppercase text-sm px-4 py-2.5 rounded w-[8rem] shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1">P.O. Create</button>
+          <button type="submit" className="flex flex-nowrap text-white text-bg-color active:bg-purple-200 font-bold uppercase text-sm px-4 py-2.5 rounded w-[8rem] shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1">Create Invoice</button>
         </div>
       </form>
     </div>
-        <POCreatedList />
     </div>
   )
 }

@@ -25,12 +25,12 @@ const styles = StyleSheet.create({
         paddingRight: 8,
     },
   });
-export default function SubTotal({items,dd,profile}) {
+export default function SubTotal({profile}) {
     const amounts = profile?.map((transaction) => transaction.rate);
     const total= amounts?.reduce((acc, item) => (Number(acc) + Number(item)), 0).toFixed(2);
 return(    
     <View style={styles.row}>
-        <Text style={styles.description}>SUBTOTAL</Text>
+        <Text style={styles.description}>SubTotal</Text>
         <Text style={styles.total}>{ Math.round(Number.parseFloat(total)) }</Text>
     </View>
 )

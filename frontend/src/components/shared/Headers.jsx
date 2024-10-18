@@ -1,18 +1,20 @@
-import React, { Fragment, useState } from 'react'
+import React, { Fragment} from 'react'
 import { Menu, Popover, Transition } from '@headlessui/react'
-import { HiOutlineBell, HiOutlineChat, HiOutlineLogout, HiOutlineSearch } from 'react-icons/hi'
+import { HiOutlineBell, HiOutlineChat, HiOutlineSearch } from 'react-icons/hi'
 import classNames from 'classnames'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 export default function Headers() {
-  const navigate = useNavigate();
+   const navigation = useNavigate()
    const logout = () => {
     localStorage.removeItem('token');
-    navigate('login');
+    navigation('/login');
   };
-
+  window.onunload = function () {
+    logout();
+  }
   return (
-    <div className='bg-white h-16 px-4 flex justify-between items-center border-b border-gray-200'>
+    <div className='bg-white h-[64px] min-h-[64px] px-4 flex justify-between items-center border-b border-gray-200'>
       <div className='relative'>
         <HiOutlineSearch fontSize={24} className="text-gray-400 absolute top-1/2 -translate-y-1/2 left-3" />
           <input 
@@ -98,17 +100,17 @@ export default function Headers() {
                 {({ active }) => 
                 <div className={classNames(active && 'bg-gray-100',
                 'text-gray-700 focus:bg-gray-200 cursor-pointer rounded-sm px-4 py-2')}
-                 onClick={() => navigate('/profile') }>Your Profile
+                 onClick={() => navigation('/profile') }>Your Profile
                  </div> }
               </Menu.Item>
-              {/* <Menu.Item>
+              <Menu.Item>
                 {({ active }) => 
                 <div className={classNames(active && 'bg-gray-100',
                 'text-gray-700 focus:bg-gray-200 cursor-pointer rounded-sm px-4 py-2')}
-                 onClick={() => navigation('/') }>Setting
+                 onClick={() => navigation('/changepass') }>Change Password
                  </div> }
-              </Menu.Item> */}
-              <a ><Menu.Item>
+              </Menu.Item>
+              <a><Menu.Item>
                 {({ active }) => 
                 <div className={classNames(active && 'bg-gray-100',
                 'text-gray-700 focus:bg-gray-200 cursor-pointer rounded-sm px-4 py-2 sm:max-w-md')}
@@ -122,11 +124,3 @@ export default function Headers() {
     </div>
   )
 }
-// function logoutApp(e){
-//   if(e === true){
-//     localStorage.removeItem("token");
-//     window.location="login";
-//  }else {
-//     window.location="/";
-//   }
-// }

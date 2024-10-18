@@ -2,9 +2,7 @@ import React, {useEffect, useState } from 'react'
 import Spinner from './Spinner'
 import Services from '../service/Services'
 import 'react-toastify/dist/ReactToastify.css';
-import axios from 'axios';
-import validation from '../helper/CheckValidation'
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {GetLoginUserDetails} from '../helper/GetLoginUserDetails'
 import { useAlert } from "react-alert";
 
@@ -82,7 +80,7 @@ export default function UserProfile() {
         if(id){
           setLoading(true)
           Services.Common.profile_update(id,data).then(function(result) {
-          if(result.success == true){
+          if(result.success === true){
             alert.success(result.message);
             setLoading(false)
             navigation('/');
@@ -91,7 +89,7 @@ export default function UserProfile() {
         }else{
         setLoading(true)
         Services.Common.profile_create(data).then(function(result) {
-        if(result.success == true){
+        if(result.success === true){
           alert.success(result.message);
           setLoading(false)
           navigation('/');
@@ -172,8 +170,8 @@ useEffect(() => {
                   <label className="block text-sm font-medium text-gray-700">Account Number(Only Number)<span className="text-red-500">&nbsp;*</span></label>
                   <input type="text" name="accountNumber" 
                   value={bankAccountNumber}
-                  maxlength="17"
-                  pattern="^[0-9]{17}$"
+                  // maxlength="17"
+                  // pattern="^[0-9]{17}$"
                   onChange={(e)=>{setAccountNumber(e.target.value)}} 
                   className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" />
                 <div className='text-red-500 text-sm'>{accountNumberError}</div>
@@ -224,11 +222,11 @@ function ifscCodeValidation(ifsccode){
       return true
       }
 }
-function bankAccountNoValidation(bankAccountNumber){
-  const regex = /^[0-9]{16}$/
-      if(!bankAccountNumber.match(regex)){
-      return false
-      }else{
-      return true
-      }
-}
+// function bankAccountNoValidation(bankAccountNumber){
+//   const regex = /^[0-9]{16}$/
+//       if(!bankAccountNumber.match(regex)){
+//       return false
+//       }else{
+//       return true
+//       }
+// }

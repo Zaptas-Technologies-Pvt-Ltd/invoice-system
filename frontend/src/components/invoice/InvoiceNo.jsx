@@ -47,7 +47,7 @@ export default function InvoiceNo() {
         setAddress(result.companyAddress)
         setGSTNo(result.companyGST)
     })
-})
+},[]);
   return (
     <Fragment>
         <View style={styles.invoiceNoContainer}>

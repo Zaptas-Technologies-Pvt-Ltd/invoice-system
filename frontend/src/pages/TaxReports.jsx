@@ -1,21 +1,24 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react'
+import Spinner from '../components/Spinner'
 import TaxReportList from '../components/TaxReportList'
 import moment from 'moment';
 import { format } from 'date-fns';
-import { useAlert } from "react-alert";
-import FileSaver from 'file-saver';
 import { useNavigate } from 'react-router-dom';
 
 const date = new Date();
 let prevStartDate = format(new Date(date.getFullYear(),date.getMonth() - 1, 1),'yyyy-MM-dd');
 let preEndDate = format(new Date(date.getFullYear(),date.getMonth() - 1 + 1, 0),'yyyy-MM-dd');
 
+//const futureDate = date.getDate() + 3;
+//date.setDate(futureDate);
+//const defaultValue = date.toLocaleDateString('en-CA');
+//console.log(Moment(prevStartDate).locale('en').format('dd-MM-yyyy'))
 export default function TaxReports() {
-    const navigate = useNavigate();
-    const alert = useAlert();
+    const navigation =useNavigate()
     const [loading, setLoading] = useState(false)
     const [SACCode, setSACCode] = useState([])
+    //const [FromDates, setFromDate] = useState(Moment(prevStartDate).format('DD-MM-YYYY'))
     const [FromDates, setFromDate] = useState(prevStartDate)
     const [ToTODates, setToTODate] = useState(preEndDate)
     const [SACCodeFilts, setSACCodeFilt] = useState([])
@@ -23,22 +26,15 @@ export default function TaxReports() {
     
     const getSACCode = async () => {
         try{
-            const token = localStorage.getItem('token'); // Ensure 'token' is the correct key
-    
-            if (!token) {
-                throw new Error('No token found');
-            }
-      
-            // Set the headers with the token
-            const config = {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            };
             setLoading(true)
-            const response = await axios.get("https://invoice-system-h9ds.onrender.com/v1/api/services",config);
-            setLoading(false)
-            setSACCode(response.data.data);
+            const response = await axios.get("https://invoice-system-h9ds.onrender.com/api/services",{ headers: {"authorization" : `Bearer ${localStorage.getItem('token')}`} });
+            if(response.data.success ===true){
+                setLoading(false)
+                setSACCode(response.data.data);
+            }else{
+                setLoading(false)
+                setSACCode([]);
+            }
         }catch(error) {
             setLoading(false)
             console.log(error);
@@ -47,7 +43,7 @@ export default function TaxReports() {
     const handleSubmit = (e) =>{
         e.preventDefault();
         e.target.reset();
-       navigate("/reports");
+       navigation("/reports");
         setFromDate('');
         setToTODate('');
         setSACCodeFilt('');
@@ -55,67 +51,25 @@ export default function TaxReports() {
     }
     
     const exportInvoiceAll = async()=>{
-        const token = localStorage.getItem('token'); // Ensure 'token' is the correct key
-    
-        if (!token) {
-            throw new Error('No token found');
-        }
-  
-        // Set the headers with the token
-        const config = {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        };
-        const response = await axios.get('https://invoice-system-h9ds.onrender.com/v1/api/exportExcelxlsxAll?fromdate='+FromDates+'&todate='+ToTODates+'&saccode='+SACCodeFilts,config);
+        const response = await axios.get('https://invoice-system-h9ds.onrender.com/api/exportExcelxlsxAll?fromdate='+FromDates+'&todate='+ToTODates+'&saccode='+SACCodeFilts);
         if(response.status === 200){
-            const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-            FileSaver.saveAs(blob, 'TaxReport.xlsx');
-            alert.success('Download completed successfully!');
-            // window.open('https://invoice-system-h9ds.onrender.com/v1/api/exportExcelxlsxAll?fromdate='+FromDates+'&todate='+ToTODates+'&saccode='+SACCodeFilts+'',"blank")
+            window.open('https://invoice-system-h9ds.onrender.com/api/exportExcelxlsxAll?fromdate='+FromDates+'&todate='+ToTODates+'&saccode='+SACCodeFilts+'',"blank")
         }else{
             console.log('error');
         }
       }
       const exportInvoiceTaxReport = async()=>{
-        const token = localStorage.getItem('token'); // Ensure 'token' is the correct key
-    
-        if (!token) {
-            throw new Error('No token found');
-        }
-  
-        // Set the headers with the token
-        const config = {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        };
-        const response = await axios.get('https://invoice-system-h9ds.onrender.com/v1/api/exportExcelxlsxTaxReport?fromdate='+FromDates+'&todate='+ToTODates+'&saccode='+SACCodeFilts,config);
-        console.log(response)
+        const response = await axios.get('https://invoice-system-h9ds.onrender.com/api/exportExcelxlsxTaxReport?fromdate='+FromDates+'&todate='+ToTODates+'&saccode='+SACCodeFilts);
+        //console.log(response)
         if(response.status === 200){
-            const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-            FileSaver.saveAs(blob, 'TaxReport.xlsx');
-            alert.success('Download completed successfully!');
-            // window.open('https://invoice-system-h9ds.onrender.com/v1/api/exportExcelxlsxTaxReport?fromdate='+FromDates+'&todate='+ToTODates+'&saccode='+SACCodeFilts+'',"blank")
+            window.open('https://invoice-system-h9ds.onrender.com/api/exportExcelxlsxTaxReport?fromdate='+FromDates+'&todate='+ToTODates+'&saccode='+SACCodeFilts+'',"blank")
         }
         else{
             console.log('error');
         }
       }
       const exportInvoiceSACCode = async()=>{
-        const token = localStorage.getItem('token'); // Ensure 'token' is the correct key
-    
-        if (!token) {
-            throw new Error('No token found');
-        }
-  
-        // Set the headers with the token
-        const config = {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        };
-        const response = await axios.get('https://invoice-system-h9ds.onrender.com/v1/api/exportExcelxlsxSACCode?fromdate='+FromDates+'&todate='+ToTODates+'&saccode='+SACCodeFilts,config);
+        const response = await axios.get('https://invoice-system-h9ds.onrender.com/api/exportExcelxlsxSACCode?fromdate='+FromDates+'&todate='+ToTODates+'&saccode='+SACCodeFilts);
        // console.log(response.data)
         if(response.status === 200){
             // const blob = new Blob([response.data], {
@@ -126,10 +80,7 @@ export default function TaxReports() {
             //     type:
             //     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             //   });
-            const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-            FileSaver.saveAs(blob, 'TaxReport.xlsx');
-            alert.success('Download completed successfully!');
-            // window.open('https://invoice-system-h9ds.onrender.com/v1/api/exportExcelxlsxSACCode?fromdate='+FromDates+'&todate='+ToTODates+'&saccode='+SACCodeFilts+'',"blank")
+            window.open('https://invoice-system-h9ds.onrender.com/api/exportExcelxlsxSACCode?fromdate='+FromDates+'&todate='+ToTODates+'&saccode='+SACCodeFilts+'',"blank")
         }else{
             console.log('error');
         }
@@ -137,15 +88,13 @@ export default function TaxReports() {
       
     useEffect(() => {
         getSACCode()
-        //setFromDate(prevStartDate)
-       // setToTODate(preEndDate)
     },[]);
-    const handleChange = e => {
-        setFromDate(e.target.value)
-      }
+    // const handleChange = e => {
+    //     setFromDate(e.target.value)
+    //   }
   return (
     <div className="flex flex-col gap-4 w-full">
-        {/* {loading && <Spinner />} */}
+        {loading && <Spinner />}
         <form onSubmit={handleSubmit}>
         <div className="bg-white rounded-sm p-4 flex-1 border border-gray-200 flex gap-4 items-center">
             <div className="col-span-6 sm:col-span-3">
@@ -172,8 +121,8 @@ export default function TaxReports() {
                 onChange={(e)=>{setSACCodeFilt(e.target.value)}} 
                 className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 px-12  py-2.5 rounded-md" >
                     <option value=''>Select SAC Code..</option>
-                    {SACCode && SACCode?.map( saccode => (
-                        <option value={saccode.sac_code}>{saccode.sac_code}</option>
+                    {SACCode.map( saccode => (
+                        <option value={saccode.sac_code} key={saccode.sac_code}>{saccode.sac_code}</option>
                     ))}
                 </select>
             </div>
@@ -213,7 +162,6 @@ export default function TaxReports() {
                         Download SAC Code
                 </button>
                 </div>
-            {/*  */}
         </div>
         </form>
         <TaxReportList FromDate={FromDates} ToTODate={ToTODates} SACCodeFilt={SACCodeFilts} resetForm={resetForm} />

@@ -1,61 +1,56 @@
-import React, {  useEffect, useState } from 'react'
+import React, {  useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios';
+import { useAlert } from "react-alert";
+import { useDispatch, useSelector } from 'react-redux';
+import { SetUser } from '../redux/usersSlice';
+import { HideLoading, ShowLoading } from '../redux/alertsSlice';
+//import DefaultLayout from './DefaultLayout';
 import Layout from './shared/Layout';
 
 
 function ProtectedsRoute({children}) {
-    
-   // const dispatch = useDispatch();
-    //alert(dispatch)
+    const alert = useAlert();
+    const dispatch = useDispatch();
     const navigate = useNavigate();
-   // const {loading} =useSelector((state) => state.alerts);
-    const {user, setUser} = useState(false);
-
+    //const {loading} =useSelector((state) => state.alerts);
+    const {user} = useSelector(state => state.users);
     const validateToken = async()=> {
-
         try{
-            // dispatch(ShowLoading())
-            
-            const response = await axios.post("https://invoice-system-h9ds.onrender.com/v1/api/getprofileDetail", 
+            dispatch(ShowLoading())
+            const response = await axios.post(
+            "https://invoice-system-h9ds.onrender.com/api/getprofileDetail", 
             {}, 
             {
                 headers: {
                     authorization: `Bearer ${localStorage.getItem('token')}`,
                 },
             })
-            // dispatch(HideLoading())
+            dispatch(HideLoading())
             if(response.data.success){
-                console.log('HeIF')
-                navigate('/');
-                setUser(true);
-                //dispatch(SetUser(response.data));
+                dispatch(SetUser(response.data.data[0]));
             }else{
-                console.log('HeElse')
-                // dispatch(HideLoading())
+                dispatch(HideLoading())
                 localStorage.removeItem('token');
-               // message.error(response.data.message);
+                alert.error(response.data.message);
                 navigate('/login');
             }
         }catch (error) {
-            console.log('HeError')
             localStorage.removeItem('token');
-           // message.error(error.message);
-            // dispatch(HideLoading())
+            alert.error('Remove token');
+            dispatch(HideLoading())
             navigate('/login');
 
         }
     };
     useEffect(() => {
         if(localStorage.getItem('token')){
-            console.log('He')
             validateToken();
         }else{
-            console.log('SHe')
             navigate('/login');
         }
     }, []);
-    console.log(user)
+
     return <div>{user && <Layout>{children}</Layout>}</div>
     
 }

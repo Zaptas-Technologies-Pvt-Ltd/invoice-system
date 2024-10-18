@@ -10,6 +10,7 @@ const styles = StyleSheet.create({
         marginTop: 10,
         paddingBottom: 3,
         fontStyle: 'bold',
+        textDecoration: 'underline',
         //fontFamily: 'Helvetica-Oblique'
     },
   });

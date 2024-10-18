@@ -9,8 +9,6 @@ import TaxTotal from './Total/TaxTotal';
 import TotalAmountDue from './Total/TotalAmountDue';
 import AmountINWord from './Total/AmountINWord';
 
-const tableRowsCount = 11;
-
 const styles = StyleSheet.create({
     tableContainer: {
         flexDirection: 'row',
@@ -28,7 +26,7 @@ export default function InvoiceItemsTable({invoice}) {
         <InvoiceTableRow items={invoice.items} service={invoice.dataIN} profile={invoice.profiles} />
         {/* Use here total and tax part */}
         <SubTotal items={invoice.items} dd={invoice.dataIN} profile={invoice.profiles} />
-        {invoice.tax ==2?<CGST items={invoice.items} dd={invoice.dataIN} tax={invoice.tax} profile={invoice.profiles} />:''}
+        {invoice.tax === 2?<CGST items={invoice.items} dd={invoice.dataIN} tax={invoice.tax} profile={invoice.profiles} />:''}
         <SGST items={invoice.items} dd={invoice.dataIN} tax={invoice.tax} profile={invoice.profiles} />
         <TaxTotal items={invoice.items} dd={invoice.dataIN} tax={invoice.tax} profile={invoice.profiles} />
         <TotalAmountDue items={invoice.items} dd={invoice.dataIN} tax={invoice.tax} profile={invoice.profiles} />

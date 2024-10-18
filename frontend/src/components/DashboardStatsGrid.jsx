@@ -8,47 +8,30 @@ export default function DashboardStatsGrid() {
 	const navigation = useNavigate()
 	const [loading, setLoading] = useState(false)
     const [customerData, setCustomerData] = useState('')
-    const [reportData, setReportData] = useState('')
+    const [poData, setPoData] = useState('')
     const [invoiceData, setInvoiceData] = useState('')
     const [serviceData, setServiceData] = useState('')
-	const getcustomerList = async () => {
-		try {
-		  setLoading(true);
-	  
-		  // Retrieve the token from localStorage
-		  const token = localStorage.getItem('token'); // Ensure 'token' is the correct key
-	  
-		  if (!token) {
-			throw new Error('No token found');
-		  }
-	  
-		  // Set the headers with the token
-		  const config = {
-			headers: {
-			  Authorization: `Bearer ${token}`,
-			},
-		  };
-	  
-		  // Make multiple API requests with the same headers
-		  const response = await axios.get("https://invoice-system-h9ds.onrender.com/v1/api/customer", config);
-		  const response1 = await axios.get("https://invoice-system-h9ds.onrender.com/v1/api/getInvoice", config);
-		  const response2 = await axios.get("https://invoice-system-h9ds.onrender.com/v1/api/getInvoice", config); // This seems to be a duplicate, consider removing one if not needed
-		  const response3 = await axios.get("https://invoice-system-h9ds.onrender.com/v1/api/services", config);
-	  
-		  setLoading(false);
-	  
-		  // Set the response data
-		  setCustomerData(response.data.length);
-		  setReportData(response1.data.length);
-		  setInvoiceData(response2.data.length); // Same response as response1
-		  setServiceData(response3.data.length);
-	  
-		} catch (error) {
-		  setLoading(false);
-		  console.log(error);
-		}
-	  };
-	  
+    const getcustomerList = async () => {
+        try{
+            setLoading(true);
+            const response = await axios.get("https://invoice-system-h9ds.onrender.com/api/totals",{ headers: {"authorization" : `Bearer ${localStorage.getItem('token')}`} });
+			if(response.data.success === true){
+				setLoading(false);
+				setCustomerData(response.data.customerCount);
+				setServiceData(response.data.serviceCount);
+				setInvoiceData(response.data.invoiceCount);
+				setPoData(response.data.poCount);
+			}else{
+				setLoading(false);
+				setCustomerData('0');
+				setPoData('0');
+				setInvoiceData('0');
+				setServiceData('0');
+			}
+        }catch(error) {
+            console.log(error);
+        }
+    };
     useEffect(() => {
         getcustomerList()
     }, []);
@@ -95,10 +78,10 @@ export default function DashboardStatsGrid() {
 				<div className="rounded-full h-12 w-12 flex items-center justify-center bg-green-600">
 					<IoDocuments className="text-2xl text-white" />
 				</div>
-				<div className="pl-4" onClick={() => navigation('/reports') }>
-					<span className="text-sm text-gray-500 font-light">Total Reports</span>
+				<div className="pl-4" onClick={() => navigation('/pocreates') }>
+					<span className="text-sm text-gray-500 font-light">Total P.O.</span>
 					<div className="flex items-center">
-						<strong className="text-xl text-gray-700 font-semibold">{reportData}</strong>
+						<strong className="text-xl text-gray-700 font-semibold">{poData}</strong>
 						{/* <span className="text-sm text-red-500 pl-2">-43</span> */}
 					</div>
 				</div>
