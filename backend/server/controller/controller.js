@@ -18,7 +18,7 @@ const connectDB = require('../database/connection');
 
 exports.invoicefindByid = (req, res)=> {
     const id = req.params.id;
-    invoicedb.findById(id).populate({ path: 'customer', select: ['name','address','gstno'] }).populate({ path: 'taxe', select: 'tax' }).populate({ path: 'service', select: ['sr_name','price','qty','sac_code'] })
+    invoicedb.findById(id).populate({ path: 'customer', select: ['name','address','gstno'] }).populate({ path: 'tax', select: 'tax' }).populate({ path: 'service', select: ['sr_name','price','qty','sac_code'] })
     .then(invoice => {
         res.send(invoice)
     })
@@ -58,7 +58,7 @@ exports.invoicefind = (req, res)=> {
     invoicedb.find(query)
     .sort(mysort)
     .populate({ path: 'customer', select: ['name','address','gstno'] })
-    .populate({ path: 'taxe', select: 'tax' })
+    .populate({ path: 'tax', select: 'tax' })
     .populate({ path: 'service', select: ['sr_name','price','qty' ,'sac_code'] })
     .then(invoice => {
         res.status(200).send(
@@ -446,7 +446,7 @@ exports.createExcel = (req, res)=> {
         {"createdAt":{ $gte: new Date(query.fromdate), $lt: new Date(query.todate) }})
         .sort(mysort)
         .populate({ path: 'customer', select: ['name','address','gstno'] })
-        .populate({ path: 'taxe', select: 'tax' })
+        .populate({ path: 'tax', select: 'tax' })
         .populate({ path: 'service', select: ['sr_name','price','qty' ,'sac_code'] })
         .then(function(result){
         var collection = [];
