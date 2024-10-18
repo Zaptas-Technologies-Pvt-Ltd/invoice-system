@@ -11,7 +11,7 @@ const excel = require('exceljs');
 var url = require('url');
 const { MongoClient, ObjectID } = require('mongodb');
 
-autoIncrement = require('mongoose-auto-increment');
+
 const connectDB = require('../database/connection');
 /* autoIncrement.initialize(connectDB); */
 

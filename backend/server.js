@@ -19,7 +19,7 @@ app.use(morgan('tiny'));
 app.use(cors())
 
 // mongodb connection
-connectDB();
+
 
 // set view engine
 app.set("view engine", "ejs")
@@ -31,4 +31,6 @@ app.use(bodyparser.urlencoded({ extended : true}))
 app.use('/', require('./server/routes/router'))
 app.use("/files",express.static("./public/files"));
 
-app.listen(PORT, ()=> { console.log(`Server is running on http://localhost:${PORT}`,process.env.MONGO_URI)});
+app.listen(PORT, async ()=> { console.log(`Server is running on http://localhost:${PORT}`,process.env.MONGO_URI)
+await connectDB();
+});
