@@ -1,0 +1,7 @@
+INV Date,Invoice,Customer Name,GST No,Tax %,Service,SAC Code,IGST,SGST,CGST,SubTotal Amount,Total Tax Amount,Total Invoice Amount
+14-02-2023,182,Cosmo Films Limited,27AAACC1152C1ZD,18% (IGST),"Software Update,Dot Net Developer","SUD8956,513814",0,,,0,0,0
+09-02-2023,180,Luminous Power Technologies Pvt Ltd.,06AAACS3561K2ZA,18% (SGST 9% + CGST 9%),Dot Net Developer,513814,,6750,6750,75000,13500,88500
+09-02-2023,177,Anand and Anand,09AAAFA0186F1ZT,18% (SGST 9% + CGST 9%),New Software Reqirement,NSR0012,,21240,21240,236000,42480,278480
+08-02-2023,175,Apollo Pipes Limited,09AAACA1199D1ZW,18% (SGST 9% + CGST 9%),Software Update Software Update ,SUD8956,,135000,135000,1500000,270000,1770000
+08-02-2023,173,Cosmo Films Limited,27AAACC1152C1ZD,18% (IGST),Dot Net Developer,SUD8956,196222.5,,,1090125,196222.5,1286347.5
+08-02-2023,172,Cosmo Films Limited,27AAACC1152C1ZD,18% (IGST),Dot Net Developer,SUD8956,156420,,,869000,156420,1025420

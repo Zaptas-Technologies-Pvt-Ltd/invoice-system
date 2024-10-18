@@ -1,9 +1,9 @@
 var url = require('url');
-const {  ObjectID } = require('mongodb');
+const { MongoClient, ObjectID } = require('mongodb');
 const bcrypt = require('bcryptjs');
 const jwt =require('jsonwebtoken');
 var authdb = require('../model/AuthModel');
-require('dotenv').config();
+
 exports.companyDetail = async (req, res) => {
     try{
         const token = req.headers.authorization.split(" ")[1];
@@ -37,7 +37,6 @@ exports.companyCreate =async  (req , res)=>{
         });
     }else{
     const hashPassword = await bcrypt.hash('12345', 5);
-    console.log(req.body,"D")
     req.body.password = hashPassword;
     const companyProfile = new authdb({
         userName : req.body.userName,

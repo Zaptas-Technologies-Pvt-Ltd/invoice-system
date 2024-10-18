@@ -11,13 +11,14 @@ const excel = require('exceljs');
 var url = require('url');
 const { MongoClient, ObjectID } = require('mongodb');
 
-// autoIncrement = require('mongoose-auto-increment');
+autoIncrement = require('mongoose-auto-increment');
+const connectDB = require('../database/connection');
 /* autoIncrement.initialize(connectDB); */
 
 
 exports.invoicefindByid = (req, res)=> {
     const id = req.params.id;
-    invoicedb.findById(id).populate({ path: 'customer', select: ['name','address','gstno'] }).populate({ path: 'tax', select: 'tax' }).populate({ path: 'service', select: ['sr_name','price','qty','sac_code'] })
+    invoicedb.findById(id).populate({ path: 'customer', select: ['name','address','gstno'] }).populate({ path: 'taxe', select: 'tax' }).populate({ path: 'service', select: ['sr_name','price','qty','sac_code'] })
     .then(invoice => {
         res.send(invoice)
     })
@@ -57,7 +58,7 @@ exports.invoicefind = (req, res)=> {
     invoicedb.find(query)
     .sort(mysort)
     .populate({ path: 'customer', select: ['name','address','gstno'] })
-    .populate({ path: 'tax', select: 'tax' })
+    .populate({ path: 'taxe', select: 'tax' })
     .populate({ path: 'service', select: ['sr_name','price','qty' ,'sac_code'] })
     .then(invoice => {
         res.status(200).send(
@@ -77,20 +78,33 @@ exports.invoicefind = (req, res)=> {
             //message : err.message || "Error Occurred while retriving invoice information" })
         })
 }
-
 async function getNextSequenceValue(callback){
     try{
+        var Cusdate = ['01-04-2023','01-04-2024','01-04-2025','01-04-2026','01-04-2027','01-04-2028','01-04-2029'];
+        let date_time = new Date();
+        let date = ("0" + date_time.getDate()).slice(-2);
+        let month = ("0" + (date_time.getMonth() + 1)).slice(-2);
+        let year = date_time.getFullYear();
+        let curetnDate = date + "-" + month + "-" + year;
+       // console.log(curetnDate)
+        Cusdate.map((value) => {
+            if(value === curetnDate){
+                counterdb.update({'_id':'invoiceid'},{sequence_value:1})
+                var status = 'true';
+            }else{
+                var status = 'false';
+            }
+            console.log(status);
+        })
+
         counterdb.update({'_id':'invoiceid'},{'$inc':{'sequence_value':1}}).then(
             counterdb.find({'_id':'invoiceid'}).then((data)=>{
                 callback(Object.assign({},data)[0].sequence_value);
             })
         )
     }catch(error){
-        
     }
  }
- 
-
 
 // create and save new user
 exports.create = (req,res)=>{
@@ -103,17 +117,18 @@ exports.create = (req,res)=>{
         var dt = dateTime.create();
 
         // new invoice
-        //console.log(req.body.serviceCode.toString())
+       // console.log(req.body.serviceCode)
         const invoice = new invoicedb({
             customer : req.body.customer,
             service : req.body.service,
             service_name : req.body.serviceName,
             service_code : req.body.serviceCode.toString(),
+            //service_code : req.body.serviceCode,
             profileName_rate: req.body.profilesDetails,
             tax: req.body.tax,
             po:req.body.po,
             podate:(req.body.podate != '') ? dateTime.create(req.body.podate).format('d-m-Y') : '', 
-            createdAt: (req.body.createdAt)?dateTime.create(req.body.createdAt).format('Y-m-d'):dt.format('Y-m-d'),
+            createdAt: (req.body.createdAt)?dateTime.create(req.body.createdAt).format('Y-m-d'):dt.format('Y-m-d'), 
             invoice:'00'+data,
             payment : req.body.payment
         })
@@ -134,7 +149,6 @@ exports.create = (req,res)=>{
             });
     });
 }
-
 
 // create and save new customer
 exports.customercreate = (req , res)=>{
@@ -334,7 +348,6 @@ exports.customerfindByid = (req, res)=> {
 exports.customerfind =async (req, res)=> {
 
     try{
-        console.log("Dddddddddd")
         const list = await customerdb.find()
         return res.status(200).send({
             success: true,
@@ -433,7 +446,7 @@ exports.createExcel = (req, res)=> {
         {"createdAt":{ $gte: new Date(query.fromdate), $lt: new Date(query.todate) }})
         .sort(mysort)
         .populate({ path: 'customer', select: ['name','address','gstno'] })
-        .populate({ path: 'tax', select: 'tax' })
+        .populate({ path: 'taxe', select: 'tax' })
         .populate({ path: 'service', select: ['sr_name','price','qty' ,'sac_code'] })
         .then(function(result){
         var collection = [];
@@ -547,8 +560,20 @@ exports.totalData =async (req , res)=>{
     const invoiceCount = await invoicedb.find();
     const poCount = await POCreatedb.find();
 
+    var sum = 0;
+
+    for(var i=0; i < invoiceCount.length; i++){
+       ArryAmount =invoiceCount[i].profileName_rate;
+       console.log(ArryAmount);
+       for(item in ArryAmount) {
+       //console.log(item);
+            sum += parseInt(item.rate);   
+       }
+    }
+    
     return res.status(200).json({
         success: true,
+        // amount: invoiceCount,
         customerCount: customerCount.length,
         serviceCount: serviceCount.length,
         invoiceCount: invoiceCount.length,

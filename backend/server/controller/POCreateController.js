@@ -15,7 +15,7 @@ async function getNextSequenceValue(callback){
             counterdb.find({'_id':'invoiceid'}).then((data)=>{
                 callback(Object.assign({},data)[0].sequence_value);
             })
-       // )
+        //)
     }catch(error){
         
     }

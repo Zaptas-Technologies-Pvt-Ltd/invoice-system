@@ -4,7 +4,6 @@ var customerdb = require('../model/customer');
 var companydb = require('../model/company');
 var servicesdb = require('../model/services');
 var taxdb = require('../model/tax');
-require('dotenv').config();
 var invoicedb = require('../model/invoice');
 const BASE_URL = process.env.BASE_URL
 var dateFormat = require('dateformat');
@@ -68,7 +67,7 @@ exports.excelData = async (req, res)=>{
         await invoicedb.find(query)
                 .sort(mysort)
                 .populate({ path: 'customer', select: ['name','address','gstno'] })
-                .populate({ path: 'tax', select: 'tax' })
+                .populate({ path: 'taxe', select: 'tax' })
                 .populate({ path: 'service', select: ['sr_name','price','qty' ,'sac_code'] })
                 .then(function(result){
         if (result.length > 0) {
@@ -78,8 +77,8 @@ exports.excelData = async (req, res)=>{
                 var total = 0;
                 var ServiceName = '';
                 var ServiceCode = '';
-                const amounts = user.profileName_rate.map((transaction) => transaction.rate);
-                subtotal= amounts.reduce((acc, item) => (Number(acc) + Number(item)), 0)
+                const amounts = user.profileName_rate?.map((transaction) => transaction.rate);
+                subtotal= amounts?.reduce((acc, item) => (Number(acc) + Number(item)), 0)
                 totaltax = subtotal*18/100;
                 total = totaltax+subtotal;
                 //user.profileName_rate.forEach(function(element){

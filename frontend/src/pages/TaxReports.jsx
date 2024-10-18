@@ -4,6 +4,7 @@ import TaxReportList from '../components/TaxReportList'
 import moment from 'moment';
 import { format } from 'date-fns';
 import { useAlert } from "react-alert";
+import FileSaver from 'file-saver';
 import { useNavigate } from 'react-router-dom';
 
 const date = new Date();
@@ -68,7 +69,10 @@ export default function TaxReports() {
         };
         const response = await axios.get('https://invoice-system-h9ds.onrender.com/v1/api/exportExcelxlsxAll?fromdate='+FromDates+'&todate='+ToTODates+'&saccode='+SACCodeFilts,config);
         if(response.status === 200){
-            window.open('https://invoice-system-h9ds.onrender.com/api/exportExcelxlsxAll?fromdate='+FromDates+'&todate='+ToTODates+'&saccode='+SACCodeFilts+'',"blank")
+            const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            FileSaver.saveAs(blob, 'TaxReport.xlsx');
+            alert.success('Download completed successfully!');
+            // window.open('https://invoice-system-h9ds.onrender.com/v1/api/exportExcelxlsxAll?fromdate='+FromDates+'&todate='+ToTODates+'&saccode='+SACCodeFilts+'',"blank")
         }else{
             console.log('error');
         }
@@ -89,7 +93,10 @@ export default function TaxReports() {
         const response = await axios.get('https://invoice-system-h9ds.onrender.com/v1/api/exportExcelxlsxTaxReport?fromdate='+FromDates+'&todate='+ToTODates+'&saccode='+SACCodeFilts,config);
         console.log(response)
         if(response.status === 200){
-            window.open('https://invoice-system-h9ds.onrender.com/api/exportExcelxlsxTaxReport?fromdate='+FromDates+'&todate='+ToTODates+'&saccode='+SACCodeFilts+'',"blank")
+            const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            FileSaver.saveAs(blob, 'TaxReport.xlsx');
+            alert.success('Download completed successfully!');
+            // window.open('https://invoice-system-h9ds.onrender.com/v1/api/exportExcelxlsxTaxReport?fromdate='+FromDates+'&todate='+ToTODates+'&saccode='+SACCodeFilts+'',"blank")
         }
         else{
             console.log('error');
@@ -108,19 +115,22 @@ export default function TaxReports() {
                 Authorization: `Bearer ${token}`,
             },
         };
-        const response = await axios.get('https://invoice-system-h9ds.onrender.com/v1/api/exportExcelxlsxSACCode?fromdate='+FromDates+'&todate='+ToTODates+'&saccode='+SACCodeFilts,config,{
-            responseType: 'blob' 
-        });
+        const response = await axios.get('https://invoice-system-h9ds.onrender.com/v1/api/exportExcelxlsxSACCode?fromdate='+FromDates+'&todate='+ToTODates+'&saccode='+SACCodeFilts,config);
        // console.log(response.data)
-       if (response.status === 200) {
-        const url = window.URL.createObjectURL(new Blob([response.data]));
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', `invoiceSACCode_${FromDates}_to_${ToTODates}.xlsx`); // Set the file name
-        document.body.appendChild(link);
-        link.click();  // Trigger the download
-        link.remove(); // Clean up
-    }else{
+        if(response.status === 200){
+            // const blob = new Blob([response.data], {
+            //     type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            //   });
+            //   saveAs(blob, "file.xlsx");
+            // const blob = new Blob([response.data], {
+            //     type:
+            //     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            //   });
+            const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            FileSaver.saveAs(blob, 'TaxReport.xlsx');
+            alert.success('Download completed successfully!');
+            // window.open('https://invoice-system-h9ds.onrender.com/v1/api/exportExcelxlsxSACCode?fromdate='+FromDates+'&todate='+ToTODates+'&saccode='+SACCodeFilts+'',"blank")
+        }else{
             console.log('error');
         }
       }
