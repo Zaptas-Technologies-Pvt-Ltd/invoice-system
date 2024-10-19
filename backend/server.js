@@ -8,7 +8,7 @@ const cors = require('cors');
 const connectDB = require('./server/database/connection');
 
 const app = express();
-app.use(express.static(path.join(__dirname, '../frontend/build')));
+// app.use(express.static(path.join(__dirname, '../frontend/build')));
 
 dotenv.config( { path : 'config.env'} )
 const PORT = process.env.PORT || 8080
