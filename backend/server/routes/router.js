@@ -14,7 +14,9 @@ const CommonStatusController = require('../controller/CommonStatusController');
  *  @method GET /
  */
 
-route.get('/', services.homeRoutes);
+route.get('/api', (req, res) => {
+    res.send({ message: "test from backend!" });
+});
 
 // API
 route.get('/api/customer', AuthMiddlewares, controller.customerfind);
