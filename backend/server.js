@@ -9,31 +9,32 @@ const connectDB = require('./server/database/connection');
 
 const app = express();
 
-dotenv.config( { path : 'config.env'} )
-const PORT = process.env.PORT || 8080
+// Load environment variables from config.env file
+dotenv.config({ path: 'config.env' });
+const PORT = process.env.PORT || 8080;
 
-// log requests
+// Log requests
 app.use(morgan('tiny'));
 
-//athor origin
-app.use(cors())
+// Allow cross-origin requests
+app.use(cors());
 
-// mongodb connection
+// MongoDB connection
+// Call the connectDB function to establish a connection
+await connectDB();
 
+// Parse request body
+app.use(bodyparser.urlencoded({ extended: true }));
 
-// set view engine
+// Load routers
+app.use('/', require('./server/routes/router'));
 
-
-// parse request to body-parser
-app.use(bodyparser.urlencoded({ extended : true}))
-
-// load routers
-app.use('/', require('./server/routes/router'))
+// Sample API route
 app.get('/api/hello', (req, res) => {
     res.send({ message: "Hello from backend!" });
 });
 
-
-app.listen(PORT, async ()=> { console.log(`Server is running on http://localhost:${PORT}`,process.env.MONGO_URI)
-await connectDB();
+// Start the server
+app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
 });
