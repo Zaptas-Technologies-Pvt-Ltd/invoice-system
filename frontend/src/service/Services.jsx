@@ -5,10 +5,10 @@ import qs from 'qs';
 const superagent = superagentPromise(_superagent, global.Promise);
 
 //local
-const API_ROOT = '/v1/v1/api';
+// const API_ROOT = '/v1/api';
 
 //live
-// const API_ROOT = 'https://invoice.zaptas.in/v1/v1/api';
+ const API_ROOT = 'https://invoiceworld.zaptas.in/v1/api';
 
 
 const encode = encodeURIComponent;
