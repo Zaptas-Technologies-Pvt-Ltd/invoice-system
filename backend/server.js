@@ -22,7 +22,7 @@ app.use(cors())
 
 
 // set view engine
-app.set("view engine", "ejs")
+
 
 // parse request to body-parser
 app.use(bodyparser.urlencoded({ extended : true}))
@@ -32,7 +32,7 @@ app.use('/', require('./server/routes/router'))
 app.get('/api/hello', (req, res) => {
     res.send({ message: "Hello from backend!" });
 });
-app.use("/files",express.static("./public/files"));
+
 
 app.listen(PORT, async ()=> { console.log(`Server is running on http://localhost:${PORT}`,process.env.MONGO_URI)
 await connectDB();
