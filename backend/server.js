@@ -29,6 +29,9 @@ app.use(bodyparser.urlencoded({ extended : true}))
 
 // load routers
 app.use('/', require('./server/routes/router'))
+app.get('/api/hello', (req, res) => {
+    res.send({ message: "Hello from backend!" });
+});
 app.use("/files",express.static("./public/files"));
 
 app.listen(PORT, async ()=> { console.log(`Server is running on http://localhost:${PORT}`,process.env.MONGO_URI)
