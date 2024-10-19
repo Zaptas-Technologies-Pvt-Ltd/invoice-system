@@ -1,0 +1,48 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      # Step to pull latest code and build the frontend
+      - name: Pull latest code and build frontend
+        run: |
+          ssh -o StrictHostKeyChecking=no root@162.241.149.204 << 'EOF'
+            cd /var/www/vhosts/zaptas.in/mnt/vol-us-1/invoiceworld || exit
+            git pull origin dev
+            cd frontend
+            npm install --force
+            npm run build
+          EOF
+
+      # Step to deploy the frontend build files directly to invoiceworld
+      - name: Deploy frontend build to server
+        run: |
+          rsync -avz --delete frontend/build/ root@162.241.149.204:/var/www/vhosts/zaptas.in/mnt/vol-us-1/invoiceworld/
+          
+          # Restart Nginx if necessary
+          ssh -o StrictHostKeyChecking=no root@162.241.149.204 << 'EOF'
+            systemctl restart nginx
+          EOF
+
+      # Step to deploy backend to server
+      - name: Deploy backend to server
+        run: |
+          ssh -o StrictHostKeyChecking=no root@162.241.149.204 << 'EOF'
+            cd /var/www/vhosts/zaptas.in/mnt/vol-us-1/invoiceworld/backend || exit
+            npm install
+          EOF

@@ -9,8 +9,9 @@ const connectDB =  require('./server/database/connection');
 
 const app = express();
 
+
 // Serve static files from the static directory
-app.use(express.static(path.join(__dirname, '../static'))); // Adjusted to serve from the static folder in the root
+// app.use(express.static(path.join(__dirname, '../static'))); // Adjusted to serve from the static folder in the root
 
 dotenv.config({ path: 'config.env' });
 const PORT = process.env.PORT || 8080;
@@ -35,10 +36,10 @@ app.get('/api/hello', (req, res) => {
     res.send({ message: "Hello from backend!" });
 });
 
-// Serve index.html for all other routes (for client-side routing)
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../index.html')); // Serve index.html from the root
-});
+// Fallback route for client-side routing
+// app.get('*', (req, res) => {
+//     res.sendFile(path.join(__dirname, '../index.html')); // Serve index.html from the root
+// });
 
 // Start the server
 app.listen(PORT, async () => {
