@@ -107,7 +107,7 @@ exports.login = async (req , res)=>{
     try{
         const userExit = await authdb.findOne({userName: req.body.userName });
         if(!userExit){
-            return res.send({
+            return res.json({
                 message: "User don't exit",
                 success: false,
                 data: null,

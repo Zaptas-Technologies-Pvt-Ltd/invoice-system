@@ -17,7 +17,7 @@ export default function InvoiceListing() {
     const getInvoiceList = async () => {
         try{
             setLoading(true)
-            const response = await axios.get("/api/getInvoice",{ headers: {"authorization" : `Bearer ${localStorage.getItem('token')}`} });
+            const response = await axios.get("/v1/api/getInvoice",{ headers: {"authorization" : `Bearer ${localStorage.getItem('token')}`} });
             if(response.data.success === true) {
                 setLoading(false)
                 setInvoiceList(response.data.data);

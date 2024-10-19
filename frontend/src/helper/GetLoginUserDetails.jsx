@@ -2,7 +2,7 @@ import axios from 'axios';
 
 export const GetLoginUserDetails = async () => {
     try{
-        const response = await axios.post("/api/getprofileDetail", 
+        const response = await axios.post("/v1/api/getprofileDetail", 
         {}, 
         {
             headers: {

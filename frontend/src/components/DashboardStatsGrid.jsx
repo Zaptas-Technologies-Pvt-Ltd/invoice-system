@@ -14,7 +14,7 @@ export default function DashboardStatsGrid() {
     const getcustomerList = async () => {
         try{
             setLoading(true);
-            const response = await axios.get("/api/totals",{ headers: {"authorization" : `Bearer ${localStorage.getItem('token')}`} });
+            const response = await axios.get("/v1/api/totals",{ headers: {"authorization" : `Bearer ${localStorage.getItem('token')}`} });
 			if(response.data.success === true){
 				setLoading(false);
 				setCustomerData(response.data.customerCount);

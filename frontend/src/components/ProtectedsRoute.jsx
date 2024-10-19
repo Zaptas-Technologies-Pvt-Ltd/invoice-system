@@ -19,7 +19,7 @@ function ProtectedsRoute({children}) {
         try{
             dispatch(ShowLoading())
             const response = await axios.post(
-            "/api/getprofileDetail", 
+            "/v1/api/getprofileDetail", 
             {}, 
             {
                 headers: {

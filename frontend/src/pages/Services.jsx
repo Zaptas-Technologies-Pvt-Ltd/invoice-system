@@ -17,7 +17,7 @@ export default function Services() {
     const getServices = async () => {
         try{
             setLoading(true)
-            const response = await axios.get("/api/services",{ headers: {"authorization" : `Bearer ${localStorage.getItem('token')}`} });
+            const response = await axios.get("/v1/api/services",{ headers: {"authorization" : `Bearer ${localStorage.getItem('token')}`} });
             if(response.data.success ===true){
                 setLoading(false)
                 setCountries(response.data.data);

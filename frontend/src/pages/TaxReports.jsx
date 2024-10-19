@@ -27,7 +27,7 @@ export default function TaxReports() {
     const getSACCode = async () => {
         try{
             setLoading(true)
-            const response = await axios.get("/api/services",{ headers: {"authorization" : `Bearer ${localStorage.getItem('token')}`} });
+            const response = await axios.get("/v1/api/services",{ headers: {"authorization" : `Bearer ${localStorage.getItem('token')}`} });
             if(response.data.success ===true){
                 setLoading(false)
                 setSACCode(response.data.data);
@@ -51,25 +51,25 @@ export default function TaxReports() {
     }
     
     const exportInvoiceAll = async()=>{
-        const response = await axios.get('/api/exportExcelxlsxAll?fromdate='+FromDates+'&todate='+ToTODates+'&saccode='+SACCodeFilts);
+        const response = await axios.get('/v1/api/exportExcelxlsxAll?fromdate='+FromDates+'&todate='+ToTODates+'&saccode='+SACCodeFilts);
         if(response.status === 200){
-            window.open('/api/exportExcelxlsxAll?fromdate='+FromDates+'&todate='+ToTODates+'&saccode='+SACCodeFilts+'',"blank")
+            window.open('/v1/api/exportExcelxlsxAll?fromdate='+FromDates+'&todate='+ToTODates+'&saccode='+SACCodeFilts+'',"blank")
         }else{
             console.log('error');
         }
       }
       const exportInvoiceTaxReport = async()=>{
-        const response = await axios.get('/api/exportExcelxlsxTaxReport?fromdate='+FromDates+'&todate='+ToTODates+'&saccode='+SACCodeFilts);
+        const response = await axios.get('/v1/api/exportExcelxlsxTaxReport?fromdate='+FromDates+'&todate='+ToTODates+'&saccode='+SACCodeFilts);
         //console.log(response)
         if(response.status === 200){
-            window.open('/api/exportExcelxlsxTaxReport?fromdate='+FromDates+'&todate='+ToTODates+'&saccode='+SACCodeFilts+'',"blank")
+            window.open('/v1/api/exportExcelxlsxTaxReport?fromdate='+FromDates+'&todate='+ToTODates+'&saccode='+SACCodeFilts+'',"blank")
         }
         else{
             console.log('error');
         }
       }
       const exportInvoiceSACCode = async()=>{
-        const response = await axios.get('/api/exportExcelxlsxSACCode?fromdate='+FromDates+'&todate='+ToTODates+'&saccode='+SACCodeFilts);
+        const response = await axios.get('/v1/api/exportExcelxlsxSACCode?fromdate='+FromDates+'&todate='+ToTODates+'&saccode='+SACCodeFilts);
        // console.log(response.data)
         if(response.status === 200){
             // const blob = new Blob([response.data], {
@@ -80,7 +80,7 @@ export default function TaxReports() {
             //     type:
             //     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             //   });
-            window.open('/api/exportExcelxlsxSACCode?fromdate='+FromDates+'&todate='+ToTODates+'&saccode='+SACCodeFilts+'',"blank")
+            window.open('/v1/api/exportExcelxlsxSACCode?fromdate='+FromDates+'&todate='+ToTODates+'&saccode='+SACCodeFilts+'',"blank")
         }else{
             console.log('error');
         }

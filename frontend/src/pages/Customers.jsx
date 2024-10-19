@@ -17,7 +17,7 @@ export default function Customers() {
   const getCustomerList = async () => {
         try{
             setLoading(true);
-            const response = await axios.get('/api/customer',{ headers: {"authorization" : `Bearer ${localStorage.getItem('token')}`} });
+            const response = await axios.get('/v1/api/customer',{ headers: {"authorization" : `Bearer ${localStorage.getItem('token')}`} });
             if(response.data.success ===true){
             setLoading(false);
             setCountries(response.data.data);

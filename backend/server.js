@@ -25,7 +25,7 @@ app.use(bodyparser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '../frontend/build')));
 
 // API Routes
-app.use('', require('./server/routes/router')); // Adjust your router to serve API requests
+app.use('/v1', require('./server/routes/router')); // Adjust your router to serve API requests
 
 // Sample API route
 app.get('/api/hello', (req, res) => {

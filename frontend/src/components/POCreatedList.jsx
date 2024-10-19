@@ -16,7 +16,7 @@ export default function POCreatedList() {
   const getPoList = async () =>{
     try{
     setLoading(true)
-      const response = await axios.get("/api/po-list",{ headers: {"authorization" : `Bearer ${localStorage.getItem('token')}`} });
+      const response = await axios.get("/v1/api/po-list",{ headers: {"authorization" : `Bearer ${localStorage.getItem('token')}`} });
       if(response.data.success === true){
         setLoading(false)
         setDataList(response.data.data);
