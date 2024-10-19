@@ -19,20 +19,18 @@ app.use(morgan('tiny'));
 // Allow cross-origin requests
 app.use(cors());
 
-// MongoDB connection
-// Call the connectDB function to establish a connection
-
-
 // Parse request body
+app.use(bodyparser.urlencoded({ extended: true }));
+
+// Serve static files from the frontend build directory
 app.use(express.static(path.join(__dirname, '../invoiceworld')));
 
 // Catch-all route to serve the React frontend for client-side routing
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../invoiceworld', 'index.html'));
 });
-app.use(bodyparser.urlencoded({ extended: true }));
 
-// Load routers
+// Load routers for API routes
 app.use('/', require('./server/routes/router'));
 
 // Sample API route
