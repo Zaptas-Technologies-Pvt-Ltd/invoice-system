@@ -123,7 +123,7 @@ const handleSubmit = (e) =>{
   const [taxlist, settaxList] = useState([]);
   const getCustomerlist = async () => {
     try{
-        const response = await axios.get("https://invoice-system-h9ds.onrender.com/api/customer",{ headers: {"authorization" : `Bearer ${localStorage.getItem('token')}`} });
+        const response = await axios.get("/api/customer",{ headers: {"authorization" : `Bearer ${localStorage.getItem('token')}`} });
         if(response.data.success === true ){
           setCustomerList(response.data.data);
         }else{
@@ -135,7 +135,7 @@ const handleSubmit = (e) =>{
   };
   const getServicelist = async () => {
     try{
-        const response = await axios.get("https://invoice-system-h9ds.onrender.com/api/services",{ headers: {"authorization" : `Bearer ${localStorage.getItem('token')}`} });
+        const response = await axios.get("/api/services",{ headers: {"authorization" : `Bearer ${localStorage.getItem('token')}`} });
         if(response.data.success ===true){
           setServiceList(response.data.data);
         }else{
@@ -147,7 +147,7 @@ const handleSubmit = (e) =>{
   };
   const getTaxlist = async () => {
     try{
-        const response = await axios.get("https://invoice-system-h9ds.onrender.com/api/tax",{ headers: {"authorization" : `Bearer ${localStorage.getItem('token')}`} });
+        const response = await axios.get("/api/tax",{ headers: {"authorization" : `Bearer ${localStorage.getItem('token')}`} });
         if(response.data.success ===true){
           settaxList(response.data.data);
         }else{

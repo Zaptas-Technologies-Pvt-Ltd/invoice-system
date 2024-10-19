@@ -17,7 +17,7 @@ export default function Services() {
     const getServices = async () => {
         try{
             setLoading(true)
-            const response = await axios.get("https://invoice-system-h9ds.onrender.com/api/services",{ headers: {"authorization" : `Bearer ${localStorage.getItem('token')}`} });
+            const response = await axios.get("/api/services",{ headers: {"authorization" : `Bearer ${localStorage.getItem('token')}`} });
             if(response.data.success ===true){
                 setLoading(false)
                 setCountries(response.data.data);

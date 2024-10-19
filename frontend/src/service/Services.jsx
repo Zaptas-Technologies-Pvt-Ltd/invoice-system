@@ -5,7 +5,7 @@ import qs from 'qs';
 const superagent = superagentPromise(_superagent, global.Promise);
 
 //local
-const API_ROOT = 'https://invoice-system-h9ds.onrender.com/api';
+const API_ROOT = '/api';
 
 //live
 // const API_ROOT = 'https://invoice.zaptas.in/v1/api';

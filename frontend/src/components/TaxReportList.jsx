@@ -19,7 +19,7 @@ export default function TaxReportList({FromDate,ToTODate,SACCodeFilt,resetForm})
     const getCountries = async (FromDate,ToTODate) => {
         try{
             setLoading(true)
-            const response = await axios.get("https://invoice-system-h9ds.onrender.com/api/getInvoice?fromdate="+FromDate+"&todate="+ToTODate+"&saccode="+SACCodeFilt
+            const response = await axios.get("/api/getInvoice?fromdate="+FromDate+"&todate="+ToTODate+"&saccode="+SACCodeFilt
             ,{ headers: {"authorization" : `Bearer ${localStorage.getItem('token')}`} });
             if(response.data.success === true) {
                 setLoading(false)

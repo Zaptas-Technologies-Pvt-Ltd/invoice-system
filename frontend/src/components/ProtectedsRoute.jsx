@@ -19,7 +19,7 @@ function ProtectedsRoute({children}) {
         try{
             dispatch(ShowLoading())
             const response = await axios.post(
-            "https://invoice-system-h9ds.onrender.com/api/getprofileDetail", 
+            "/api/getprofileDetail", 
             {}, 
             {
                 headers: {

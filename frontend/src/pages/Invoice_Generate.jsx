@@ -119,7 +119,7 @@ export default function Invoice_Generate() {
   const [posDetail, setPODetail] =useState([]);
   const getCustomerlist = async () => {
     try{
-        const response = await axios.get("https://invoice-system-h9ds.onrender.com/api/customer",{ headers: {"authorization" : `Bearer ${localStorage.getItem('token')}`} });
+        const response = await axios.get("/api/customer",{ headers: {"authorization" : `Bearer ${localStorage.getItem('token')}`} });
         if(response.data.success === true ){
           setCustomerList(response.data.data);
         }else{
@@ -140,7 +140,7 @@ export default function Invoice_Generate() {
   const getPOlist = async (e) => {
     try{
         setCustomer(e)
-        const response = await axios.get("https://invoice-system-h9ds.onrender.com/api/poList/"+e,{ headers: {"authorization" : `Bearer ${localStorage.getItem('token')}`} });
+        const response = await axios.get("/api/poList/"+e,{ headers: {"authorization" : `Bearer ${localStorage.getItem('token')}`} });
         if(response.data.success === true){
           setPOList(response.data.data);
         }else{
@@ -156,7 +156,7 @@ export default function Invoice_Generate() {
   const getPODetails = async (e) => {
     try{
         
-        const response = await axios.get("https://invoice-system-h9ds.onrender.com/api/poDetail/"+e,{ headers: {"authorization" : `Bearer ${localStorage.getItem('token')}`} });
+        const response = await axios.get("/api/poDetail/"+e,{ headers: {"authorization" : `Bearer ${localStorage.getItem('token')}`} });
         //console.log(response.data.data == null)
         if(response.data.data !== null){
          // setProfile({data:[]});

@@ -2,7 +2,7 @@ import axios from 'axios';
 
 export const GetLoginUserDetails = async () => {
     try{
-        const response = await axios.post("https://invoice-system-h9ds.onrender.com/api/getprofileDetail", 
+        const response = await axios.post("/api/getprofileDetail", 
         {}, 
         {
             headers: {
