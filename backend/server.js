@@ -23,12 +23,11 @@ app.use(cors());
 app.use(bodyparser.urlencoded({ extended: true }));
 
 // Serve static files from the frontend build directory
-app.use(express.static(path.join(__dirname, '../invoiceworld')));
-
+app.use(express.static(path.join(__dirname, '../frontend/build')));
 // Catch-all route to serve the React frontend for client-side routing
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../invoiceworld', 'index.html'));
-});
+    res.sendFile(path.join(__dirname, '../invoiceworld', 'index.html'));
+  });
 
 // Load routers for API routes
 app.use('/', require('./server/routes/router'));
@@ -37,7 +36,9 @@ app.use('/', require('./server/routes/router'));
 app.get('/api/hello', (req, res) => {
     res.send({ message: "Hello from backend!" });
 });
-
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/build/index.html'));
+  });
 // Start the server
 app.listen(PORT, async () => {
     await connectDB();
