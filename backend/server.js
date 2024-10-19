@@ -1,48 +1,39 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const morgan = require('morgan');
-const bodyParser = require("body-parser");
+const bodyparser = require("body-parser");
 const path = require('path');
 const cors = require('cors');
 
-const connectDB =  require('./server/database/connection');
+const connectDB = require('./server/database/connection');
 
 const app = express();
 
+dotenv.config( { path : 'config.env'} )
+const PORT = process.env.PORT || 8080
 
-// Serve static files from the static directory
-// app.use(express.static(path.join(__dirname, '../static'))); // Adjusted to serve from the static folder in the root
-
-dotenv.config({ path: 'config.env' });
-const PORT = process.env.PORT || 8080;
-
-// Log requests
+// log requests
 app.use(morgan('tiny'));
 
-// Allow cross-origin requests
-app.use(cors());
+//athor origin
+app.use(cors())
 
-// MongoDB connection
-// connectDB(); // Uncomment if you need to connect to your database
+// mongodb connection
 
-// Parse requests with body-parser
-app.use(bodyParser.urlencoded({ extended: true }));
 
-// Load routers (adjust path if needed)
-app.use('/', require('./routes/router')); // Ensure this path is correct
+// set view engine
+app.set("view engine", "ejs")
 
-// Define an API endpoint
+// parse request to body-parser
+app.use(bodyparser.urlencoded({ extended : true}))
+
+// load routers
+app.use('/', require('./server/routes/router'))
 app.get('/api/hello', (req, res) => {
     res.send({ message: "Hello from backend!" });
 });
+app.use("/files",express.static("./public/files"));
 
-// Fallback route for client-side routing
-// app.get('*', (req, res) => {
-//     res.sendFile(path.join(__dirname, '../index.html')); // Serve index.html from the root
-// });
-
-// Start the server
-app.listen(PORT, async () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-    await connectDB();
+app.listen(PORT, async ()=> { console.log(`Server is running on http://localhost:${PORT}`,process.env.MONGO_URI)
+await connectDB();
 });
