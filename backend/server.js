@@ -4,7 +4,6 @@ const morgan = require('morgan');
 const bodyparser = require("body-parser");
 const path = require('path');
 const cors = require('cors');
-
 const connectDB = require('./server/database/connection');
 
 const app = express();
@@ -22,23 +21,22 @@ app.use(cors());
 // Parse request body
 app.use(bodyparser.urlencoded({ extended: true }));
 
-// Serve static files from the frontend build directory
+// Serve static files from the React frontend build directory
 app.use(express.static(path.join(__dirname, '../frontend/build')));
-// Catch-all route to serve the React frontend for client-side routing
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../invoiceworld', 'index.html'));
-  });
 
-// Load routers for API routes
-app.use('/', require('./server/routes/router'));
+// API Routes
+app.use('/', require('./server/routes/router')); // Adjust your router to serve API requests
 
 // Sample API route
 app.get('/api/hello', (req, res) => {
     res.send({ message: "Hello from backend!" });
 });
+
+// Catch-all route to serve the React frontend (for client-side routing)
 app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/build/index.html'));
-  });
+    res.sendFile(path.join(__dirname, '../frontend/build', 'index.html')); // Adjusted path to frontend/build
+});
+
 // Start the server
 app.listen(PORT, async () => {
     await connectDB();
