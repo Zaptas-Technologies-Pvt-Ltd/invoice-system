@@ -20,35 +20,49 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      # Step to deploy backend files to the root directory and install npm packages
-      - name: Deploy backend and run npm install
+      # Step to create backend directory if it doesn't exist, pull code, and install dependencies
+      - name: Deploy backend code
         run: |
           ssh -o StrictHostKeyChecking=no root@162.241.149.204 << 'EOF'
-            # Navigate to backend folder, copy all files to root, and install backend dependencies
+            # Create backend directory if it doesn't exist
+            mkdir -p /var/www/vhosts/zaptas.in/mnt/vol-us-1/invoiceworld/backend
+
+            # Navigate to backend directory and pull latest code
             cd /var/www/vhosts/zaptas.in/mnt/vol-us-1/invoiceworld/backend || exit
-            rsync -avz . /var/www/vhosts/zaptas.in/mnt/vol-us-1/invoiceworld/
-            cd /var/www/vhosts/zaptas.in/mnt/vol-us-1/invoiceworld
+            git pull origin dev
+
+            # Install backend dependencies
             npm install --force
           EOF
 
-      # Step to build frontend and deploy build files to public folder
-      - name: Build frontend and move build files to public folder
+      # Step to create frontend directory if it doesn't exist, pull code, and build frontend
+      - name: Deploy frontend code
         run: |
           ssh -o StrictHostKeyChecking=no root@162.241.149.204 << 'EOF'
-            # Navigate to frontend folder and run the build
+            # Create frontend directory if it doesn't exist
+            mkdir -p /var/www/vhosts/zaptas.in/mnt/vol-us-1/invoiceworld/frontend
+
+            # Navigate to frontend directory and pull latest code
             cd /var/www/vhosts/zaptas.in/mnt/vol-us-1/invoiceworld/frontend || exit
+            git pull origin dev
+
+            # Install frontend dependencies and build the project
             npm install --force
             npm run build
-
-            # Ensure public folder exists in the root directory, create it if not
-            mkdir -p /var/www/vhosts/zaptas.in/mnt/vol-us-1/invoiceworld/public
-
-            # Move only build files (not the folder) to the public folder in the root
-            rsync -avz --delete build/ /var/www/vhosts/zaptas.in/mnt/vol-us-1/invoiceworld/public/
-
           EOF
 
-      # Step to restart the Nginx server if necessary
+      # Step to move frontend build files to the public directory
+      - name: Move frontend build to public folder
+        run: |
+          ssh -o StrictHostKeyChecking=no root@162.241.149.204 << 'EOF'
+            # Ensure the public folder exists
+            mkdir -p /var/www/vhosts/zaptas.in/mnt/vol-us-1/invoiceworld/public
+
+            # Move build files (not the folder) to the public directory
+            rsync -avz --delete /var/www/vhosts/zaptas.in/mnt/vol-us-1/invoiceworld/frontend/build/ /var/www/vhosts/zaptas.in/mnt/vol-us-1/invoiceworld/public/
+          EOF
+
+      # Step to restart Nginx server after deployment
       - name: Restart Nginx
         run: |
           ssh -o StrictHostKeyChecking=no root@162.241.149.204 << 'EOF'
