@@ -35,7 +35,7 @@ jobs:
             npm install --force
           EOF
 
-      # Step to create frontend directory if it doesn't exist, pull code, and build frontend
+      # Step to create frontend directory if it doesn't exist, pull code, and build fronten
       - name: Deploy frontend code
         run: |
           ssh -o StrictHostKeyChecking=no root@162.241.149.204 << 'EOF'
