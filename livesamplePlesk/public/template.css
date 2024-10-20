@@ -1,0 +1,347 @@
+/*! Invoice Templates @author: Invoicebus @email: info@invoicebus.com @web: https://invoicebus.com @version: 1.0.0 @updated: 2015-02-27 16:02:57 @license: Invoicebus */
+/* Reset styles */
+@import url("https://fonts.googleapis.com/css?family=Open+Sans:400italic,400,700&subset=cyrillic,cyrillic-ext,latin,greek-ext,greek,latin-ext,vietnamese");
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font: inherit;
+  font-size: 100%;
+  vertical-align: baseline;
+}
+
+html {
+  line-height: 1;
+}
+
+ol, ul {
+  list-style: none;
+}
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+caption, th, td {
+  text-align: left;
+  font-weight: normal;
+  vertical-align: middle;
+}
+
+q, blockquote {
+  quotes: none;
+}
+q:before, q:after, blockquote:before, blockquote:after {
+  content: "";
+  content: none;
+}
+
+a img {
+  border: none;
+}
+
+article, aside, details, figcaption, figure, footer, header, hgroup, main, menu, nav, section, summary {
+  display: block;
+}
+
+/* Invoice styles */
+/**
+ * DON'T override any styles for the <html> and <body> tags, as this may break the layout.
+ * Instead wrap everything in one main <div id="container"> element where you may change
+ * something like the font or the background of the invoice
+ */
+html, body {
+  /* MOVE ALONG, NOTHING TO CHANGE HERE! */
+}
+
+/** 
+ * IMPORTANT NOTICE: DON'T USE '!important' otherwise this may lead to broken print layout.
+ * Some browsers may require '!important' in oder to work properly but be careful with it.
+ */
+.clearfix {
+  display: block;
+  clear: both;
+}
+
+.hidden {
+  display: none;
+}
+
+b, strong, .bold {
+  font-weight: bold;
+}
+
+#container {
+  font: normal 13px/1.4em 'Open Sans', Sans-serif;
+  margin: 0 auto;
+}
+
+.invoice-top {
+  color: #333;
+  padding: 40px 40px 10px 40px;
+}
+
+.invoice-body {
+  padding: 5px 40px 40px 40px;
+}
+
+#memo .logo {
+  float: left;
+  margin-right: 20px;
+}
+#memo .logo img {
+  width: 100px;
+  height: 100px;
+}
+#memo .company-info {
+  float: right;
+  text-align: right;
+}
+#memo .company-info .company-name {
+  color: #F8ED31;
+  font-weight: bold;
+  font-size: 32px;
+}
+#memo .company-info .spacer {
+  height: 15px;
+  display: block;
+}
+#memo .company-info div {
+  font-size: 12px;
+  float: right;
+  margin: 0 3px 3px 0;
+}
+#memo:after {
+  content: '';
+  display: block;
+  clear: both;
+}
+
+#invoice-info {
+  float: right;
+  margin-top: 10px;
+}
+#invoice-info > div {
+  float: left;
+}
+#invoice-info > div > span {
+  display: block;
+  min-width: 100px;
+  min-height: 18px;
+  margin-bottom: 3px;
+}
+#invoice-info > div:last-of-type {
+  margin-left: 10px;
+  text-align: right;
+}
+#invoice-info:after {
+  content: '';
+  display: block;
+  clear: both;
+}
+
+#client-info {
+  float: left;
+  margin-top: 0px;
+  margin-right: 30px;
+  min-width: 220px;
+}
+#client-info > div {
+  margin-bottom: 3px;
+}
+#client-info span {
+  display: block;
+}
+#client-info > span {
+  margin-bottom: 3px;
+}
+
+#invoice-title-number {
+  margin-top: 30px;
+}
+#invoice-title-number #title {
+  margin-right: 5px;
+  text-align: right;
+  font-size: 25px;
+}
+#invoice-title-number #number {
+  margin-left: 5px;
+  text-align: left;
+  font-size: 20px;
+}
+
+table {
+  table-layout: fixed;
+}
+table th, table td {
+  vertical-align: top;
+  word-break: keep-all;
+  word-wrap: break-word;
+}
+
+#items .first-cell, #items table th:first-child, #items table td:first-child {
+  width: 18px;
+  text-align: right;
+}
+#items table {
+  border-collapse: separate;
+  width: 100%;
+}
+#items table th {
+  font-weight: bold;
+  padding: 12px 10px;
+  text-align: right;
+  border-bottom: 1px solid #444;
+  border-top: 1px solid #444;
+  text-transform: uppercase;
+}
+#items table th:nth-child(2) {
+  width: 30%;
+  text-align: left;
+}
+#items table th:last-child {
+  text-align: right;
+}
+#items table td {
+  border-right: 1px solid #b6b6b6;
+  padding: 15px 10px;
+  text-align: right;
+}
+.horizental-line {
+  border-bottom: 1px solid #444;
+}
+#items table td:first-child {
+  text-align: left;
+  border-right: none !important;
+}
+#items table td:nth-child(2) {
+  text-align: left;
+}
+#items table td:last-child {
+  border-right: none !important;
+}
+
+/*------horizental--------*/
+
+#sums {
+  float: right;
+}
+#sums table tr th, #sums table tr td {
+  min-width: 100px;
+  padding: 10px;
+  text-align: right;
+  font-weight: bold;
+  font-size: 14px;
+}
+#sums table tr th {
+  text-align: left;
+  padding-right: 25px;
+  color: #707070;
+}
+#sums table tr td:last-child {
+  min-width: 0 !important;
+  max-width: 0 !important;
+  width: 0 !important;
+  padding: 0 !important;
+  overflow: visible;
+}
+#sums table tr.amount-total th {
+  color: black;
+}
+#sums table tr.amount-total th, #sums table tr.amount-total td {
+  font-weight: bold;
+}
+#sums table tr.amount-total td:last-child {
+  position: relative;
+}
+#sums table tr.amount-total td:last-child .currency {
+  position: absolute;
+  top: 3px;
+  left: -740px;
+  font-weight: normal;
+  font-style: italic;
+  font-size: 12px;
+  color: #707070;
+}
+#sums table tr.amount-total td:last-child:before {
+  display: block;
+  content: '';
+  border-top: 1px solid #444;
+  position: absolute;
+  top: 0;
+  left: -740px;
+  right: 0;
+}
+#sums table tr:last-child th, #sums table tr:last-child td {
+  color: black;
+}
+
+#terms {
+  margin: 85px 0 0 0;
+  text-align: right;
+}
+#terms > div {
+  min-height: 40px;
+}
+
+
+.payment-info {
+  color: #707070;
+  font-size: 12px;
+}
+.payment-info div {
+  display: inline-block;
+  min-width: 10px;
+}
+
+.ib_drop_zone {
+  color: #F8ED31 !important;
+  border-color: #F8ED31 !important;
+}
+.pagination{
+  float: right;
+  margin-right: 15px !important;
+}
+
+.menu {
+  width: 35px;
+  height: 5px;
+  background-color: black;
+  margin: 6px 0;
+}
+
+/**
+ * If the printed invoice is not looking as expected you may tune up
+ * the print styles (you can use !important to override styles)
+ */
+@media print {
+    @page 
+    {
+        size:  auto;   /* auto is the initial value */
+        margin: 0mm;  /* this affects the margin in the printer settings */
+    }
+
+    html
+    {
+        margin: 0px;  /* this affects the margin on the html before sending to printer */
+    }
+
+    body
+    {
+        margin: 10mm 15mm 10mm 15mm; /* margin you want for the content */
+    }
+}
+
