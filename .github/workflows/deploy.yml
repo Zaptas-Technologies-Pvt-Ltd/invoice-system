@@ -51,7 +51,7 @@ jobs:
             npm run build
           EOF
 
-      # Step to move frontend build files to the public directoryy
+      # Step to move frontend build files to the public directory
       - name: Move frontend build to public folder
         run: |
           ssh -o StrictHostKeyChecking=no root@162.241.149.204 << 'EOF'
