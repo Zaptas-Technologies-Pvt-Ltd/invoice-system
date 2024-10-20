@@ -10,39 +10,47 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Checkout the code from the 'dev' branch
       - name: Checkout code
         uses: actions/checkout@v2
 
+      # Set up SSH to deploy code on the server
       - name: Set up SSH
         uses: webfactory/ssh-agent@v0.5.3
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      # Step to pull latest code and build the frontend
-      - name: Pull latest code and build frontend
+      # Step to deploy backend files to the root directory and install npm packages
+      - name: Deploy backend and run npm install
         run: |
           ssh -o StrictHostKeyChecking=no root@162.241.149.204 << 'EOF'
-            cd /var/www/vhosts/zaptas.in/mnt/vol-us-1/invoiceworld || exit
-            git pull origin dev
-            cd frontend
+            # Navigate to backend folder, copy all files to root, and install backend dependencies
+            cd /var/www/vhosts/zaptas.in/mnt/vol-us-1/invoiceworld/backend || exit
+            rsync -avz . /var/www/vhosts/zaptas.in/mnt/vol-us-1/invoiceworld/
+            cd /var/www/vhosts/zaptas.in/mnt/vol-us-1/invoiceworld
+            npm install --force
+          EOF
+
+      # Step to build frontend and deploy build files to public folder
+      - name: Build frontend and move build files to public folder
+        run: |
+          ssh -o StrictHostKeyChecking=no root@162.241.149.204 << 'EOF'
+            # Navigate to frontend folder and run the build
+            cd /var/www/vhosts/zaptas.in/mnt/vol-us-1/invoiceworld/frontend || exit
             npm install --force
             npm run build
+
+            # Ensure public folder exists in the root directory, create it if not
+            mkdir -p /var/www/vhosts/zaptas.in/mnt/vol-us-1/invoiceworld/public
+
+            # Move only build files (not the folder) to the public folder in the root
+            rsync -avz --delete build/ /var/www/vhosts/zaptas.in/mnt/vol-us-1/invoiceworld/public/
+
           EOF
 
-      # Step to deploy the frontend build files directly to invoiceworld
-      - name: Deploy frontend build to server
+      # Step to restart the Nginx server if necessary
+      - name: Restart Nginx
         run: |
-          rsync -avz --delete frontend/build/ root@162.241.149.204:/var/www/vhosts/zaptas.in/mnt/vol-us-1/invoiceworld/
-          
-          # Restart Nginx if necessary
           ssh -o StrictHostKeyChecking=no root@162.241.149.204 << 'EOF'
             systemctl restart nginx
-          EOF
-
-      # Step to deploy backend to server
-      - name: Deploy backend to server
-        run: |
-          ssh -o StrictHostKeyChecking=no root@162.241.149.204 << 'EOF'
-            cd /var/www/vhosts/zaptas.in/mnt/vol-us-1/invoiceworld/backend || exit
-            npm install
           EOF
