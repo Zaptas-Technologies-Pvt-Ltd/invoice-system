@@ -9,10 +9,9 @@ var dateTime = require('node-datetime');
 var dateFormat = require('dateformat');
 const excel = require('exceljs');
 var url = require('url');
-const { MongoClient, ObjectID } = require('mongodb');
+const mongoose = require('mongoose');
 
 
-const connectDB = require('../database/connection');
 /* autoIncrement.initialize(connectDB); */
 
 
@@ -200,7 +199,7 @@ exports.customerupdate = (req , res)=>{
     }
 
     const id = req.params.id;
-        customerdb.update({ _id: ObjectID(id)}, { 
+        customerdb.update({ _id:!mongoose.Types.ObjectId(id)}, { 
             name : req.body.cname,
             gstno : req.body.cgst,
             address : req.body.caddress
@@ -227,7 +226,7 @@ exports.serviceupdate = (req , res)=>{
         return;
     }
     const id = req.params.id;
-    servicesdb.update({ _id: ObjectID(id)}, { 
+    servicesdb.update({ _id:!mongoose.Types.ObjectId(id)}, { 
         price : req.body.sprice,
         qty : req.body.sqty,
         sr_name : req.body.sname,
@@ -248,29 +247,40 @@ exports.serviceupdate = (req , res)=>{
 }
 
 // update 
-exports.invoiceUpdate = (req , res)=>{
-    // validate request
-    if(!req.body){
-        res.status(400).send({ message : "Content can not be emtpy!"});
-        return;
-    }
-    const id = req.params.id;
-    invoicedb.update({ _id: ObjectID(id)}, { 
-        status : false,
-    }).then(data => {
-            res.status(200).send({
-                success: true,
-                message : 'invoice update successfully'
-            });
-        })
-        .catch(err =>{
-            res.status(500).send({
-                success: false,
-                message : err.message || "Some error occurred while creating a create operation"
-            });
-        });
 
-}
+
+exports.invoiceUpdate = (req, res) => {
+    // Validate request
+    if (!req.body) {
+        return res.status(400).send({ message: "Content cannot be empty!" });
+    }
+
+    const id = req.params.id;
+   
+ 
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).send({ message: "Invalid invoice ID" });
+    }
+
+    invoicedb.findByIdAndUpdate(id, { 
+        status: false 
+    }, { new: true }) // 'new: true' to return the updated document
+    .then(data => {
+        if (!data) {
+            return res.status(404).send({ message: "Invoice not found" });
+        }
+        res.status(200).send({
+            success: true,
+            message: 'Invoice updated successfully'
+        });
+    })
+    .catch(err => {
+        res.status(500).send({
+            success: false,
+            message: err.message || "Some error occurred while updating the invoice"
+        });
+    });
+};
 
 
 //edit service
@@ -285,7 +295,7 @@ exports.editservice = (req , res)=>{
 
     console.log(req.body.service_name);
     
-    invoicedb.update({ _id: ObjectID(id)}, { 
+    invoicedb.update({ _id:!mongoose.Types.ObjectId(id)}, { 
         service_name : req.body.service_name,
     }).then(data => {
             res.status(200).send({
