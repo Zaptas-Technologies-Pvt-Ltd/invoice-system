@@ -189,62 +189,86 @@ exports.customercreate = (req , res)=>{
 }
 
 
-//update  customer
-exports.customerupdate = (req , res)=>{
-    
-    // validate request
-    if(!req.body){
-        res.status(400).send({ message : "Content can not be emtpy!"});
-        return;
+// Update customer
+exports.customerupdate = (req, res) => {
+
+    // Validate request
+    if (!req.body) {
+        return res.status(400).send({ message: "Content cannot be empty!" });
     }
 
     const id = req.params.id;
-        customerdb.update({ _id:!mongoose.Types.ObjectId(id)}, { 
-            name : req.body.cname,
-            gstno : req.body.cgst,
-            address : req.body.caddress
-        }).then(data => {
-            res.status(200).send({
-                success: true,
-                message : 'customer update successfully'
-            });
-        })
-        .catch(err =>{
-            res.status(500).send({
-                success: false,
-                message : err.message || "Some error occurred while creating a create operation"
-            });
-        });
 
-}
+    // Check if the ID is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).send({ message: "Invalid customer ID" });
+    }
+
+    // Proceed with update
+    customerdb.update({ _id: mongoose.Types.ObjectId(id) }, {
+        name: req.body.cname,
+        gstno: req.body.cgst,
+        address: req.body.caddress
+    })
+    .then(data => {
+        if (!data) {
+            return res.status(404).send({
+                success: false,
+                message: `Cannot update customer with ID=${id}. Customer not found!`
+            });
+        }
+        res.status(200).send({
+            success: true,
+            message: 'Customer updated successfully'
+        });
+    })
+    .catch(err => {
+        res.status(500).send({
+            success: false,
+            message: err.message || "Some error occurred while updating the customer"
+        });
+    });
+};
+
 
 // update and save new services
-exports.serviceupdate = (req , res)=>{
-    // validate request
-    if(!req.body){
-        res.status(400).send({ message : "Content can not be emtpy!"});
-        return;
+exports.serviceupdate = (req, res) => {
+    // Validate request
+    if (!req.body) {
+        return res.status(400).send({ message: "Content cannot be empty!" });
     }
-    const id = req.params.id;
-    servicesdb.update({ _id:!mongoose.Types.ObjectId(id)}, { 
-        price : req.body.sprice,
-        qty : req.body.sqty,
-        sr_name : req.body.sname,
-        sac_code : req.body.scode
-    }).then(data => {
-            res.status(200).send({
-                success: true,
-                message : 'services update successfully'
-            });
-        })
-        .catch(err =>{
-            res.status(500).send({
-                success: false,
-                message : err.message || "Some error occurred while creating a create operation"
-            });
-        });
 
-}
+    const id = req.params.id;
+
+    // Check if the ID is valid
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).send({ message: "Invalid service ID" });
+    }
+
+    // Update service details
+    servicesdb.findByIdAndUpdate(id, {
+        price: req.body.sprice,
+        qty: req.body.sqty,
+        sr_name: req.body.sname,
+        sac_code: req.body.scode
+    }, { new: true }) // 'new: true' to return the updated document
+    .then(data => {
+        if (!data) {
+            return res.status(404).send({ message: "Service not found" });
+        }
+        res.status(200).send({
+            success: true,
+            message: 'Service updated successfully',
+            data: data
+        });
+    })
+    .catch(err => {
+        res.status(500).send({
+            success: false,
+            message: err.message || "Some error occurred while updating the service."
+        });
+    });
+};
 
 // update 
 
@@ -285,32 +309,44 @@ exports.invoiceUpdate = (req, res) => {
 
 //edit service
 
-exports.editservice = (req , res)=>{
-    // validate request
-    if(!req.body){
-        res.status(400).send({ message : "Content can not be emtpy!"});
-        return;
+exports.editservice = (req, res) => {
+    // Validate request
+    if (!req.body) {
+        return res.status(400).send({ message: "Content cannot be empty!" });
     }
+
     const id = req.params.id;
 
-    console.log(req.body.service_name);
-    
-    invoicedb.update({ _id:!mongoose.Types.ObjectId(id)}, { 
-        service_name : req.body.service_name,
-    }).then(data => {
-            res.status(200).send({
-                success: true,
-                message : 'services update successfully'
-            });
-        })
-        .catch(err =>{
-            res.status(500).send({
-                success: false,
-                message : err.message || "Some error occurred while creating a create operation"
-            });
-        });
+    // Check if the ID is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).send({ message: "Invalid service ID" });
+    }
 
-}
+    console.log(req.body.service_name);
+
+    // Proceed with the update
+    invoicedb.update({ _id: mongoose.Types.ObjectId(id) }, {
+        service_name: req.body.service_name,
+    })
+    .then(data => {
+        if (!data) {
+            return res.status(404).send({
+                success: false,
+                message: `Cannot update service with ID=${id}. Service not found!`
+            });
+        }
+        res.status(200).send({
+            success: true,
+            message: 'Service updated successfully'
+        });
+    })
+    .catch(err => {
+        res.status(500).send({
+            success: false,
+            message: err.message || "Some error occurred while updating the service"
+        });
+    });
+};
 
 
 // create and save new services
