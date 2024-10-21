@@ -78,36 +78,42 @@ exports.invoicefind = (req, res)=> {
             //message : err.message || "Error Occurred while retriving invoice information" })
         })
 }
-async function getNextSequenceValue(callback){
-    try{
-        var Cusdate = ['01-04-2023','01-04-2024','01-04-2025','01-04-2026','01-04-2027','01-04-2028','01-04-2029'];
+async function getNextSequenceValue(callback) {
+    try {
+        const Cusdate = ['01-04-2023', '01-04-2024', '01-04-2025', '01-04-2026', '01-04-2027', '01-04-2028', '01-04-2029'];
+        
         let date_time = new Date();
         let date = ("0" + date_time.getDate()).slice(-2);
         let month = ("0" + (date_time.getMonth() + 1)).slice(-2);
         let year = date_time.getFullYear();
-        let curetnDate = date + "-" + month + "-" + year;
-       // console.log(curetnDate)
-        Cusdate.map((value) => {
-            if(value === curetnDate){
-                counterdb.update({'_id':'invoiceid'},{sequence_value:1})
-                var status = 'true';
-            }else{
-                var status = 'false';
-            }
-            console.log(status);
-        })
+        let currentDate = date + "-" + month + "-" + year;
 
-        counterdb.update({'_id':'invoiceid'},{'$inc':{'sequence_value':1}}).then(
-            counterdb.find({'_id':'invoiceid'}).then((data)=>{
-                callback(Object.assign({},data)[0].sequence_value);
-            })
-        )
-    }catch(error){
+        // Check if the current date matches any of the dates in Cusdate
+        if (Cusdate.includes(currentDate)) {
+            // Reset sequence_value to 1 if a match is found
+            await counterdb.findOneAndUpdate({ _id: 'invoiceid' }, { $set: { sequence_value: 1 } });
+            console.log('Reset sequence_value to 1');
+        }
+
+        // Increment sequence_value
+        await counterdb.findOneAndUpdate({ _id: 'invoiceid' }, { $inc: { sequence_value: 1 } });
+
+        // Retrieve the updated sequence_value
+        const result = await counterdb.findOne({ _id: 'invoiceid' });
+
+        // Execute the callback with the updated sequence_value
+        if (result) {
+            callback(result.sequence_value);
+        }
+    } catch (error) {
+        console.error("Error in getNextSequenceValue:", error);
     }
- }
+}
+
 
 // create and save new user
 exports.create = (req,res)=>{
+    console.log(req.body,'dddddd')
     // validate request
     if(!req.body){
         res.status(400).send({ message : "Content can not be emtpy!"});
