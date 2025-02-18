@@ -15,72 +15,72 @@ const mongoose = require('mongoose');
 /* autoIncrement.initialize(connectDB); */
 
 
-exports.invoicefindByid = (req, res)=> {
+exports.invoicefindByid = (req, res) => {
     const id = req.params.id;
-    invoicedb.findById(id).populate({ path: 'customer', select: ['name','address','gstno'] }).populate({ path: 'tax', select: 'tax' }).populate({ path: 'service', select: ['sr_name','price','qty','sac_code'] })
-    .then(invoice => {
-        res.send(invoice)
-    })
-    .catch(err => {
-        res.status(500).send({ message : err.message || "Error Occurred while retriving invoice information" })
-    })
+    invoicedb.findById(id).populate({ path: 'customer', select: ['name', 'address', 'gstno'] }).populate({ path: 'tax', select: 'tax' }).populate({ path: 'service', select: ['sr_name', 'price', 'qty', 'sac_code'] })
+        .then(invoice => {
+            res.send(invoice)
+        })
+        .catch(err => {
+            res.status(500).send({ message: err.message || "Error Occurred while retriving invoice information" })
+        })
 }
 
 
-exports.invoicefind = (req, res)=> {
-    var mysort = { _id: -1 }; 
-    const fdate = req.query.fromdate || "" 
-    const ldate = req.query.todate || "" 
-    const sacCode = req.query.saccode || "" 
-    
-    if(fdate !='' && ldate !=''){
-        if(sacCode !=''){
+exports.invoicefind = (req, res) => {
+    var mysort = { _id: -1 };
+    const fdate = req.query.fromdate || ""
+    const ldate = req.query.todate || ""
+    const sacCode = req.query.saccode || ""
+
+    if (fdate != '' && ldate != '') {
+        if (sacCode != '') {
             var query = {
                 createdAt: {
-                    $gte: fdate?fdate:'', 
-                    $lte: ldate?ldate:''
+                    $gte: fdate ? fdate : '',
+                    $lte: ldate ? ldate : ''
                 },
-               // service_code: {"$in": sacCode}
+                // service_code: {"$in": sacCode}
                 service_code: sacCode
             }
-        }else{
-        var query = {
+        } else {
+            var query = {
                 createdAt: {
-                    $gte: fdate?fdate:'', 
-                    $lte: ldate?ldate:''
+                    $gte: fdate ? fdate : '',
+                    $lte: ldate ? ldate : ''
                 },
             }
         }
-        }else{
-            var query = {}
+    } else {
+        var query = {}
     }
     invoicedb.find(query)
-    .sort(mysort)
-    .populate({ path: 'customer', select: ['name','address','gstno'] })
-    .populate({ path: 'tax', select: 'tax' })
-    .populate({ path: 'service', select: ['sr_name','price','qty' ,'sac_code'] })
-    .then(invoice => {
-        res.status(200).send(
-            {
-                success: (invoice !='')?true:false,
-                message: "Data fatched successfully",
-                data: invoice,
-            })
-    })
-    .catch(err => {
-        res.status(500).send( 
-            {
-                message: err.message,
-                success: false,
-                data: null,
-            })
+        .sort(mysort)
+        .populate({ path: 'customer', select: ['name', 'address', 'gstno'] })
+        .populate({ path: 'tax', select: 'tax' })
+        .populate({ path: 'service', select: ['sr_name', 'price', 'qty', 'sac_code'] })
+        .then(invoice => {
+            res.status(200).send(
+                {
+                    success: (invoice != '') ? true : false,
+                    message: "Data fatched successfully",
+                    data: invoice,
+                })
+        })
+        .catch(err => {
+            res.status(500).send(
+                {
+                    message: err.message,
+                    success: false,
+                    data: null,
+                })
             //message : err.message || "Error Occurred while retriving invoice information" })
         })
 }
 async function getNextSequenceValue(callback) {
     try {
         const Cusdate = ['01-04-2023', '01-04-2024', '01-04-2025', '01-04-2026', '01-04-2027', '01-04-2028', '01-04-2029'];
-        
+
         let date_time = new Date();
         let date = ("0" + date_time.getDate()).slice(-2);
         let month = ("0" + (date_time.getMonth() + 1)).slice(-2);
@@ -111,63 +111,63 @@ async function getNextSequenceValue(callback) {
 
 
 // create and save new user
-exports.create = (req,res)=>{
-    console.log(req.body,'dddddd')
+exports.create = (req, res) => {
+    console.log(req.body, 'dddddd')
     // validate request
-    if(!req.body){
-        res.status(400).send({ message : "Content can not be emtpy!"});
+    if (!req.body) {
+        res.status(400).send({ message: "Content can not be emtpy!" });
         return;
     }
-    getNextSequenceValue((data) =>{
+    getNextSequenceValue((data) => {
         var dt = dateTime.create();
 
         // new invoice
-       // console.log(req.body.serviceCode)
+        // console.log(req.body.serviceCode)
         const invoice = new invoicedb({
-            customer : req.body.customer,
-            service : req.body.service,
-            service_name : req.body.serviceName,
-            service_code : req.body.serviceCode.toString(),
+            customer: req.body.customer,
+            service: req.body.service,
+            service_name: req.body.serviceName,
+            service_code: req.body.serviceCode.toString(),
             //service_code : req.body.serviceCode,
             profileName_rate: req.body.profilesDetails,
             tax: req.body.tax,
-            po:req.body.po,
-            podate:(req.body.podate != '') ? dateTime.create(req.body.podate).format('d-m-Y') : '', 
-            createdAt: (req.body.createdAt)?dateTime.create(req.body.createdAt).format('Y-m-d'):dt.format('Y-m-d'), 
-            invoice:'00'+data,
-            payment : req.body.payment
+            po: req.body.po,
+            podate: (req.body.podate != '') ? dateTime.create(req.body.podate).format('d-m-Y') : '',
+            createdAt: (req.body.createdAt) ? dateTime.create(req.body.createdAt).format('Y-m-d') : dt.format('Y-m-d'),
+            invoice: '00' + data,
+            payment: req.body.payment
         })
-    
+
         invoice
             .save(invoice)
             .then(data => {
                 res.status(200).send({
                     success: true,
-                    message : 'invoice create successfully'
+                    message: 'invoice create successfully'
                 });
             })
-            .catch(err =>{
+            .catch(err => {
                 res.status(500).send({
                     success: false,
-                    message : err.message || "Some error occurred while creating a create operation"
+                    message: err.message || "Some error occurred while creating a create operation"
                 });
             });
     });
 }
 
 // create and save new customer
-exports.customercreate = (req , res)=>{
-    
+exports.customercreate = (req, res) => {
+
     // validate request
-    if(!req.body){
-        res.status(400).send({ message : "Content can not be emtpy!"});
+    if (!req.body) {
+        res.status(400).send({ message: "Content can not be emtpy!" });
         return;
     }
     // new customer
     const customer = new customerdb({
-        name : req.body.cname,
-        gstno : req.body.cgst,
-        address : req.body.caddress
+        name: req.body.cname,
+        gstno: req.body.cgst,
+        address: req.body.caddress
     })
 
     // save customer in the database
@@ -176,13 +176,13 @@ exports.customercreate = (req , res)=>{
         .then(data => {
             res.status(200).send({
                 success: true,
-                message : 'customer create successfully'
+                message: 'customer create successfully'
             });
         })
-        .catch(err =>{
+        .catch(err => {
             res.status(500).send({
                 success: false,
-                message : err.message || "Some error occurred while creating a create operation"
+                message: err.message || "Some error occurred while creating a create operation"
             });
         });
 
@@ -204,30 +204,29 @@ exports.customerupdate = (req, res) => {
         return res.status(400).send({ message: "Invalid customer ID" });
     }
 
-    // Proceed with update
-    customerdb.update({ _id: mongoose.Types.ObjectId(id) }, {
+    customerdb.findByIdAndUpdate(id, {
         name: req.body.cname,
         gstno: req.body.cgst,
         address: req.body.caddress
-    })
-    .then(data => {
-        if (!data) {
-            return res.status(404).send({
-                success: false,
-                message: `Cannot update customer with ID=${id}. Customer not found!`
+    }, { new: true }) // 'new: true' returns the updated document
+        .then(data => {
+            if (!data) {
+                return res.status(404).send({
+                    success: false,
+                    message: `Cannot update customer with ID=${id}. Customer not found!`
+                });
+            }
+            res.status(200).send({
+                success: true,
+                message: 'Customer updated successfully'
             });
-        }
-        res.status(200).send({
-            success: true,
-            message: 'Customer updated successfully'
+        })
+        .catch(err => {
+            res.status(500).send({
+                success: false,
+                message: err.message || "Some error occurred while updating the customer"
+            });
         });
-    })
-    .catch(err => {
-        res.status(500).send({
-            success: false,
-            message: err.message || "Some error occurred while updating the customer"
-        });
-    });
 };
 
 
@@ -252,22 +251,22 @@ exports.serviceupdate = (req, res) => {
         sr_name: req.body.sname,
         sac_code: req.body.scode
     }, { new: true }) // 'new: true' to return the updated document
-    .then(data => {
-        if (!data) {
-            return res.status(404).send({ message: "Service not found" });
-        }
-        res.status(200).send({
-            success: true,
-            message: 'Service updated successfully',
-            data: data
+        .then(data => {
+            if (!data) {
+                return res.status(404).send({ message: "Service not found" });
+            }
+            res.status(200).send({
+                success: true,
+                message: 'Service updated successfully',
+                data: data
+            });
+        })
+        .catch(err => {
+            res.status(500).send({
+                success: false,
+                message: err.message || "Some error occurred while updating the service."
+            });
         });
-    })
-    .catch(err => {
-        res.status(500).send({
-            success: false,
-            message: err.message || "Some error occurred while updating the service."
-        });
-    });
 };
 
 // update 
@@ -280,30 +279,30 @@ exports.invoiceUpdate = (req, res) => {
     }
 
     const id = req.params.id;
-   
- 
+
+
     if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(400).send({ message: "Invalid invoice ID" });
     }
 
-    invoicedb.findByIdAndUpdate(id, { 
-        status: false 
+    invoicedb.findByIdAndUpdate(id, {
+        status: false
     }, { new: true }) // 'new: true' to return the updated document
-    .then(data => {
-        if (!data) {
-            return res.status(404).send({ message: "Invoice not found" });
-        }
-        res.status(200).send({
-            success: true,
-            message: 'Invoice updated successfully'
+        .then(data => {
+            if (!data) {
+                return res.status(404).send({ message: "Invoice not found" });
+            }
+            res.status(200).send({
+                success: true,
+                message: 'Invoice updated successfully'
+            });
+        })
+        .catch(err => {
+            res.status(500).send({
+                success: false,
+                message: err.message || "Some error occurred while updating the invoice"
+            });
         });
-    })
-    .catch(err => {
-        res.status(500).send({
-            success: false,
-            message: err.message || "Some error occurred while updating the invoice"
-        });
-    });
 };
 
 
@@ -328,40 +327,40 @@ exports.editservice = (req, res) => {
     invoicedb.update({ _id: mongoose.Types.ObjectId(id) }, {
         service_name: req.body.service_name,
     })
-    .then(data => {
-        if (!data) {
-            return res.status(404).send({
-                success: false,
-                message: `Cannot update service with ID=${id}. Service not found!`
+        .then(data => {
+            if (!data) {
+                return res.status(404).send({
+                    success: false,
+                    message: `Cannot update service with ID=${id}. Service not found!`
+                });
+            }
+            res.status(200).send({
+                success: true,
+                message: 'Service updated successfully'
             });
-        }
-        res.status(200).send({
-            success: true,
-            message: 'Service updated successfully'
+        })
+        .catch(err => {
+            res.status(500).send({
+                success: false,
+                message: err.message || "Some error occurred while updating the service"
+            });
         });
-    })
-    .catch(err => {
-        res.status(500).send({
-            success: false,
-            message: err.message || "Some error occurred while updating the service"
-        });
-    });
 };
 
 
 // create and save new services
-exports.servicecreate = (req , res)=>{
+exports.servicecreate = (req, res) => {
     // validate request
-    if(!req.body){
-        res.status(400).send({ message : "Content can not be emtpy!"});
+    if (!req.body) {
+        res.status(400).send({ message: "Content can not be emtpy!" });
         return;
     }
     // new services
     const services = new servicesdb({
-        price : req.body.sprice,
-        qty : req.body.sqty,
-        sr_name : req.body.sname,
-        sac_code : req.body.scode
+        price: req.body.sprice,
+        qty: req.body.sqty,
+        sr_name: req.body.sname,
+        sac_code: req.body.scode
     })
 
     // save services in the database
@@ -370,13 +369,13 @@ exports.servicecreate = (req , res)=>{
         .then(data => {
             res.status(200).send({
                 success: true,
-                message : 'services create successfully'
+                message: 'services create successfully'
             });
         })
-        .catch(err =>{
+        .catch(err => {
             res.status(500).send({
                 success: false,
-                message : err.message || "Some error occurred while creating a create operation"
+                message: err.message || "Some error occurred while creating a create operation"
             });
         });
 
@@ -384,22 +383,22 @@ exports.servicecreate = (req , res)=>{
 
 
 // retrieve and return all users/ retrive and return a single user
-exports.customerfindByid = (req, res)=> {
+exports.customerfindByid = (req, res) => {
     const id = req.params.id;
     customerdb.findById(id)
-    .then(customer => {
-        res.send(customer)
-    })
-    .catch(err => {
-        res.status(500).send({ message : err.message || "Error Occurred while retriving customer information" })
-    })
+        .then(customer => {
+            res.send(customer)
+        })
+        .catch(err => {
+            res.status(500).send({ message: err.message || "Error Occurred while retriving customer information" })
+        })
 }
 
 
 // retrieve and return all users/ retrive and return a single user
-exports.customerfind =async (req, res)=> {
+exports.customerfind = async (req, res) => {
 
-    try{
+    try {
         const list = await customerdb.find()
         return res.status(200).send({
             success: true,
@@ -407,13 +406,13 @@ exports.customerfind =async (req, res)=> {
             data: list,
         });
 
-    }catch (error) {
+    } catch (error) {
         res.send({
             message: error.message,
             success: false,
             data: null,
         });
-}
+    }
     // .then(customer => {
     //     res.send(customer)
     // })
@@ -422,191 +421,191 @@ exports.customerfind =async (req, res)=> {
     // })
 }
 
-exports.companyfind = (req, res)=> {
+exports.companyfind = (req, res) => {
 
     companydb.find()
-    .then(company => {
-        res.send(company)
-    })
-    .catch(err => {
-        res.status(500).send({ message : err.message || "Error Occurred while retriving company information" })
-    })
+        .then(company => {
+            res.send(company)
+        })
+        .catch(err => {
+            res.status(500).send({ message: err.message || "Error Occurred while retriving company information" })
+        })
 }
 
-exports.servicesfind =async (req, res)=> {
+exports.servicesfind = async (req, res) => {
 
     servicesdb.find()
-    .then(services => {
-        res.status(200).send(
-            {
-                success: (services !='')?true:false,
-                message: "Data fatched successfully",
-                data: services,
-            })
-    })
-    .catch(err => {
-        res.status(500).send( 
-            {
-                message: err.message,
-                success: false,
-                data: null,
-            })
+        .then(services => {
+            res.status(200).send(
+                {
+                    success: (services != '') ? true : false,
+                    message: "Data fatched successfully",
+                    data: services,
+                })
+        })
+        .catch(err => {
+            res.status(500).send(
+                {
+                    message: err.message,
+                    success: false,
+                    data: null,
+                })
             //message : err.message || "Error Occurred while retriving invoice information" })
         })
 }
 
-exports.servicesfindByid = (req, res)=> {
+exports.servicesfindByid = (req, res) => {
     const id = req.params.id;
     servicesdb.findById(id)
-    .then(services => {
-        res.send(services)
-    })
-    .catch(err => {
-        res.status(500).send({ message : err.message || "Error Occurred while retriving services information" })
-    })
+        .then(services => {
+            res.send(services)
+        })
+        .catch(err => {
+            res.status(500).send({ message: err.message || "Error Occurred while retriving services information" })
+        })
 }
 
 
-exports.taxfind =async (req, res)=> {
+exports.taxfind = async (req, res) => {
 
     taxdb.find()
-    .then(tax => {
-        res.status(200).send(
-            {
-                success: (tax !='')?true:false,
-                message: "Data fatched successfully",
-                data: tax,
-            })
-    })
-    .catch(err => {
-        res.status(500).send( 
-            {
-                message: err.message,
-                success: false,
-                data: null,
-            })
+        .then(tax => {
+            res.status(200).send(
+                {
+                    success: (tax != '') ? true : false,
+                    message: "Data fatched successfully",
+                    data: tax,
+                })
+        })
+        .catch(err => {
+            res.status(500).send(
+                {
+                    message: err.message,
+                    success: false,
+                    data: null,
+                })
             //message : err.message || "Error Occurred while retriving invoice information" })
         })
 }
 
-exports.createExcel = (req, res)=> {
+exports.createExcel = (req, res) => {
 
     var url_parts = url.parse(req.url, true);
     var query = url_parts.query;
-    var mysort = { _id: -1 }; 
+    var mysort = { _id: -1 };
     invoicedb.find(
-        {"createdAt":{ $gte: new Date(query.fromdate), $lt: new Date(query.todate) }})
+        { "createdAt": { $gte: new Date(query.fromdate), $lt: new Date(query.todate) } })
         .sort(mysort)
-        .populate({ path: 'customer', select: ['name','address','gstno'] })
+        .populate({ path: 'customer', select: ['name', 'address', 'gstno'] })
         .populate({ path: 'tax', select: 'tax' })
-        .populate({ path: 'service', select: ['sr_name','price','qty' ,'sac_code'] })
-        .then(function(result){
-        var collection = [];
-        result.forEach(function(data){
-            var totaltax = 0;
-            var subtotal = 0;
-            var total = 0;
-            data.service.forEach(function(element){
-                totaltax += element.price * 18 / 100;
-                subtotal += element.price;
-                total += (element.price * 18 / 100)+element.price;
+        .populate({ path: 'service', select: ['sr_name', 'price', 'qty', 'sac_code'] })
+        .then(function (result) {
+            var collection = [];
+            result.forEach(function (data) {
+                var totaltax = 0;
+                var subtotal = 0;
+                var total = 0;
+                data.service.forEach(function (element) {
+                    totaltax += element.price * 18 / 100;
+                    subtotal += element.price;
+                    total += (element.price * 18 / 100) + element.price;
+                });
+
+                collection.push({
+                    createdAt: data.createdAt,
+                    invoice: data.invoice,
+                    customer: data.customer.name,
+                    gst: data.customer.gstno,
+                    tax_type: (data.tax == 1) ? '18% (IGST)' : '18% (SGST 9% + CGST 9%)',
+                    service: data.service_name.toString(),
+                    igst: (data.status) ? (data.tax == 1) ? subtotal * 18 / 100 : '' : 0,
+                    sgst: (data.status) ? (data.tax == 2) ? subtotal * 9 / 100 : '' : 0,
+                    cgst: (data.status) ? (data.tax == 2) ? subtotal * 9 / 100 : '' : 0,
+
+                    alligst: (data.status) ? (data.tax == 1) ? subtotal * 18 / 100 : 0 : 0,
+                    allsgst: (data.status) ? (data.tax == 2) ? subtotal * 9 / 100 : 0 : 0,
+                    allcgst: (data.status) ? (data.tax == 2) ? subtotal * 9 / 100 : 0 : 0,
+
+                    amount: (data.status) ? subtotal : 0,
+                    tax: (data.status) ? totaltax : 0,
+                    total: (data.status) ? total : 0
+                });
             });
+
+            var alltotaltax = 0;
+            var allsubtotal = 0;
+            var alltotal = 0;
+            var alligst = 0;
+            var allsgst = 0;
+            var allcgst = 0;
+
+            collection.forEach(function (element) {
+                alltotaltax += element.tax
+                allsubtotal += element.amount
+                alltotal += element.total
+                alligst += element.alligst
+                allsgst += element.allsgst
+                allcgst += element.allcgst
+            });
+
 
             collection.push({
-                createdAt:data.createdAt,
-                invoice:data.invoice,
-                customer:data.customer.name,
-                gst:data.customer.gstno,
-                tax_type:(data.tax == 1 ) ? '18% (IGST)': '18% (SGST 9% + CGST 9%)',
-                service:data.service_name.toString(),
-                igst: (data.status) ? (data.tax == 1) ? subtotal * 18 / 100 : '' : 0,
-                sgst: (data.status) ? (data.tax == 2) ? subtotal * 9 / 100 : '' : 0,
-                cgst: (data.status) ? (data.tax == 2) ? subtotal * 9 / 100 : '' : 0,
+                createdAt: '',
+                invoice: '',
+                customer: '',
+                gst: '',
+                service: 'Total',
+                igst: alligst,
+                sgst: allsgst,
+                cgst: allcgst,
+                amount: allsubtotal,
+                tax: alltotaltax,
+                total: alltotal
+            });
 
-                alligst:(data.status) ? (data.tax == 1) ? subtotal * 18 / 100 : 0 : 0,
-                allsgst:(data.status) ? (data.tax == 2) ? subtotal * 9 / 100 : 0 : 0,
-                allcgst:(data.status) ? (data.tax == 2) ? subtotal * 9 / 100 : 0 : 0,
-
-                amount:(data.status) ? subtotal : 0,
-                tax:(data.status) ? totaltax : 0,
-                total:(data.status) ? total : 0
+            createExcel(collection).then(function (result) {
+                res.download('invoice.xlsx');
             });
         });
-
-        var alltotaltax = 0;
-        var allsubtotal = 0;
-        var alltotal = 0;
-        var alligst = 0;
-        var allsgst = 0;
-        var allcgst = 0;
-
-        collection.forEach(function(element){
-            alltotaltax += element.tax
-            allsubtotal += element.amount
-            alltotal += element.total
-            alligst += element.alligst
-            allsgst += element.allsgst
-            allcgst += element.allcgst
-        });
-
-
-        collection.push({
-            createdAt:'',
-            invoice:'',
-            customer:'',
-            gst:'',
-            service:'Total',
-            igst:alligst,
-            sgst:allsgst,
-            cgst:allcgst,
-            amount:allsubtotal,
-            tax:alltotaltax,
-            total:alltotal
-        });
-
-        createExcel(collection).then(function(result) {
-            res.download('invoice.xlsx');
-        });
-    });
 }
 
-async function createExcel(data){
+async function createExcel(data) {
     var dt = dateTime.create();
     var file_path = 'invoice.xlsx';
-    try{
+    try {
         const workbook = new excel.Workbook();
         const worksheet = workbook.addWorksheet('invoice');
         worksheet.columns = [
-            {header: 'INV Date', key: 'createdAt', width: 10},
-            {header: 'Invoice', key: 'invoice', width: 10},
-            {header: 'Customer', key: 'customer', width: 30},
-            {header: 'GST No', key: 'gst', width: 30},
-            {header: 'Tax', key: 'tax_type', width: 30},
-            {header: 'Service', key: 'service', width: 70},
-            {header: 'Amount', key: 'amount', width: 10},
-            {header: 'IGST', key: 'igst', width: 10},
-            {header: 'SGST', key: 'sgst', width: 10},
-            {header: 'CGST', key: 'cgst', width: 10},
+            { header: 'INV Date', key: 'createdAt', width: 10 },
+            { header: 'Invoice', key: 'invoice', width: 10 },
+            { header: 'Customer', key: 'customer', width: 30 },
+            { header: 'GST No', key: 'gst', width: 30 },
+            { header: 'Tax', key: 'tax_type', width: 30 },
+            { header: 'Service', key: 'service', width: 70 },
+            { header: 'Amount', key: 'amount', width: 10 },
+            { header: 'IGST', key: 'igst', width: 10 },
+            { header: 'SGST', key: 'sgst', width: 10 },
+            { header: 'CGST', key: 'cgst', width: 10 },
             //{header: 'Tax', key: 'tax', width: 10},
-            {header: 'Total', key: 'total', width: 10},
+            { header: 'Total', key: 'total', width: 10 },
         ];
 
         data.forEach(invoice => {
             worksheet.addRow(invoice);
         });
         worksheet.getRow(1).eachCell((cell) => {
-            cell.font = {bold: true};
+            cell.font = { bold: true };
         });
 
         await workbook.xlsx.writeFile(file_path);
-        return({message : `File created at ${file_path}`, status : "success", status_code : 200});
+        return ({ message: `File created at ${file_path}`, status: "success", status_code: 200 });
     }
-    catch(err){
+    catch (err) {
         throw new Error(err);
     }
 }
 // Total Listing.......
-exports.totalData =async (req , res)=>{
+exports.totalData = async (req, res) => {
     const customerCount = await customerdb.find();
     const serviceCount = await servicesdb.find();
     const invoiceCount = await invoicedb.find();
@@ -614,15 +613,15 @@ exports.totalData =async (req , res)=>{
 
     var sum = 0;
 
-    for(var i=0; i < invoiceCount.length; i++){
-       ArryAmount =invoiceCount[i].profileName_rate;
-       console.log(ArryAmount);
-       for(item in ArryAmount) {
-       //console.log(item);
-            sum += parseInt(item.rate);   
-       }
+    for (var i = 0; i < invoiceCount.length; i++) {
+        ArryAmount = invoiceCount[i].profileName_rate;
+        console.log(ArryAmount);
+        for (item in ArryAmount) {
+            //console.log(item);
+            sum += parseInt(item.rate);
+        }
     }
-    
+
     return res.status(200).json({
         success: true,
         // amount: invoiceCount,
@@ -630,7 +629,7 @@ exports.totalData =async (req , res)=>{
         serviceCount: serviceCount.length,
         invoiceCount: invoiceCount.length,
         poCount: poCount.length,
-      });
+    });
 }
 
 
