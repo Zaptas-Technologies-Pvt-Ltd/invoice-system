@@ -1,105 +1,119 @@
-var customerdb = require('../model/customer');
-var companydb = require('../model/company');
-var servicesdb = require('../model/services');
-var taxdb = require('../model/tax');
-var invoicedb = require('../model/invoice');
-var counterdb = require('../model/counter');
-var POCreatedb = require('../model/POModel');
-var dateTime = require('node-datetime');
-var dateFormat = require('dateformat');
+const mongoose = require('mongoose');
+const customerdb = require('../model/customer');
+const companydb = require('../model/company');
+const servicesdb = require('../model/services');
+const taxdb = require('../model/tax');
+const invoicedb = require('../model/invoice');
+const counterdb = require('../model/counter');
+const POCreatedb = require('../model/POModel');
+const dateTime = require('node-datetime');
+const dateFormat = require('dateformat');
 const excel = require('exceljs');
-var url = require('url');
-const { MongoClient, ObjectID } = require('mongodb');
+const url = require('url');
 
-exports.updateStatus = (req , res)=>{
-    // validate request
-    try{
-        
-        if(!req.body){
-            res.status(400).send({ message : "Content can not be emtpy!"});
-            return;
+// ✅ Update Status Handler
+exports.updateStatus = async (req, res) => {
+    try {
+        const ids = req.params.id;
+console.log("here")
+        if (!ids || !ids.includes('-')) {
+            return res.status(400).send({ message: "Invalid ID format", success: false });
         }
-        
-    const ids = req.params.id;
-    const data = ids.split("-");
-    const id=data[0];
-    const status=data[1];
-    const type=data[2];
-        if(type == 'po'){
-          var dbAllow = POCreatedb;
-        }else{
-             res.status(500).send({
-                message: "Type not get Failed!",
+
+        const [id, status, type] = ids.split("-");
+
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).send({ message: "Invalid Object ID", success: false });
+        }
+
+        let dbAllow;
+        if (type === 'po') {
+            dbAllow = POCreatedb;
+        } else {
+            return res.status(400).send({
+                message: "Invalid type specified!",
                 success: false,
             });
-            return;
         }
-        var statusUpdate =(status ==1)?'true':'false';
-        dbAllow.update({ _id: ObjectID(id)}, { 
-            status : statusUpdate,
-        }).then(data => {
-                res.status(200).send({
-                    success: true,
-                    message : 'update successfully'
-                });
-            })
-            .catch(err =>{
-                res.status(500).send({
-                    success: false,
-                    message : err.message || "Some error occurred while creating a create operation"
-                });
-            });
-    }catch (error) {
-            return res.status(500).send({
-                message: "outside Status Failed!",
+
+        const statusUpdate = status === '1';
+
+        const result = await dbAllow.updateOne(
+            { _id: new mongoose.Types.ObjectId(id) },
+            { $set: { status: statusUpdate } }
+        );
+        
+
+        if (result.modifiedCount === 0) {
+            return res.status(404).send({
+                message: "No matching document found",
                 success: false,
             });
+        }
+
+        return res.status(200).send({
+            success: true,
+            message: 'Status updated successfully',
+        });
+
+    } catch (error) {
+        console.error("Update Status Error:", error);
+        return res.status(500).send({
+            message: "Internal Server Error",
+            success: false,
+        });
     }
+};
 
-}
-exports.updateDelete = (req , res)=>{
-    // validate request
-    try{
-        
-        if(!req.body){
-            res.status(400).send({ message : "Content can not be emtpy!"});
-            return;
+// ✅ Update Delete Handler
+exports.updateDelete = async (req, res) => {
+    try {
+        const ids = req.params.id;
+
+        if (!ids || !ids.includes('-')) {
+            return res.status(400).send({ message: "Invalid ID format", success: false });
         }
-        
-    const ids = req.params.id;
-    const data = ids.split("-");
-    const id=data[0];
-    const status=data[1];
-    const type=data[2];
-        if(type == 'po'){
-          var dbAllow = POCreatedb;
-        }else{
-             res.status(500).send({
-                message: "Type not get Failed!",
+
+        const [id, status, type] = ids.split("-");
+
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).send({ message: "Invalid Object ID", success: false });
+        }
+
+        let dbAllow;
+        if (type === 'po') {
+            dbAllow = POCreatedb;
+        } else {
+            return res.status(400).send({
+                message: "Invalid type specified!",
                 success: false,
             });
-            return;
         }
-        var statusUpdate =(status ==1)?'false':'true';
-        dbAllow.update({ _id: ObjectID(id)}, { 
-            delete : statusUpdate,
-        }).then(data => {
-                res.status(200).send({
-                    success: true,
-                    message : 'update successfully'
-                });
-            })
-            .catch(err =>{
-                res.status(500).send({
-                    success: false,
-                    message : err.message || "Some error occurred while creating a create operation"
-                });
-            });
-    }catch (error) {
-            return res.status(500).send({
-                message: "outside Status Failed!",
+
+        const deleteStatus = status === '1' ? false : true;
+
+        const result = await dbAllow.updateOne(
+            { _id: mongoose.Types.ObjectId(id) },
+            { $set: { isDeleted: deleteStatus } }  // Use 'isDeleted' instead of 'delete'
+        );
+
+        if (result.modifiedCount === 0) {
+            return res.status(404).send({
+                message: "No matching document found",
                 success: false,
             });
+        }
+
+        return res.status(200).send({
+            success: true,
+            message: 'Delete status updated successfully',
+        });
+
+    } catch (error) {
+        console.error("Update Delete Error:", error);
+        return res.status(500).send({
+            message: "Internal Server Error",
+            success: false,
+        });
     }
-
-}
+};

@@ -108,23 +108,27 @@ exports.PoTotalLists = async (req, res) => {
         })
 }
 exports.PoLists = async (req, res) => {
-    try{
+    try {
         const id = req.params.id;
-        const list = await POCreatedb.find({customerid:id},'_id pono');
+        const list = await POCreatedb.find(
+            { customerid: id, status: true },
+            '_id pono'
+        );
         return res.status(200).send({
             success: true,
-            message: "Data fatched successfully",
+            message: "Data fetched successfully",
             data: list,
-        })
+        });
 
-    }catch (error) {
+    } catch (error) {
         res.send({
             message: error.message,
             success: false,
             data: null,
-        })
+        });
     }
-}
+};
+
 exports.PoListDetail = async (req, res) => {
     try{
         const id = req.params.id;
