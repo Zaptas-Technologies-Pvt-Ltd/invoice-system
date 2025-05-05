@@ -1,5 +1,5 @@
 import React, { useEffect, useState, Fragment } from 'react'
-import {useParams} from 'react-router-dom';
+import {useParams, useNavigate} from 'react-router-dom';
 import { Page, Document, Image, StyleSheet, View } from '@react-pdf/renderer';
 import {PDFViewer} from '@react-pdf/renderer'
 import Services from '../../service/Services';
@@ -39,6 +39,7 @@ function Invoice() {
     const [loading, setLoading] = useState(false)
     const [invoiceData, setIvoicedata] = useState('')
     const {id} = useParams();
+    const navigate = useNavigate();
     
     useEffect(()=> {
         try{
@@ -111,6 +112,27 @@ function Invoice() {
   return (
     <Fragment>
       {loading && <Spinner />}
+      <div style={{ 
+        padding: '10px 20px',
+        marginBottom: '10px',
+        display: 'flex',
+        alignItems: 'center'
+      }}>
+        <button 
+          onClick={() => navigate('/')}
+          style={{
+            padding: '8px 16px',
+            backgroundColor: '#007bff',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            fontSize: '14px'
+          }}
+        >
+          Back to Home
+        </button>
+      </div>
       <PDFViewer width="1060" height="550" className="app" showToolbar={true}>
         <Document>
             <Page size="A4" style={styles.page}>

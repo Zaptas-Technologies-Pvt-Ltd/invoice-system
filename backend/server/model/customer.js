@@ -12,8 +12,11 @@ var schema = new mongoose.Schema({
 
     gstno : {
         type: String
+    },
+    isActive: {
+        type: Boolean,
+        default: true
     }
-  
 })
 
 const customerdb = mongoose.model('customer', schema);

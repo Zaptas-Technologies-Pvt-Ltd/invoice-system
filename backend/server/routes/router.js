@@ -46,6 +46,7 @@ route.post('/api/customer/create', controller.customercreate);
 //Api update
 route.put('/api/service/update/:id', controller.serviceupdate);
 route.put('/api/customer/update/:id', controller.customerupdate);
+route.put('/api/customer/:id/toggle-status', controller.toggleCustomerStatus);
 route.put('/api/editservice/update/:id', controller.editservice);
 
 route.put('/api/invoice/update/:id',controller.invoiceUpdate);

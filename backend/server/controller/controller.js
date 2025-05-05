@@ -167,7 +167,8 @@ exports.customercreate = (req, res) => {
     const customer = new customerdb({
         name: req.body.cname,
         gstno: req.body.cgst,
-        address: req.body.caddress
+        address: req.body.caddress,
+        isActive: req.body.isActive !== undefined ? req.body.isActive : true
     })
 
     // save customer in the database
@@ -207,7 +208,8 @@ exports.customerupdate = (req, res) => {
     customerdb.findByIdAndUpdate(id, {
         name: req.body.cname,
         gstno: req.body.cgst,
-        address: req.body.caddress
+        address: req.body.caddress,
+        isActive: req.body.isActive !== undefined ? req.body.isActive : true
     }, { new: true }) // 'new: true' returns the updated document
         .then(data => {
             if (!data) {
@@ -397,7 +399,6 @@ exports.customerfindByid = (req, res) => {
 
 // retrieve and return all users/ retrive and return a single user
 exports.customerfind = async (req, res) => {
-
     try {
         const list = await customerdb.find()
         return res.status(200).send({
@@ -413,12 +414,6 @@ exports.customerfind = async (req, res) => {
             data: null,
         });
     }
-    // .then(customer => {
-    //     res.send(customer)
-    // })
-    // .catch(err => {
-    //     res.status(500).send({ message : err.message || "Error Occurred while retriving customer information" })
-    // })
 }
 
 exports.companyfind = (req, res) => {
@@ -631,6 +626,46 @@ exports.totalData = async (req, res) => {
         poCount: poCount.length,
     });
 }
+
+// Add new function for toggling customer status
+exports.toggleCustomerStatus = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const { isActive } = req.body;
+
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).send({ 
+                success: false,
+                message: "Invalid customer ID" 
+            });
+        }
+
+        const updatedCustomer = await customerdb.findByIdAndUpdate(
+            id,
+            { isActive },
+            { new: true }
+        );
+
+        if (!updatedCustomer) {
+            return res.status(404).send({
+                success: false,
+                message: "Customer not found"
+            });
+        }
+
+        res.status(200).send({
+            success: true,
+            message: "Customer status updated successfully",
+            data: updatedCustomer
+        });
+
+    } catch (error) {
+        res.status(500).send({
+            success: false,
+            message: error.message || "Error occurred while updating customer status"
+        });
+    }
+};
 
 
 

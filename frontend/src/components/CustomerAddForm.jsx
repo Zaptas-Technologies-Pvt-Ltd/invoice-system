@@ -45,7 +45,8 @@ export default function CustomerAddForm({
         const data = {
           cname:customername,
           cgst:(gstno)?gstno:'',
-          caddress:address
+          caddress:address,
+          isActive: true
         };
           setLoading(true)
           Services.Common.customercreate(data).then(function(result) {
