@@ -14,6 +14,8 @@ const PORT = process.env.PORT || 8080;
 
 // Log requests
 app.use(morgan('tiny'));
+app.use(express.json());
+
 
 // Allow cross-origin requests
 app.use(cors());

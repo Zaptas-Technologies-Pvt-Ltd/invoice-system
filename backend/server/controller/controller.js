@@ -275,37 +275,48 @@ exports.serviceupdate = (req, res) => {
 
 
 exports.invoiceUpdate = (req, res) => {
-    // Validate request
-    if (!req.body) {
-        return res.status(400).send({ message: "Content cannot be empty!" });
+    // Validate request body
+    if (!req.body || Object.keys(req.body).length === 0) {
+        return res.status(400).send({ success: false, message: "Content cannot be empty!" });
     }
 
     const id = req.params.id;
 
-
+    // Validate invoice ID
     if (!mongoose.Types.ObjectId.isValid(id)) {
-        return res.status(400).send({ message: "Invalid invoice ID" });
+        return res.status(400).send({ success: false, message: "Invalid invoice ID" });
     }
 
-    invoicedb.findByIdAndUpdate(id, {
-        status: false
-    }, { new: true }) // 'new: true' to return the updated document
-        .then(data => {
-            if (!data) {
-                return res.status(404).send({ message: "Invoice not found" });
-            }
-            res.status(200).send({
-                success: true,
-                message: 'Invoice updated successfully'
-            });
-        })
-        .catch(err => {
-            res.status(500).send({
-                success: false,
-                message: err.message || "Some error occurred while updating the invoice"
-            });
+    // Build update object from request body (allow updating specific fields)
+    const updateFields = {};
+    if (req.body.profileName_rate) updateFields.profileName_rate = req.body.profileName_rate;
+    if (req.body.status !== undefined) updateFields.status = req.body.status;
+    // Add more fields to update as needed
+
+    invoicedb.findByIdAndUpdate(
+        id,
+        { $set: updateFields },
+        { new: true } // return the updated document
+    )
+    .then(updatedInvoice => {
+        if (!updatedInvoice) {
+            return res.status(404).send({ success: false, message: "Invoice not found" });
+        }
+        res.status(200).send({
+            success: true,
+            message: 'Invoice updated successfully',
+            data: updatedInvoice
         });
+    })
+    .catch(error => {
+        console.error('Error updating invoice:', error);
+        res.status(500).send({
+            success: false,
+            message: error.message || "Some error occurred while updating the invoice"
+        });
+    });
 };
+
 
 
 //edit service
