@@ -74,7 +74,7 @@ exports.updateDelete = async (req, res) => {
             return res.status(400).send({ message: "Invalid ID format", success: false });
         }
 
-        const [id, status, type] = ids.split("-");
+        const [id, , type] = ids.split("-"); // status is ignored since we always delete
 
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return res.status(400).send({ message: "Invalid Object ID", success: false });
@@ -90,30 +90,26 @@ exports.updateDelete = async (req, res) => {
             });
         }
 
-        const deleteStatus = status === '1' ? false : true;
+        const result = await dbAllow.deleteOne({ _id: new mongoose.Types.ObjectId(id) });
 
-        const result = await dbAllow.updateOne(
-            { _id: mongoose.Types.ObjectId(id) },
-            { $set: { isDeleted: deleteStatus } }  // Use 'isDeleted' instead of 'delete'
-        );
-
-        if (result.modifiedCount === 0) {
+        if (result.deletedCount === 0) {
             return res.status(404).send({
-                message: "No matching document found",
+                message: "No matching document found to delete",
                 success: false,
             });
         }
 
         return res.status(200).send({
             success: true,
-            message: 'Delete status updated successfully',
+            message: 'Document deleted successfully',
         });
 
     } catch (error) {
-        console.error("Update Delete Error:", error);
+        console.error("Delete Error:", error);
         return res.status(500).send({
             message: "Internal Server Error",
             success: false,
         });
     }
 };
+

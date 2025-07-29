@@ -112,48 +112,65 @@ async function getNextSequenceValue(callback) {
 
 // create and save new user
 exports.create = (req, res) => {
-    console.log(req.body, 'dddddd')
-    // validate request
+    console.log(req.body, 'dddddd');
     if (!req.body) {
-        res.status(400).send({ message: "Content can not be emtpy!" });
-        return;
+        return res.status(400).send({ message: "Content can not be empty!" });
     }
-    getNextSequenceValue((data) => {
-        var dt = dateTime.create();
 
-        // new invoice
-        // console.log(req.body.serviceCode)
-        const invoice = new invoicedb({
-            customer: req.body.customer,
-            service: req.body.service,
-            service_name: req.body.serviceName,
-            service_code: req.body.serviceCode.toString(),
-            //service_code : req.body.serviceCode,
-            profileName_rate: req.body.profilesDetails,
-            tax: req.body.tax,
-            po: req.body.po,
-            podate: (req.body.podate != '') ? dateTime.create(req.body.podate).format('d-m-Y') : '',
-            createdAt: (req.body.createdAt) ? dateTime.create(req.body.createdAt).format('Y-m-d') : dt.format('Y-m-d'),
-            invoice: '00' + data,
-            payment: req.body.payment
-        })
+    getNextSequenceValue(async (data) => {
+        try {
+            var dt = dateTime.create();
+            const poId = req.body.PoObjectId; // this must be the actual PO document _id
 
-        invoice
-            .save(invoice)
-            .then(data => {
-                res.status(200).send({
-                    success: true,
-                    message: 'invoice create successfully'
-                });
-            })
-            .catch(err => {
-                res.status(500).send({
-                    success: false,
-                    message: err.message || "Some error occurred while creating a create operation"
-                });
+            if (!mongoose.Types.ObjectId.isValid(poId)) {
+                return res.status(400).send({ message: "Invalid PO ID" });
+            }
+
+            // 📍 Step: mark invoiceCreated in polistdata for each profileId
+            const profiles = req.body.profilesDetails;
+
+            for (let item of profiles) {
+                if (item.id) {
+                    const result = await POCreatedb.updateOne(
+                        { _id: new mongoose.Types.ObjectId(poId), "polistdata.id": item.id },
+                        { $set: { "polistdata.$.invoiceCreated": true } }
+                    );
+                    console.log(`Updated profileId ${item.id} =>`, result);
+                }
+            }
+
+            // Continue creating invoice
+            const invoice = new invoicedb({
+                customer: req.body.customer,
+                service: req.body.service,
+                service_name: req.body.serviceName,
+                service_code: req.body.serviceCode.toString(),
+                profileName_rate: req.body.profilesDetails,
+                tax: req.body.tax,
+                po: poId,
+                podate: req.body.podate ? dateTime.create(req.body.podate).format('d-m-Y') : '',
+                createdAt: req.body.createdAt ? dateTime.create(req.body.createdAt).format('Y-m-d') : dt.format('Y-m-d'),
+                invoice: '00' + data,
+                payment: req.body.payment
             });
+
+            await invoice.save();
+
+            return res.status(200).send({
+                success: true,
+                message: 'Invoice created successfully'
+            });
+
+        } catch (err) {
+            console.error("Create invoice error:", err);
+            return res.status(500).send({
+                success: false,
+                message: err.message || "Some error occurred while creating invoice"
+            });
+        }
     });
-}
+};
+
 
 // create and save new customer
 exports.customercreate = (req, res) => {
@@ -275,11 +292,6 @@ exports.serviceupdate = (req, res) => {
 
 
 exports.invoiceUpdate = (req, res) => {
-    // Validate request body
-    if (!req.body || Object.keys(req.body).length === 0) {
-        return res.status(400).send({ success: false, message: "Content cannot be empty!" });
-    }
-
     const id = req.params.id;
 
     // Validate invoice ID
@@ -287,16 +299,43 @@ exports.invoiceUpdate = (req, res) => {
         return res.status(400).send({ success: false, message: "Invalid invoice ID" });
     }
 
-    // Build update object from request body (allow updating specific fields)
     const updateFields = {};
-    if (req.body.profileName_rate) updateFields.profileName_rate = req.body.profileName_rate;
-    if (req.body.status !== undefined) updateFields.status = req.body.status;
-    // Add more fields to update as needed
 
+    // Handle profileName_rate if present
+    if (req.body.profileName_rate) {
+        updateFields.profileName_rate = req.body.profileName_rate;
+    }
+
+    // Handle status if present:
+    // can come as boolean, string "active"/"inactive", or string "true"/"false"
+    if (req.body.status !== undefined) {
+        if (typeof req.body.status === 'boolean') {
+            updateFields.status = req.body.status;
+        } else if (typeof req.body.status === 'string') {
+            const statusLower = req.body.status.trim().toLowerCase();
+            if (statusLower === 'active' || statusLower === 'true') {
+                updateFields.status = true;
+            } else if (statusLower === 'inactive' || statusLower === 'false') {
+                updateFields.status = false;
+            }
+            // else ignore invalid string
+        }
+    }
+
+    // If no valid fields to update, return graceful response
+    if (Object.keys(updateFields).length === 0) {
+        return res.status(200).send({
+            success: true,
+            message: 'Nothing to update',
+            data: null
+        });
+    }
+
+    // Perform the update
     invoicedb.findByIdAndUpdate(
         id,
         { $set: updateFields },
-        { new: true } // return the updated document
+        { new: true } // return updated document
     )
     .then(updatedInvoice => {
         if (!updatedInvoice) {

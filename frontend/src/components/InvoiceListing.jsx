@@ -38,14 +38,15 @@ export default function InvoiceListing() {
     try {
       if (window.confirm('Do you really want to cancel?')) {
         setLoading(true);
-        await Services.Common.invoice_update(id);
-        navigate('/'); // or refresh list: await getInvoiceList();
+        await Services.Common.invoice_update(id, { status: false });
+        await getInvoiceList(); // better UX: refresh instead of navigate
       }
     } catch (error) {
       console.error(error);
     }
     setLoading(false);
   };
+  
 
   const handleEdit = (invoice) => {
     setEditInvoice(invoice);

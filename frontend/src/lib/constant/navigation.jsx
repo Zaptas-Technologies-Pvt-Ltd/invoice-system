@@ -59,6 +59,12 @@ export const Dashboard_Sidebar_Link = [
         path: '/invoices',
         icon: <HiOutlineViewList />
     },
+    // {
+    //     key: 'AMC list',
+    //     label: 'AMC list',
+    //     path: '/amclist',
+    //     icon: <HiOutlineViewList />
+    // },
 ]
 export const Dashboard_sidebar_bottom_Link = [
     {

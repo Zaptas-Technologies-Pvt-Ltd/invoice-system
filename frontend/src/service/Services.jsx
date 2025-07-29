@@ -38,7 +38,7 @@ const Common = {
   allinvoice: () => requests.get('/getInvoice'),
   service_create: (object) => requests.post('/service/create', qs.stringify(object)),
   service_update: (id , object) => requests.put('/service/update/'+id, qs.stringify(object)),
-  invoice_update: (id) => requests.put('/invoice/update/'+id),
+  invoice_update: (id, object) => requests.put('/invoice/update/'+id, qs.stringify(object)),
   status_update: (id) => requests.post('/commonStatus/update/'+id),
   delete_update: (id) => requests.post('/commonDelete/update/'+id),
   edit_service: (id , object) => requests.put('/editservice/update/'+id, qs.stringify({"service_name":object})),
@@ -52,8 +52,9 @@ const Common = {
 };
 
 const Invoice = {
-  create: (customer , service , serviceName ,serviceCode, profilesDetails, tax , po , podate, invoiceDate,  payment) => requests.post('/invoice', qs.stringify({ 
-      "customer":customer,
+  create: (PoObjectId,customer , service , serviceName ,serviceCode, profilesDetails, tax , po , podate, invoiceDate,  payment) => requests.post('/invoice', qs.stringify({ 
+    "PoObjectId":PoObjectId,  
+    "customer":customer,
       "service": service,
       "serviceName":serviceName,
       "serviceCode":serviceCode,

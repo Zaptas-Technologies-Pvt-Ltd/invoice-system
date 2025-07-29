@@ -9,7 +9,7 @@ import Services from '../service/Services';
 import { useAlert } from "react-alert";
 import POCreatedList from '../components/POCreatedList';
 import { useNavigate } from 'react-router-dom';
-
+import { v4 as uuidv4 } from 'uuid';
 export default function POCreate() {
   const navigation = useNavigate()
   const alert = useAlert();
@@ -29,7 +29,7 @@ export default function POCreate() {
   const [taxerror, setTaxError ] =useState("")
   const [serviceerror, setServiceError ] =useState("")
 
-  const [formValues, setFormValues] = useState([{ profileName: "", rate : "", remark : ""}])
+  const [formValues, setFormValues] = useState([{id: uuidv4(), profileName: "", rate : "", remark : ""}])
 
   let handleChange = (i, e) => {
     let newFormValues = [...formValues];
@@ -235,39 +235,99 @@ const handleSubmit = (e) =>{
               <label for="first_name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Rate</label>
             </div>
           </div>
-          {formValues.map((element, index) => (
-            <div className="flex" key={index}>
-                <div>
-                  <input 
-                  type="text"
-                  name='profileName'
-                  value={element.profileName || ""} 
-                  onChange={e => handleChange(index, e)}
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-[20rem] p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder='Enter profile name....' />
-                  <div className='text-red-500 text-sm'>{customererror}</div>
-                </div>
-                <div>
-                  <input 
-                  type="text" 
-                  name='rate'
-                  value={element.rate || ""} 
-                  onChange={e => handleChange(index, e)}
-                  className="ml-2 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-[15rem] p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Enter the rate..." />
-                  <div className='text-red-500 text-sm'>{purchaseordererror}</div>
-                </div>
-                <div>
-                  <div className='mt-2'>
-                    {
-                      formValues.length!==1 &&
-                        <button type="button" style={{fontSize:30}} className="button remove" onClick={() => removeFormFields(index)}><HiMinusCircle /></button> 
-                    }
-                    { formValues.length-1===index &&
-                      <button className="button add" style={{fontSize:30}} type="button" onClick={() => addFormFields()}><HiPlusCircle /></button>  
-                    }
-                  </div>
-                </div>
-            </div>
-          ))}
+      {formValues.map((element, index) => (
+  <div className="flex flex-wrap gap-2 mb-3" key={index}>
+    {/* Profile Name */}
+    <div>
+      <input 
+        type="text"
+        name='profileName'
+        value={element.profileName || ""} 
+        onChange={e => handleChange(index, e)}
+        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg 
+                   focus:ring-blue-500 focus:border-blue-500 block w-[20rem] p-2.5 
+                   dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 
+                   dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+        placeholder='Enter profile name....' 
+      />
+      <div className='text-red-500 text-sm'>{customererror}</div>
+    </div>
+
+    {/* Rate */}
+    <div>
+      <input 
+        type="text" 
+        name='rate'
+        value={element.rate || ""} 
+        onChange={e => handleChange(index, e)}
+        className="ml-2 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg 
+                   focus:ring-blue-500 focus:border-blue-500 block w-[15rem] p-2.5 
+                   dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 
+                   dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+        placeholder="Enter the rate..." 
+      />
+      <div className='text-red-500 text-sm'>{purchaseordererror}</div>
+    </div>
+
+    {/* Reminder Required select box */}
+    <div>
+      <select 
+        name="reminderRequired"
+        value={element.reminderRequired || ""}
+        onChange={e => handleChange(index, e)}
+        className="ml-2 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg 
+                   focus:ring-blue-500 focus:border-blue-500 block w-[12rem] p-2.5 
+                   dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 
+                   dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+        required
+      >
+        <option value="">Reminder Required?</option>
+        <option value="Yes">Yes</option>
+        <option value="No">No</option>
+      </select>
+    </div>
+
+    {/* Calendar for reminder date (only show if reminderRequired is "Yes") */}
+    {element.reminderRequired === 'Yes' && (
+      <div>
+        <input 
+          type="date"
+          name="reminderDate"
+          value={element.reminderDate || ""}
+          onChange={e => handleChange(index, e)}
+          className="ml-2 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg 
+                     focus:ring-blue-500 focus:border-blue-500 block w-[12rem] p-2.5 
+                     dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 
+                     dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          required
+        />
+      </div>
+    )}
+
+    {/* Add / Remove Buttons */}
+    <div className='mt-2 flex gap-2'>
+      {formValues.length !== 1 && (
+        <button 
+          type="button" 
+          className="text-red-500 hover:text-red-700" 
+          onClick={() => removeFormFields(index)}
+        >
+          <HiMinusCircle size={28} />
+        </button>
+      )}
+      {formValues.length - 1 === index && (
+        <button 
+          type="button" 
+          className="text-green-500 hover:text-green-700" 
+          onClick={() => addFormFields()}
+        >
+          <HiPlusCircle size={28} />
+        </button>
+      )}
+    </div>
+  </div>
+))}
+
         </div>
         <div className="button-section">
           <button type="submit" className="flex flex-nowrap text-white text-bg-color active:bg-purple-200 font-bold uppercase text-sm px-4 py-2.5 rounded w-[8rem] shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1">P.O. Create</button>

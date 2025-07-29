@@ -1,10 +1,13 @@
+
 const express = require('express');
+
 const dotenv = require('dotenv');
 const morgan = require('morgan');
 const bodyparser = require("body-parser");
 const path = require('path');
 const cors = require('cors');
 const connectDB = require('./server/database/connection');
+const startReminderJob = require('./cron/sendReminders');
 
 const app = express();
 
@@ -43,4 +46,7 @@ app.get('*', (req, res) => {
 app.listen(PORT, async () => {
     await connectDB();
     console.log(`Server is running on http://localhost:${PORT}`);
+    
+    // ✅ start cron
+    startReminderJob.startReminderJob();
 });

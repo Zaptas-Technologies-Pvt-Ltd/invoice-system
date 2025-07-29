@@ -18,6 +18,7 @@ import ChangePassword from './components/ChangePassword';
 import POCreate from './pages/POCreate';
 import { positions, Provider } from "react-alert";
 import AlertTemplate from "react-alert-template-basic";
+import AmcHome from './pages/AmcHome';
 const options = {
   timeout: 2000,
   position: positions.TOP_CENTER,
@@ -42,6 +43,7 @@ function App() {
               <Route path="generates" element={<Generate />} />
               <Route path="withoutpogenerates" element={<WithoutPOGenerate />} />
               <Route path="invoices" element={<Invoices />} />
+              <Route path="amclist" element={<AmcHome />} />
               <Route path="InvoiceView/:id" element={<Invoice />} />
               <Route path="InvoicePrint/:id" element={<InvoicePrint />} />
               </Route>

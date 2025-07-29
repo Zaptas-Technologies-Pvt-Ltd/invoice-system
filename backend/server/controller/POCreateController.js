@@ -8,6 +8,7 @@ var dateTime = require('node-datetime');
 var dateFormat = require('dateformat');
 var url = require('url');
 const { MongoClient, ObjectID } = require('mongodb');
+const ReminderForPO = require('../model/ReminderForPO');
 
 async function getNextSequenceValue(callback){
     try{
@@ -21,45 +22,70 @@ async function getNextSequenceValue(callback){
     }
  }
 // create and save new user
-exports.createPO = (req,res)=>{
-    // validate request
-    if(!req.body){
-        res.status(400).send({ message : "Content can not be emtpy!"});
-        return;
+exports.createPO = (req, res) => {
+    if (!req.body) {
+        return res.status(400).send({ message: "Content can not be empty!" });
     }
-    getNextSequenceValue((data) =>{
-        var dt = dateTime.create();
 
-        // new invoice
-        const podetails = new POCreatedb({
-            customerid : req.body.customer,
-            serviceid : req.body.service,
-            servicename : req.body.serviceName,
-            servicecode : req.body.serviceCode,
-            polistdata: req.body.polistData,
-            taxtype: req.body.tax,
-            pono:req.body.ponuber,
-            //podate:(req.body.podate != '') ? dateTime.create(req.body.podate).format('d-m-Y') : '', 
-            podate:(req.body.podate != '') ? req.body.podate: '', 
-            createdAt:dt.format('Y-m-d'), 
-        })
-    
-        podetails
-            .save(podetails)
-            .then(data => {
-                res.status(200).send({
-                    success: true,
-                    message : 'PO create successfully'
-                });
-            })
-            .catch(err =>{
-                res.status(500).send({
-                    success: false,
-                    message : err.message || "Some error occurred while creating a create operation"
-                });
+    getNextSequenceValue(async (data) => {
+        try {
+            var dt = dateTime.create();
+
+            const podetails = new POCreatedb({
+                customerid: req.body.customer,
+                serviceid: req.body.service,
+                servicename: req.body.serviceName,
+                servicecode: req.body.serviceCode,
+                polistdata: req.body.polistData,
+                taxtype: req.body.tax,
+                pono: req.body.ponuber,
+                podate: (req.body.podate !== '') ? req.body.podate : '',
+                createdAt: dt.format('Y-m-d'),
             });
+
+            const savedPO = await podetails.save();
+
+            // ✅ Filter polistData: only where reminderRequired is "Yes" and reminderDate exists & is non-empty
+            const remindersToInsert = req.body.polistData
+                .filter(item => 
+                    item.reminderRequired === "Yes" && 
+                    item.reminderDate && item.reminderDate.trim() !== ""
+                )
+                .map(item => ({
+                    poId: savedPO._id,
+                    pono: req.body.ponuber,
+                    profileName: item.profileName,
+                    rate: item.rate,
+                    remark: item.remark,
+                    reminderRequired: item.reminderRequired,
+                    reminderDate: item.reminderDate,
+                    invoiceCreated: item.invoiceCreated || false,
+                    statusActive: true,              // active by default
+                    reminderSuccessful: false,       // not yet sent
+                    reminderSent1: false,
+                    reminderSent3: false,
+                    reminderSent5: false
+                }));
+
+            if (remindersToInsert.length > 0) {
+                await ReminderForPO.insertMany(remindersToInsert);
+            }
+
+            return res.status(200).send({
+                success: true,
+                message: 'PO created successfully'
+            });
+
+        } catch (err) {
+            console.error("Create PO error:", err);
+            return res.status(500).send({
+                success: false,
+                message: err.message || "Some error occurred while creating PO"
+            });
+        }
     });
-}
+};
+
 exports.PoTotalLists = async (req, res) => {
     var mysort = { _id: -1 }; 
     const fdate = req.query.fromdate || "" 
