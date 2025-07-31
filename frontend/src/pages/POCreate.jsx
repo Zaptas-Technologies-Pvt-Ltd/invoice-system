@@ -31,11 +31,20 @@ export default function POCreate() {
 
   const [formValues, setFormValues] = useState([{id: uuidv4(), profileName: "", rate : "", remark : ""}])
 
-  let handleChange = (i, e) => {
+let handleChange = (i, e) => {
     let newFormValues = [...formValues];
+
+    // ✅ If the object doesn't already have an id, assign a new uuid
+    if (!newFormValues[i].id) {
+        newFormValues[i].id = uuidv4();
+    }
+
+    // Update the changed field
     newFormValues[i][e.target.name] = e.target.value;
+
     setFormValues(newFormValues);
-  }
+};
+
   let addFormFields = () => {
       setFormValues([...formValues, { profileName: "", rate: "", remark : "" }])
   }

@@ -59,12 +59,12 @@ export const Dashboard_Sidebar_Link = [
         path: '/invoices',
         icon: <HiOutlineViewList />
     },
-    // {
-    //     key: 'AMC list',
-    //     label: 'AMC list',
-    //     path: '/amclist',
-    //     icon: <HiOutlineViewList />
-    // },
+    {
+        key: 'PI Performer Invoice',
+        label: 'PI Create',
+        path: '/piperformerinvoice',
+        icon: <HiOutlineViewList />
+    },
 ]
 export const Dashboard_sidebar_bottom_Link = [
     {

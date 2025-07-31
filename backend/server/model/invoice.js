@@ -50,6 +50,10 @@ var schema = new mongoose.Schema({
         maxlength: 255,
         required: true,
     },
+    piperformerinvoice:{
+        type: Boolean,
+        default: false
+    }
 },
     { timestamps: true }
 )

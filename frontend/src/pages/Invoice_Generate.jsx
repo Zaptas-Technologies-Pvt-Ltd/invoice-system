@@ -375,7 +375,7 @@ export default function Invoice_Generate() {
                         </div>
 
                         {/* Reminder info */}
-                        {value.reminderRequired === 'Yes' && (
+                        {value.reminderRequired === 'Yes' && !value.invoiceCreated && (
                           <div className="ml-3 flex items-center">
                             {value.reminderSuccessful === true ? (
                               <span className="inline-flex items-center text-xs font-medium px-2 py-0.5 rounded 

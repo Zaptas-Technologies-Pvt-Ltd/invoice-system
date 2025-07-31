@@ -34,6 +34,7 @@ route.get('/api/tax',AuthMiddlewares, controller.taxfind);
 
 //Api Invoice
 route.post('/api/invoice', controller.create);
+
 route.get('/api/getInvoice',AuthMiddlewares, controller.invoicefind);
 route.get('/api/getInvoiceByid/:id', controller.invoicefindByid);
 

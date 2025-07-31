@@ -8,7 +8,7 @@ const superagent = superagentPromise(_superagent, global.Promise);
 //  const API_ROOT = 'http://localhost:8080/v1/api';
 
 //live
- const API_ROOT = '/v1/api';
+const API_ROOT = '/v1/api';
 
 
 const encode = encodeURIComponent;
@@ -29,30 +29,30 @@ const requests = {
 
 const Common = {
   customer: () => requests.get('/customer'),
-  customerByid: (id) => requests.get('/customerByid/'+id),
+  customerByid: (id) => requests.get('/customerByid/' + id),
   services: () => requests.get('/services'),
-  servicesByid: (id) => requests.get('/servicesByid/'+id),
+  servicesByid: (id) => requests.get('/servicesByid/' + id),
   tax: () => requests.get('/tax'),
   company: () => requests.get('/company'),
-  invoice : (id) =>  requests.get('/getInvoiceByid/'+id),
+  invoice: (id) => requests.get('/getInvoiceByid/' + id),
   allinvoice: () => requests.get('/getInvoice'),
   service_create: (object) => requests.post('/service/create', qs.stringify(object)),
-  service_update: (id , object) => requests.put('/service/update/'+id, qs.stringify(object)),
-  invoice_update: (id, object) => requests.put('/invoice/update/'+id, qs.stringify(object)),
-  status_update: (id) => requests.post('/commonStatus/update/'+id),
-  delete_update: (id) => requests.post('/commonDelete/update/'+id),
-  edit_service: (id , object) => requests.put('/editservice/update/'+id, qs.stringify({"service_name":object})),
+  service_update: (id, object) => requests.put('/service/update/' + id, qs.stringify(object)),
+  invoice_update: (id, object) => requests.put('/invoice/update/' + id, qs.stringify(object)),
+  status_update: (id) => requests.post('/commonStatus/update/' + id),
+  delete_update: (id) => requests.post('/commonDelete/update/' + id),
+  edit_service: (id, object) => requests.put('/editservice/update/' + id, qs.stringify({ "service_name": object })),
   customercreate: (object) => requests.post('/customer/create', qs.stringify(object)),
-  customer_update: (id , object) => requests.put('/customer/update/'+id, qs.stringify(object)),
+  customer_update: (id, object) => requests.put('/customer/update/' + id, qs.stringify(object)),
 
-  login:(object) => requests.post('/authLogin', qs.stringify(object)),
+  login: (object) => requests.post('/authLogin', qs.stringify(object)),
   profile_create: (object) => requests.post('/profileCreate', qs.stringify(object)),
-  profile_update: (id, object) => requests.post('/profileUpdate/'+id, qs.stringify(object)),
-  password_update: (id , object) => requests.put('/updatePass/'+id, qs.stringify(object)),
+  profile_update: (id, object) => requests.post('/profileUpdate/' + id, qs.stringify(object)),
+  password_update: (id, object) => requests.put('/updatePass/' + id, qs.stringify(object)),
 };
 
 const Invoice = {
-  create: (PoObjectId,customer , service , serviceName ,serviceCode, profilesDetails, tax , po , podate, invoiceDate,  payment) => requests.post('/invoice', qs.stringify({ 
+  create: (PoObjectId,customer , service , serviceName ,serviceCode, profilesDetails, tax , po , podate, invoiceDate,  payment,piperformerinvoice) => requests.post('/invoice', qs.stringify({ 
     "PoObjectId":PoObjectId,  
     "customer":customer,
       "service": service,
@@ -63,22 +63,23 @@ const Invoice = {
       "po": po,
       "podate": podate,
       "payment":payment,
-      "createdAt":invoiceDate
+      "createdAt":invoiceDate,
+      "piperformerinvoice":piperformerinvoice
     })),
 }
 const poCreate = {
-  create: (customer,service,serviceName,serviceCode,
-      polistData,tax,ponuber,podate
-    )=> requests.post('/pocreate', qs.stringify({ 
-      "customer":customer,
-      "service": service,
-      "serviceName":serviceName,
-      "serviceCode":serviceCode,
-      "polistData":polistData,
-      "tax":tax,
-      "ponuber": ponuber,
-      "podate": podate,
-    })),
+  create: (customer, service, serviceName, serviceCode,
+    polistData, tax, ponuber, podate
+  ) => requests.post('/pocreate', qs.stringify({
+    "customer": customer,
+    "service": service,
+    "serviceName": serviceName,
+    "serviceCode": serviceCode,
+    "polistData": polistData,
+    "tax": tax,
+    "ponuber": ponuber,
+    "podate": podate,
+  })),
 }
 
 export default {

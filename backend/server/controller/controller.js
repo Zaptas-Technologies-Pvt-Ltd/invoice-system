@@ -10,6 +10,7 @@ var dateFormat = require('dateformat');
 const excel = require('exceljs');
 var url = require('url');
 const mongoose = require('mongoose');
+const ReminderForPO = require('../model/ReminderForPO');
 
 
 /* autoIncrement.initialize(connectDB); */
@@ -77,7 +78,7 @@ exports.invoicefind = (req, res) => {
             //message : err.message || "Error Occurred while retriving invoice information" })
         })
 }
-async function getNextSequenceValue(callback) {
+async function getNextSequenceValue(callback, piperformerinvoice = false) {
     try {
         const Cusdate = ['01-04-2023', '01-04-2024', '01-04-2025', '01-04-2026', '01-04-2027', '01-04-2028', '01-04-2029'];
 
@@ -86,19 +87,20 @@ async function getNextSequenceValue(callback) {
         let month = ("0" + (date_time.getMonth() + 1)).slice(-2);
         let year = date_time.getFullYear();
         let currentDate = date + "-" + month + "-" + year;
+        let db = piperformerinvoice ? 'piperformerinvoice' : 'invoiceid';
 
         // Check if the current date matches any of the dates in Cusdate
         if (Cusdate.includes(currentDate)) {
             // Reset sequence_value to 1 if a match is found
-            await counterdb.findOneAndUpdate({ _id: 'invoiceid' }, { $set: { sequence_value: 1 } });
+            await counterdb.findOneAndUpdate({ _id: db }, { $set: { sequence_value: 1 } });
             console.log('Reset sequence_value to 1');
         }
 
         // Increment sequence_value
-        await counterdb.findOneAndUpdate({ _id: 'invoiceid' }, { $inc: { sequence_value: 1 } });
+        await counterdb.findOneAndUpdate({ _id: db }, { $inc: { sequence_value: 1 } });
 
         // Retrieve the updated sequence_value
-        const result = await counterdb.findOne({ _id: 'invoiceid' });
+        const result = await counterdb.findOne({ _id: db });
 
         // Execute the callback with the updated sequence_value
         if (result) {
@@ -109,37 +111,51 @@ async function getNextSequenceValue(callback) {
     }
 }
 
-
 // create and save new user
 exports.create = (req, res) => {
-    console.log(req.body, 'dddddd');
+    console.log('Request body:', req.body);
+
     if (!req.body) {
         return res.status(400).send({ message: "Content can not be empty!" });
     }
 
+    const piperformerinvoice = req.body.piperformerinvoice === 'piperformerinvoice' ? true : false;
+
     getNextSequenceValue(async (data) => {
         try {
             var dt = dateTime.create();
-            const poId = req.body.PoObjectId; // this must be the actual PO document _id
+            const poId = req.body.PoObjectId;
 
-            if (!mongoose.Types.ObjectId.isValid(poId)) {
-                return res.status(400).send({ message: "Invalid PO ID" });
-            }
+            console.log('🔍 Using poId:', poId);
 
-            // 📍 Step: mark invoiceCreated in polistdata for each profileId
-            const profiles = req.body.profilesDetails;
+            const isValidPoId = mongoose.Types.ObjectId.isValid(poId);
 
-            for (let item of profiles) {
-                if (item.id) {
-                    const result = await POCreatedb.updateOne(
-                        { _id: new mongoose.Types.ObjectId(poId), "polistdata.id": item.id },
-                        { $set: { "polistdata.$.invoiceCreated": true } }
-                    );
-                    console.log(`Updated profileId ${item.id} =>`, result);
+            // Step 1: mark invoiceCreated in polistdata only if poId is valid
+            if (isValidPoId) {
+                const profiles = req.body.profilesDetails;
+                console.log('📦 profilesDetails:', profiles);
+
+                for (let item of profiles) {
+                    console.log('➡ Processing profile item.id:', item.id);
+
+                    if (item.id) {
+                        const result = await POCreatedb.updateOne(
+                            {
+                                _id: new mongoose.Types.ObjectId(poId),
+                                "polistdata.id": item.id
+                            },
+                            { $set: { "polistdata.$.invoiceCreated": true } }
+                        );
+                        console.log(`✅ updateOne result for item.id=${item.id}: matchedCount=${result.matchedCount}, modifiedCount=${result.modifiedCount}`);
+                    } else {
+                        console.log('⚠ Skipped profile without item.id:', item);
+                    }
                 }
+            } else {
+                console.log('⚠ Skipping POCreatedb update: Invalid poId format');
             }
 
-            // Continue creating invoice
+            // Step 2: create invoice
             const invoice = new invoicedb({
                 customer: req.body.customer,
                 service: req.body.service,
@@ -147,29 +163,43 @@ exports.create = (req, res) => {
                 service_code: req.body.serviceCode.toString(),
                 profileName_rate: req.body.profilesDetails,
                 tax: req.body.tax,
-                po: poId,
+                po: req.body.po,
                 podate: req.body.podate ? dateTime.create(req.body.podate).format('d-m-Y') : '',
                 createdAt: req.body.createdAt ? dateTime.create(req.body.createdAt).format('Y-m-d') : dt.format('Y-m-d'),
                 invoice: '00' + data,
-                payment: req.body.payment
+                payment: req.body.payment,
+                piperformerinvoice: piperformerinvoice
             });
 
             await invoice.save();
+            console.log('✅ Invoice saved successfully with number:', invoice.invoice);
+
+            // Step 3: deactivate reminders only if poId is valid
+            if (isValidPoId) {
+                const deactivateResult = await ReminderForPO.updateMany(
+                    { poId: poId, statusActive: true },
+                    { $set: { statusActive: false } }
+                );
+                console.log(`🛠 Reminders deactivated: matchedCount=${deactivateResult.matchedCount}, modifiedCount=${deactivateResult.modifiedCount}`);
+            } else {
+                console.log('⚠ Skipping ReminderForPO update: Invalid poId format');
+            }
 
             return res.status(200).send({
                 success: true,
-                message: 'Invoice created successfully'
+                message: 'Invoice created' + (isValidPoId ? ' and reminders deactivated' : '') + ' successfully'
             });
 
         } catch (err) {
-            console.error("Create invoice error:", err);
+            console.error("❌ Create invoice error:", err);
             return res.status(500).send({
                 success: false,
                 message: err.message || "Some error occurred while creating invoice"
             });
         }
-    });
+    }, piperformerinvoice);
 };
+
 
 
 // create and save new customer
@@ -337,23 +367,23 @@ exports.invoiceUpdate = (req, res) => {
         { $set: updateFields },
         { new: true } // return updated document
     )
-    .then(updatedInvoice => {
-        if (!updatedInvoice) {
-            return res.status(404).send({ success: false, message: "Invoice not found" });
-        }
-        res.status(200).send({
-            success: true,
-            message: 'Invoice updated successfully',
-            data: updatedInvoice
+        .then(updatedInvoice => {
+            if (!updatedInvoice) {
+                return res.status(404).send({ success: false, message: "Invoice not found" });
+            }
+            res.status(200).send({
+                success: true,
+                message: 'Invoice updated successfully',
+                data: updatedInvoice
+            });
+        })
+        .catch(error => {
+            console.error('Error updating invoice:', error);
+            res.status(500).send({
+                success: false,
+                message: error.message || "Some error occurred while updating the invoice"
+            });
         });
-    })
-    .catch(error => {
-        console.error('Error updating invoice:', error);
-        res.status(500).send({
-            success: false,
-            message: error.message || "Some error occurred while updating the invoice"
-        });
-    });
 };
 
 
@@ -684,9 +714,9 @@ exports.toggleCustomerStatus = async (req, res) => {
         const { isActive } = req.body;
 
         if (!mongoose.Types.ObjectId.isValid(id)) {
-            return res.status(400).send({ 
+            return res.status(400).send({
                 success: false,
-                message: "Invalid customer ID" 
+                message: "Invalid customer ID"
             });
         }
 

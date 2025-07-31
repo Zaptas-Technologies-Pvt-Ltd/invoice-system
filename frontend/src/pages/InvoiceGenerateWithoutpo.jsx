@@ -110,7 +110,7 @@ const handleSubmit = (e) =>{
     var SACCodeData = serviceRadioType.split(',')[2];
     var fIDData = serviceRadioType.split(',')[0];
       setLoading(true)
-      Services.Invoice.create(customer , fIDData,fNameData, SACCodeData, profilesDetails, taxdata , purchaseorder , podate,invoiceDate, 'Cheque').then(function(result) {
+      Services.Invoice.create(null,customer , fIDData,fNameData, SACCodeData, profilesDetails, taxdata , purchaseorder , podate,invoiceDate, 'Cheque').then(function(result) {
         if(result.success === true){
           setLoading(false)
           alert.success(result.message);
