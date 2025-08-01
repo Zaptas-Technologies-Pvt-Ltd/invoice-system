@@ -15,7 +15,23 @@ export default function InvoiceListing() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editInvoice, setEditInvoice] = useState(null);
   const [taxlist, settaxList] = useState([]);
+  const [filterStatus, setFilterStatus] = useState('all'); // 'all', 'active', 'inactive'
+  const [filterPerformer, setFilterPerformer] = useState('all'); // 'all', 'yes', 'no'
+  const [filterPO, setFilterPO] = useState('');
+  const [filterPayment, setFilterPayment] = useState('all');
+  const [filterService, setFilterService] = useState('all');
 
+  // Extract unique payment types and service names for dropdowns
+  const paymentTypes = Array.from(new Set(invoiceList.map(inv => inv.payment).filter(Boolean)));
+  const serviceNames = Array.from(
+    new Set(
+      invoiceList.flatMap(inv =>
+        Array.isArray(inv.service_name) && inv.service_name.length > 0
+          ? inv.service_name.flat()
+          : []
+      )
+    )
+  );
 
   const getInvoiceList = async () => {
     try {
@@ -124,6 +140,17 @@ export default function InvoiceListing() {
         ),
     },
     {
+      name: 'Performer Invoice',
+      selector: row => row.piperformerinvoice ? 'Yes' : 'No',
+      sortable: true,
+      grow: 0.5,
+      cell: row => (
+        <span className={row.piperformerinvoice ? "text-blue-600 font-semibold" : "text-gray-500"}>
+          {row.piperformerinvoice ? "Yes" : "No"}
+        </span>
+      ),
+    },
+    {
       name: 'Action',
       cell: (row) => (
         <div>
@@ -161,11 +188,51 @@ export default function InvoiceListing() {
   }, []);
 
   useEffect(() => {
-    const result = invoiceList.filter((inv) =>
-      inv.customer.name.toLowerCase().includes(search.toLowerCase())
-    );
+    let result = invoiceList;
+
+    // Filter by search
+    if (search) {
+      result = result.filter((inv) =>
+        inv.customer.name.toLowerCase().includes(search.toLowerCase())
+      );
+    }
+
+    // Filter by status
+    if (filterStatus !== 'all') {
+      result = result.filter(inv =>
+        filterStatus === 'active' ? inv.status === true : inv.status === false
+      );
+    }
+
+    // Filter by performer invoice
+    if (filterPerformer !== 'all') {
+      result = result.filter(inv =>
+        filterPerformer === 'yes' ? inv.piperformerinvoice === true : inv.piperformerinvoice === false
+      );
+    }
+
+    // Filter by PO number
+    if (filterPO.trim() !== '') {
+      result = result.filter(inv =>
+        inv.po && inv.po.toLowerCase().includes(filterPO.trim().toLowerCase())
+      );
+    }
+
+    // Filter by payment type
+    if (filterPayment !== 'all') {
+      result = result.filter(inv => inv.payment === filterPayment);
+    }
+
+    // Filter by service name
+    if (filterService !== 'all') {
+      result = result.filter(inv =>
+        Array.isArray(inv.service_name) &&
+        inv.service_name.flat().includes(filterService)
+      );
+    }
+
     setFilteredInvoices(result);
-  }, [search, invoiceList]);
+  }, [search, invoiceList, filterStatus, filterPerformer, filterPO, filterPayment, filterService]);
 
 
   const handleInvoiceTaxChange = (value) => {
@@ -178,9 +245,89 @@ export default function InvoiceListing() {
   return (
     <div className="h-[22rem] bg-white p-4 rounded-sm border border-gray-200 flex flex-col flex-1">
       {loading && <Spinner />}
+      {/* Filters UI */}
+      <div className="mb-4">
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 shadow-sm">
+          <div className="mb-2 text-lg font-semibold text-gray-700">Filter Invoices</div>
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Customer Name</label>
+              <input
+                type="text"
+                placeholder="Search Customer Name..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full border p-2 rounded focus:ring-2 focus:ring-blue-200"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Status</label>
+              <select
+                value={filterStatus}
+                onChange={e => setFilterStatus(e.target.value)}
+                className="w-full border p-2 rounded focus:ring-2 focus:ring-blue-200"
+              >
+                <option value="all">All Status</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Invoice Type</label>
+              <select
+                value={filterPerformer}
+                onChange={e => setFilterPerformer(e.target.value)}
+                className="w-full border p-2 rounded focus:ring-2 focus:ring-blue-200"
+              >
+                <option value="all">All Types</option>
+                <option value="yes">Performer Invoice</option>
+                <option value="no">Normal Invoice</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">PO Number</label>
+              <input
+                type="text"
+                placeholder="Search PO Number..."
+                value={filterPO}
+                onChange={e => setFilterPO(e.target.value)}
+                className="w-full border p-2 rounded focus:ring-2 focus:ring-blue-200"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Payment Type</label>
+              <select
+                value={filterPayment}
+                onChange={e => setFilterPayment(e.target.value)}
+                className="w-full border p-2 rounded focus:ring-2 focus:ring-blue-200"
+              >
+                <option value="all">All Payment Types</option>
+                {paymentTypes.map((type, idx) => (
+                  <option key={idx} value={type}>{type}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Service</label>
+              <select
+                value={filterService}
+                onChange={e => setFilterService(e.target.value)}
+                className="w-full border p-2 rounded focus:ring-2 focus:ring-blue-200"
+              >
+                <option value="all">All Services</option>
+                {serviceNames.map((name, idx) => (
+                  <option key={idx} value={name}>{name}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
       <DataTable
         title="Invoice List"
-        columns={columns}
+        columns={[
+          ...columns
+        ]}
         data={filteredInvoices}
         pagination
         fixedHeader
@@ -188,18 +335,7 @@ export default function InvoiceListing() {
         selectableRows
         selectableRowsHighlight
         highlightOnHover
-        subHeader
-        subHeaderComponent={
-          <input
-            type="text"
-            placeholder="Search Customer Name..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-25 form-control"
-            style={{ marginLeft: -8 }}
-          />
-        }
-        subHeaderAlign="left"
+        subHeader={false}
       />
 
       {showEditModal && editInvoice && (
