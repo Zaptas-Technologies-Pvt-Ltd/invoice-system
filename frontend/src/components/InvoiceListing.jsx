@@ -14,6 +14,8 @@ export default function InvoiceListing() {
   const [filteredInvoices, setFilteredInvoices] = useState([]);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editInvoice, setEditInvoice] = useState(null);
+  const [taxlist, settaxList] = useState([]);
+
 
   const getInvoiceList = async () => {
     try {
@@ -34,6 +36,19 @@ export default function InvoiceListing() {
     setLoading(false);
   };
 
+  const getTaxlist = async () => {
+    try {
+      const response = await axios.get("/v1/api/tax", { headers: { "authorization": `Bearer ${localStorage.getItem('token')}` } });
+      if (response.data.success === true) {
+        settaxList(response.data.data);
+      } else {
+        settaxList([]);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const cancelInvoice = async (id) => {
     try {
       if (window.confirm('Do you really want to cancel?')) {
@@ -46,9 +61,10 @@ export default function InvoiceListing() {
     }
     setLoading(false);
   };
-  
+
 
   const handleEdit = (invoice) => {
+    getTaxlist()
     setEditInvoice(invoice);
     setShowEditModal(true);
   };
@@ -63,7 +79,8 @@ export default function InvoiceListing() {
     try {
       await axios.put(
         `/v1/api/invoice/update/${editInvoice._id}`,
-        { profileName_rate: editInvoice.profileName_rate },
+        { profileName_rate: editInvoice.profileName_rate, tax: editInvoice.ntax },
+
         { headers: { authorization: `Bearer ${localStorage.getItem('token')}` } }
       );
       setShowEditModal(false);
@@ -150,6 +167,14 @@ export default function InvoiceListing() {
     setFilteredInvoices(result);
   }, [search, invoiceList]);
 
+
+  const handleInvoiceTaxChange = (value) => {
+    console.log(value);
+    // alert(value);
+    setEditInvoice(prev => ({ ...prev, ntax: Number(value) }));
+  };
+
+
   return (
     <div className="h-[22rem] bg-white p-4 rounded-sm border border-gray-200 flex flex-col flex-1">
       {loading && <Spinner />}
@@ -184,6 +209,8 @@ export default function InvoiceListing() {
             <form onSubmit={e => { e.preventDefault(); handleSaveEdit(); }}>
               {editInvoice.profileName_rate.map((item, idx) => (
                 <div key={idx} className="mb-4 p-3 border rounded bg-gray-50 flex flex-col gap-2">
+
+                  {/* Profile Name */}
                   <div className="flex flex-col md:flex-row gap-2 md:items-center">
                     <label className="w-32 font-medium text-gray-700" htmlFor={`profileName-${idx}`}>Profile Name</label>
                     <input
@@ -200,6 +227,8 @@ export default function InvoiceListing() {
                       required
                     />
                   </div>
+
+                  {/* Rate */}
                   <div className="flex flex-col md:flex-row gap-2 md:items-center">
                     <label className="w-32 font-medium text-gray-700" htmlFor={`rate-${idx}`}>Rate</label>
                     <input
@@ -216,6 +245,8 @@ export default function InvoiceListing() {
                       required
                     />
                   </div>
+
+                  {/* Remark */}
                   <div className="flex flex-col md:flex-row gap-2 md:items-center">
                     <label className="w-32 font-medium text-gray-700" htmlFor={`remark-${idx}`}>Remark</label>
                     <input
@@ -231,8 +262,42 @@ export default function InvoiceListing() {
                       placeholder="Remark"
                     />
                   </div>
+
+
+
                 </div>
               ))}
+
+              {/* Invoice-level tax radio buttons */}
+              {taxlist.length > 0 && (
+                <div className="mb-4 p-3 border rounded bg-gray-50">
+                  <label className="block mb-2 text-sm font-medium text-gray-900">
+                    Select Tax for Invoice
+                  </label>
+                  <div className="flex flex-col gap-2">
+                    {taxlist.map((taxes, idx) => (
+                      <label key={idx} className="inline-flex items-center">
+                        <input
+                          type="radio"
+                          name="editTax"
+                          value={taxes.tax_type}
+                          // checked={editInvoice.tax === taxes.tax_type}
+                          onChange={() => handleInvoiceTaxChange(taxes.tax_type)}
+                          className="form-radio text-blue-600"
+                        />
+                        <span className="ml-2">
+                          {taxes.tax}% {taxes.tax_type === 1 ? "(IGST)" : "(SGST 9% + CGST 9%)"}
+                        </span>
+                      </label>
+                    ))}
+
+                  </div>
+                  <div className="mt-2 text-sm text-gray-600">
+                    Current selected tax: {editInvoice.tax == 1 ? "18% IGST" : "SGST 9% + CGST 9%"}
+                  </div>
+                </div>
+              )}
+
               <div className="flex justify-end gap-2 mt-6">
                 <button
                   type="button"
@@ -252,6 +317,10 @@ export default function InvoiceListing() {
           </div>
         </div>
       )}
+
+
+
+
     </div>
   );
 }

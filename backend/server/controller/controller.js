@@ -335,6 +335,10 @@ exports.invoiceUpdate = (req, res) => {
     if (req.body.profileName_rate) {
         updateFields.profileName_rate = req.body.profileName_rate;
     }
+   
+    if (req?.body?.tax) {
+        updateFields.tax = req.body.tax;
+    }
 
     // Handle status if present:
     // can come as boolean, string "active"/"inactive", or string "true"/"false"
