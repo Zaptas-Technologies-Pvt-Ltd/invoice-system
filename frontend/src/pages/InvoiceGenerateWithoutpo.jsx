@@ -9,6 +9,7 @@ import { HiMinusCircle, HiPlusCircle } from 'react-icons/hi';
 import Services from '../service/Services';
 import { useAlert } from "react-alert";
 import { useNavigate } from 'react-router-dom';
+import InvoiceListing from '../components/InvoiceListing';
 
 let curentDate = format(new Date(),'yyyy-MM-dd');
 
@@ -291,6 +292,7 @@ const handleSubmit = (e) =>{
         </div>
       </form>
     </div>
+    <InvoiceListing pi={true}/>
     </div>
   )
 }

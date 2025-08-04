@@ -30,54 +30,49 @@ exports.invoicefindByid = (req, res) => {
 
 exports.invoicefind = (req, res) => {
     var mysort = { _id: -1 };
-    const fdate = req.query.fromdate || ""
-    const ldate = req.query.todate || ""
-    const sacCode = req.query.saccode || ""
+    const pi = req?.query?.pi || 'false'; // "true" or "false" as a string
+    const fdate = req.query.fromdate || "";
+    const ldate = req.query.todate || "";
+    const sacCode = req.query.saccode || "";
 
-    if (fdate != '' && ldate != '') {
-        if (sacCode != '') {
-            var query = {
-                createdAt: {
-                    $gte: fdate ? fdate : '',
-                    $lte: ldate ? ldate : ''
-                },
-                // service_code: {"$in": sacCode}
-                service_code: sacCode
-            }
-        } else {
-            var query = {
-                createdAt: {
-                    $gte: fdate ? fdate : '',
-                    $lte: ldate ? ldate : ''
-                },
-            }
-        }
-    } else {
-        var query = {}
+    let query = {};
+
+    // Filter by date range if provided
+    if (fdate !== '' && ldate !== '') {
+        query.createdAt = {
+            $gte: fdate,
+            $lte: ldate
+        };
     }
+
+    // Filter by service code if provided
+    if (sacCode !== '') {
+        query.service_code = sacCode;
+    }
+
+    // Filter by piperformerinvoice based on pi param
+    query.piperformerinvoice = pi === 'true';
+
     invoicedb.find(query)
         .sort(mysort)
         .populate({ path: 'customer', select: ['name', 'address', 'gstno'] })
         .populate({ path: 'tax', select: 'tax' })
         .populate({ path: 'service', select: ['sr_name', 'price', 'qty', 'sac_code'] })
         .then(invoice => {
-            res.status(200).send(
-                {
-                    success: (invoice != '') ? true : false,
-                    message: "Data fatched successfully",
-                    data: invoice,
-                })
+            res.status(200).send({
+                success: invoice.length > 0,
+                message: "Data fetched successfully",
+                data: invoice,
+            });
         })
         .catch(err => {
-            res.status(500).send(
-                {
-                    message: err.message,
-                    success: false,
-                    data: null,
-                })
-            //message : err.message || "Error Occurred while retriving invoice information" })
-        })
-}
+            res.status(500).send({
+                message: err.message,
+                success: false,
+                data: null,
+            });
+        });
+};
 async function getNextSequenceValue(callback, piperformerinvoice = false) {
     try {
         const Cusdate = ['01-04-2023', '01-04-2024', '01-04-2025', '01-04-2026', '01-04-2027', '01-04-2028', '01-04-2029'];

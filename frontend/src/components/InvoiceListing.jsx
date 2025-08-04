@@ -1,31 +1,33 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import DataTable from 'react-data-table-component';
-import Moment from 'moment';
-import Services from '../service/Services';
-import Spinner from '../components/Spinner';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import DataTable from "react-data-table-component";
+import Moment from "moment";
+import Services from "../service/Services";
+import Spinner from "../components/Spinner";
+import { Link, useNavigate } from "react-router-dom";
 
-export default function InvoiceListing() {
+export default function InvoiceListing({ pi }) {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
   const [invoiceList, setInvoiceList] = useState([]);
   const [filteredInvoices, setFilteredInvoices] = useState([]);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editInvoice, setEditInvoice] = useState(null);
   const [taxlist, settaxList] = useState([]);
-  const [filterStatus, setFilterStatus] = useState('all'); // 'all', 'active', 'inactive'
-  const [filterPerformer, setFilterPerformer] = useState('all'); // 'all', 'yes', 'no'
-  const [filterPO, setFilterPO] = useState('');
-  const [filterPayment, setFilterPayment] = useState('all');
-  const [filterService, setFilterService] = useState('all');
+  const [filterStatus, setFilterStatus] = useState("all"); // 'all', 'active', 'inactive'
+  const [filterPerformer, setFilterPerformer] = useState("all"); // 'all', 'yes', 'no'
+  const [filterPO, setFilterPO] = useState("");
+  const [filterPayment, setFilterPayment] = useState("all");
+  const [filterService, setFilterService] = useState("all");
 
   // Extract unique payment types and service names for dropdowns
-  const paymentTypes = Array.from(new Set(invoiceList.map(inv => inv.payment).filter(Boolean)));
+  const paymentTypes = Array.from(
+    new Set(invoiceList.map((inv) => inv.payment).filter(Boolean))
+  );
   const serviceNames = Array.from(
     new Set(
-      invoiceList.flatMap(inv =>
+      invoiceList.flatMap((inv) =>
         Array.isArray(inv.service_name) && inv.service_name.length > 0
           ? inv.service_name.flat()
           : []
@@ -36,8 +38,9 @@ export default function InvoiceListing() {
   const getInvoiceList = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('/v1/api/getInvoice', {
-        headers: { authorization: `Bearer ${localStorage.getItem('token')}` },
+      const piParam = typeof pi !== "undefined" ? pi : false;
+      const response = await axios.get(`/v1/api/getInvoice?pi=${piParam}`, {
+        headers: { authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       if (response.data.success) {
         setInvoiceList(response.data.data);
@@ -54,7 +57,9 @@ export default function InvoiceListing() {
 
   const getTaxlist = async () => {
     try {
-      const response = await axios.get("/v1/api/tax", { headers: { "authorization": `Bearer ${localStorage.getItem('token')}` } });
+      const response = await axios.get("/v1/api/tax", {
+        headers: { authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
       if (response.data.success === true) {
         settaxList(response.data.data);
       } else {
@@ -67,7 +72,7 @@ export default function InvoiceListing() {
 
   const cancelInvoice = async (id) => {
     try {
-      if (window.confirm('Do you really want to cancel?')) {
+      if (window.confirm("Do you really want to cancel?")) {
         setLoading(true);
         await Services.Common.invoice_update(id, { status: false });
         await getInvoiceList(); // better UX: refresh instead of navigate
@@ -78,9 +83,8 @@ export default function InvoiceListing() {
     setLoading(false);
   };
 
-
   const handleEdit = (invoice) => {
-    getTaxlist()
+    getTaxlist();
     setEditInvoice(invoice);
     setShowEditModal(true);
   };
@@ -95,9 +99,14 @@ export default function InvoiceListing() {
     try {
       await axios.put(
         `/v1/api/invoice/update/${editInvoice._id}`,
-        { profileName_rate: editInvoice.profileName_rate, tax: editInvoice.ntax },
+        {
+          profileName_rate: editInvoice.profileName_rate,
+          tax: editInvoice.ntax,
+        },
 
-        { headers: { authorization: `Bearer ${localStorage.getItem('token')}` } }
+        {
+          headers: { authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
       );
       setShowEditModal(false);
       setEditInvoice(null);
@@ -110,23 +119,23 @@ export default function InvoiceListing() {
 
   const columns = [
     {
-      name: 'Invoice No.',
+      name: "Invoice No.",
       sortable: true,
       grow: 0.4,
       selector: (row) => row.invoice,
-      style: { fontWeight: 'bold', width: 5 },
+      style: { fontWeight: "bold", width: 5 },
     },
     {
-      name: 'Invoice Date',
+      name: "Invoice Date",
       grow: 0.5,
-      selector: (row) => Moment(row.createdAt).format('DD-MM-YYYY'),
+      selector: (row) => Moment(row.createdAt).format("DD-MM-YYYY"),
     },
     {
-      name: 'Customer',
+      name: "Customer",
       selector: (row) => row.customer.name,
     },
     {
-      name: 'Status',
+      name: "Status",
       grow: 0.5,
       cell: (row) =>
         row.status ? (
@@ -139,19 +148,19 @@ export default function InvoiceListing() {
           </button>
         ),
     },
+    // {
+    //   name: 'Performer Invoice',
+    //   selector: row => row.piperformerinvoice ? 'Yes' : 'No',
+    //   sortable: true,
+    //   grow: 0.5,
+    //   cell: row => (
+    //     <span className={row.piperformerinvoice ? "text-blue-600 font-semibold" : "text-gray-500"}>
+    //       {row.piperformerinvoice ? "Yes" : "No"}
+    //     </span>
+    //   ),
+    // },
     {
-      name: 'Performer Invoice',
-      selector: row => row.piperformerinvoice ? 'Yes' : 'No',
-      sortable: true,
-      grow: 0.5,
-      cell: row => (
-        <span className={row.piperformerinvoice ? "text-blue-600 font-semibold" : "text-gray-500"}>
-          {row.piperformerinvoice ? "Yes" : "No"}
-        </span>
-      ),
-    },
-    {
-      name: 'Action',
+      name: "Action",
       cell: (row) => (
         <div>
           <Link
@@ -198,49 +207,59 @@ export default function InvoiceListing() {
     }
 
     // Filter by status
-    if (filterStatus !== 'all') {
-      result = result.filter(inv =>
-        filterStatus === 'active' ? inv.status === true : inv.status === false
+    if (filterStatus !== "all") {
+      result = result.filter((inv) =>
+        filterStatus === "active" ? inv.status === true : inv.status === false
       );
     }
 
     // Filter by performer invoice
-    if (filterPerformer !== 'all') {
-      result = result.filter(inv =>
-        filterPerformer === 'yes' ? inv.piperformerinvoice === true : inv.piperformerinvoice === false
+    if (filterPerformer !== "all") {
+      result = result.filter((inv) =>
+        filterPerformer === "yes"
+          ? inv.piperformerinvoice === true
+          : inv.piperformerinvoice === false
       );
     }
 
     // Filter by PO number
-    if (filterPO.trim() !== '') {
-      result = result.filter(inv =>
-        inv.po && inv.po.toLowerCase().includes(filterPO.trim().toLowerCase())
+    if (filterPO.trim() !== "") {
+      result = result.filter(
+        (inv) =>
+          inv.po && inv.po.toLowerCase().includes(filterPO.trim().toLowerCase())
       );
     }
 
     // Filter by payment type
-    if (filterPayment !== 'all') {
-      result = result.filter(inv => inv.payment === filterPayment);
+    if (filterPayment !== "all") {
+      result = result.filter((inv) => inv.payment === filterPayment);
     }
 
     // Filter by service name
-    if (filterService !== 'all') {
-      result = result.filter(inv =>
-        Array.isArray(inv.service_name) &&
-        inv.service_name.flat().includes(filterService)
+    if (filterService !== "all") {
+      result = result.filter(
+        (inv) =>
+          Array.isArray(inv.service_name) &&
+          inv.service_name.flat().includes(filterService)
       );
     }
 
     setFilteredInvoices(result);
-  }, [search, invoiceList, filterStatus, filterPerformer, filterPO, filterPayment, filterService]);
-
+  }, [
+    search,
+    invoiceList,
+    filterStatus,
+    filterPerformer,
+    filterPO,
+    filterPayment,
+    filterService,
+  ]);
 
   const handleInvoiceTaxChange = (value) => {
     console.log(value);
     // alert(value);
-    setEditInvoice(prev => ({ ...prev, ntax: Number(value) }));
+    setEditInvoice((prev) => ({ ...prev, ntax: Number(value) }));
   };
-
 
   return (
     <div className="h-[22rem] bg-white p-4 rounded-sm border border-gray-200 flex flex-col flex-1">
@@ -248,10 +267,14 @@ export default function InvoiceListing() {
       {/* Filters UI */}
       <div className="mb-4">
         <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 shadow-sm">
-          <div className="mb-2 text-lg font-semibold text-gray-700">Filter Invoices</div>
+          <div className="mb-2 text-lg font-semibold text-gray-700">
+            Filter Invoices
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Customer Name</label>
+              <label className="block text-xs font-medium text-gray-600 mb-1">
+                Customer Name
+              </label>
               <input
                 type="text"
                 placeholder="Search Customer Name..."
@@ -261,10 +284,12 @@ export default function InvoiceListing() {
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Status</label>
+              <label className="block text-xs font-medium text-gray-600 mb-1">
+                Status
+              </label>
               <select
                 value={filterStatus}
-                onChange={e => setFilterStatus(e.target.value)}
+                onChange={(e) => setFilterStatus(e.target.value)}
                 className="w-full border p-2 rounded focus:ring-2 focus:ring-blue-200"
               >
                 <option value="all">All Status</option>
@@ -272,7 +297,7 @@ export default function InvoiceListing() {
                 <option value="inactive">Inactive</option>
               </select>
             </div>
-            <div>
+            {/* <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">Invoice Type</label>
               <select
                 value={filterPerformer}
@@ -283,18 +308,20 @@ export default function InvoiceListing() {
                 <option value="yes">Performer Invoice</option>
                 <option value="no">Normal Invoice</option>
               </select>
-            </div>
+            </div> */}
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">PO Number</label>
+              <label className="block text-xs font-medium text-gray-600 mb-1">
+                PO Number
+              </label>
               <input
                 type="text"
                 placeholder="Search PO Number..."
                 value={filterPO}
-                onChange={e => setFilterPO(e.target.value)}
+                onChange={(e) => setFilterPO(e.target.value)}
                 className="w-full border p-2 rounded focus:ring-2 focus:ring-blue-200"
               />
             </div>
-            <div>
+            {/* <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">Payment Type</label>
               <select
                 value={filterPayment}
@@ -306,17 +333,21 @@ export default function InvoiceListing() {
                   <option key={idx} value={type}>{type}</option>
                 ))}
               </select>
-            </div>
+            </div> */}
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Service</label>
+              <label className="block text-xs font-medium text-gray-600 mb-1">
+                Service
+              </label>
               <select
                 value={filterService}
-                onChange={e => setFilterService(e.target.value)}
+                onChange={(e) => setFilterService(e.target.value)}
                 className="w-full border p-2 rounded focus:ring-2 focus:ring-blue-200"
               >
                 <option value="all">All Services</option>
                 {serviceNames.map((name, idx) => (
-                  <option key={idx} value={name}>{name}</option>
+                  <option key={idx} value={name}>
+                    {name}
+                  </option>
                 ))}
               </select>
             </div>
@@ -325,9 +356,7 @@ export default function InvoiceListing() {
       </div>
       <DataTable
         title="Invoice List"
-        columns={[
-          ...columns
-        ]}
+        columns={[...columns]}
         data={filteredInvoices}
         pagination
         fixedHeader
@@ -341,22 +370,39 @@ export default function InvoiceListing() {
       {showEditModal && editInvoice && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white p-6 rounded shadow-lg min-w-[350px] w-full max-w-lg max-h-[90vh] overflow-y-auto">
-            <h2 className="text-xl font-bold mb-6 text-center">Edit Profile Details</h2>
-            <form onSubmit={e => { e.preventDefault(); handleSaveEdit(); }}>
+            <h2 className="text-xl font-bold mb-6 text-center">
+              Edit Profile Details
+            </h2>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleSaveEdit();
+              }}
+            >
               {editInvoice.profileName_rate.map((item, idx) => (
-                <div key={idx} className="mb-4 p-3 border rounded bg-gray-50 flex flex-col gap-2">
-
+                <div
+                  key={idx}
+                  className="mb-4 p-3 border rounded bg-gray-50 flex flex-col gap-2"
+                >
                   {/* Profile Name */}
                   <div className="flex flex-col md:flex-row gap-2 md:items-center">
-                    <label className="w-32 font-medium text-gray-700" htmlFor={`profileName-${idx}`}>Profile Name</label>
+                    <label
+                      className="w-32 font-medium text-gray-700"
+                      htmlFor={`profileName-${idx}`}
+                    >
+                      Profile Name
+                    </label>
                     <input
                       id={`profileName-${idx}`}
                       type="text"
                       value={item.profileName}
-                      onChange={e => {
+                      onChange={(e) => {
                         const updated = [...editInvoice.profileName_rate];
                         updated[idx].profileName = e.target.value;
-                        setEditInvoice({ ...editInvoice, profileName_rate: updated });
+                        setEditInvoice({
+                          ...editInvoice,
+                          profileName_rate: updated,
+                        });
                       }}
                       className="border p-2 rounded flex-1 min-w-0"
                       placeholder="Profile Name"
@@ -366,15 +412,23 @@ export default function InvoiceListing() {
 
                   {/* Rate */}
                   <div className="flex flex-col md:flex-row gap-2 md:items-center">
-                    <label className="w-32 font-medium text-gray-700" htmlFor={`rate-${idx}`}>Rate</label>
+                    <label
+                      className="w-32 font-medium text-gray-700"
+                      htmlFor={`rate-${idx}`}
+                    >
+                      Rate
+                    </label>
                     <input
                       id={`rate-${idx}`}
                       type="number"
                       value={item.rate}
-                      onChange={e => {
+                      onChange={(e) => {
                         const updated = [...editInvoice.profileName_rate];
                         updated[idx].rate = e.target.value;
-                        setEditInvoice({ ...editInvoice, profileName_rate: updated });
+                        setEditInvoice({
+                          ...editInvoice,
+                          profileName_rate: updated,
+                        });
                       }}
                       className="border p-2 rounded flex-1 min-w-0"
                       placeholder="Rate"
@@ -384,23 +438,28 @@ export default function InvoiceListing() {
 
                   {/* Remark */}
                   <div className="flex flex-col md:flex-row gap-2 md:items-center">
-                    <label className="w-32 font-medium text-gray-700" htmlFor={`remark-${idx}`}>Remark</label>
+                    <label
+                      className="w-32 font-medium text-gray-700"
+                      htmlFor={`remark-${idx}`}
+                    >
+                      Remark
+                    </label>
                     <input
                       id={`remark-${idx}`}
                       type="text"
-                      value={item.remark || ''}
-                      onChange={e => {
+                      value={item.remark || ""}
+                      onChange={(e) => {
                         const updated = [...editInvoice.profileName_rate];
                         updated[idx].remark = e.target.value;
-                        setEditInvoice({ ...editInvoice, profileName_rate: updated });
+                        setEditInvoice({
+                          ...editInvoice,
+                          profileName_rate: updated,
+                        });
                       }}
                       className="border p-2 rounded flex-1 min-w-0"
                       placeholder="Remark"
                     />
                   </div>
-
-
-
                 </div>
               ))}
 
@@ -418,18 +477,23 @@ export default function InvoiceListing() {
                           name="editTax"
                           value={taxes.tax_type}
                           // checked={editInvoice.tax === taxes.tax_type}
-                          onChange={() => handleInvoiceTaxChange(taxes.tax_type)}
+                          onChange={() =>
+                            handleInvoiceTaxChange(taxes.tax_type)
+                          }
                           className="form-radio text-blue-600"
                         />
                         <span className="ml-2">
-                          {taxes.tax}% {taxes.tax_type === 1 ? "(IGST)" : "(SGST 9% + CGST 9%)"}
+                          {taxes.tax}%{" "}
+                          {taxes.tax_type === 1
+                            ? "(IGST)"
+                            : "(SGST 9% + CGST 9%)"}
                         </span>
                       </label>
                     ))}
-
                   </div>
                   <div className="mt-2 text-sm text-gray-600">
-                    Current selected tax: {editInvoice.tax == 1 ? "18% IGST" : "SGST 9% + CGST 9%"}
+                    Current selected tax:{" "}
+                    {editInvoice.tax == 1 ? "18% IGST" : "SGST 9% + CGST 9%"}
                   </div>
                 </div>
               )}
@@ -453,10 +517,6 @@ export default function InvoiceListing() {
           </div>
         </div>
       )}
-
-
-
-
     </div>
   );
 }
