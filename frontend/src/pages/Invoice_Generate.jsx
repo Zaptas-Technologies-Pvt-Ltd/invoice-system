@@ -319,7 +319,7 @@ export default function Invoice_Generate() {
                             name="ProfileName"
                             value={value.profileName || ''}
                             onChange={e => handleChanges(index, e, value)}
-                            disabled={value.invoiceCreated === true}
+                            // disabled={value.invoiceCreated === true}
                             className="form-checkbox"
                           />
 
