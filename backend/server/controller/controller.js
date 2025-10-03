@@ -112,7 +112,11 @@ async function getNextSequenceValue(callback) {
 
 // create and save new user
 exports.create = (req, res) => {
-    console.log(req.body, 'dddddd')
+    console.log('Full request body:', req.body)
+    console.log('profilesDetails received:', req.body.profilesDetails)
+    if (req.body.profilesDetails) {
+        console.log('Each profileName in profilesDetails:', req.body.profilesDetails.map(p => p.profileName))
+    }
     // validate request
     if (!req.body) {
         res.status(400).send({ message: "Content can not be emtpy!" });
@@ -137,6 +141,9 @@ exports.create = (req, res) => {
             invoice: '00' + data,
             payment: req.body.payment
         })
+        
+        console.log('Invoice object being saved:', invoice)
+        console.log('profileName_rate being saved:', invoice.profileName_rate)
 
         invoice
             .save(invoice)
@@ -282,13 +289,23 @@ exports.invoiceUpdate = (req, res) => {
 
     const id = req.params.id;
 
-
     if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(400).send({ message: "Invalid invoice ID" });
     }
 
+    // Build update object from request body (allow updating any invoice field)
+    const updateFields = {};
+    if (req.body.profileName_rate) updateFields.profileName_rate = req.body.profileName_rate;
+    if (req.body.status !== undefined) updateFields.status = req.body.status;
+    if (req.body.service_name) updateFields.service_name = req.body.service_name;
+    if (req.body.service_code) updateFields.service_code = req.body.service_code;
+    if (req.body.po) updateFields.po = req.body.po;
+    if (req.body.podate) updateFields.podate = req.body.podate;
+    if (req.body.payment) updateFields.payment = req.body.payment;
+    // Add more fields as needed
+
     invoicedb.findByIdAndUpdate(id, {
-        status: false
+        $set: updateFields
     }, { new: true }) // 'new: true' to return the updated document
         .then(data => {
             if (!data) {
@@ -296,7 +313,8 @@ exports.invoiceUpdate = (req, res) => {
             }
             res.status(200).send({
                 success: true,
-                message: 'Invoice updated successfully'
+                message: 'Invoice updated successfully',
+                data: data
             });
         })
         .catch(err => {

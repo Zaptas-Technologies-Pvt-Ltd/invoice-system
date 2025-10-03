@@ -7,6 +7,7 @@ const cors = require('cors');
 const connectDB = require('./server/database/connection');
 
 const app = express();
+app.use(express.json());
 
 // Load environment variables from config.env file
 dotenv.config({ path: 'config.env' });

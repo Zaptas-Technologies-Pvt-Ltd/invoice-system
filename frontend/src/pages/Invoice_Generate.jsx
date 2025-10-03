@@ -40,19 +40,28 @@ export default function Invoice_Generate() {
  // Multi Checkbox
     const handleChanges = (index, e, value) => {
       //console.log('Input Val: ',value.profileName)
-        const intialObject = poData.find((item,i)=> item.profileName === value.profileName );
+        // Use the current poData which includes any edited profileName
+        const currentObject = poData.find((item,i)=> item.profileName === value.profileName || i === index);
         const { checked } = e.target;
         if (checked) {
           //setDisabled(true)
-          setNewProfile((old)=>[...old, intialObject]);
+          // Add originalProfileName to track the original value, but use current data
+          const objectWithOriginal = { 
+            ...currentObject, 
+            originalProfileName: value.profileName,
+            profileName: currentObject.profileName, // Use the current (possibly edited) profileName
+            poIndex: index
+          };
+          setNewProfile((old)=>[...old, objectWithOriginal]);
+          console.log('Added to newProfile:', objectWithOriginal);
         } else {
-          setNewProfile((old)=> [...old.filter((e,i) => e.profileName !== value.profileName)]
+          setNewProfile((old)=> [...old.filter((e,i) => e.originalProfileName !== value.profileName)]
           );
         }
       };
     const handleRate = (index, e, value) => {
       const newArray = newProfile.map((item, i) => {
-        if (item.profileName === value.profileName) {
+        if (item.originalProfileName === value.profileName) {
           return { ...item, [e.target.name]: e.target.value };
         } else {
           return item;
@@ -62,7 +71,7 @@ export default function Invoice_Generate() {
      }
     const handleRemark = (index, e,value) => {
       const newArray = newProfile.map((item, i) => {
-        if (item.profileName === value.profileName) {
+        if (item.originalProfileName === value.profileName) {
           return { ...item, [e.target.name]: e.target.value };
         } else {
           return item;
@@ -70,6 +79,43 @@ export default function Invoice_Generate() {
       });
       setNewProfile(newArray);
      }
+     const handleProfileName = (index, e, value) => {
+       console.log('handleProfileName called:', e.target.value, 'for original:', value.profileName);
+       console.log('Current newProfile before update:', newProfile);
+       
+       // Update the poData to reflect the change in the input field
+       const updatedPoData = poData.map((item, i) => {
+         if (i === index) {
+           return { ...item, [e.target.name]: e.target.value };
+         } else {
+           return item;
+         }
+       });
+       setPoData(updatedPoData);
+       
+       // Check if the item is already in newProfile
+       const existingItemIndex = newProfile.findIndex(item => item.originalProfileName === value.profileName);
+       
+       if (existingItemIndex !== -1) {
+         // Item exists in newProfile, update it
+         const newArray = newProfile.map((item, i) => {
+           if (item.originalProfileName === value.profileName) {
+             console.log('Found matching item to update:', item);
+             const updatedItem = { ...item, [e.target.name]: e.target.value };
+             console.log('Updated item:', updatedItem);
+             return updatedItem;
+           } else {
+             return item;
+           }
+         });
+         setNewProfile(newArray);
+         console.log('Updated newProfile after update:', newArray);
+       } else {
+         // Item not in newProfile yet, but we still need to track the change
+         // This will be handled when the checkbox is selected
+         console.log('Item not in newProfile yet, change will be applied when checkbox is selected');
+       }
+      }
   const validation =()=> {
         const errors ={}
         if(customer ===''){
@@ -99,21 +145,52 @@ export default function Invoice_Generate() {
         setServiceError(errors.serviceType);
         setProfileError(errors.newProfile);
     }else{
-      var profilesDetails = newProfile; 
-      //console.log(profilesDetails)
+      // Merge the latest profileName from poData into selected profiles (always trim and fallback)
+      const getNameFromPo = (idx) => {
+        if (!Array.isArray(poData)) return '';
+        const rec = poData[idx];
+        return rec && rec.profileName ? (rec.profileName + '').trim() : '';
+      };
+
+      const mergedProfiles = newProfile.map((item)=>{
+        let name = (item.profileName || '').trim();
+
+        if (!name && typeof item.poIndex === 'number') {
+          name = getNameFromPo(item.poIndex) || name;
+        }
+
+        if (!name) {
+          const original = (item.originalProfileName || '').trim();
+          if (original && Array.isArray(poData)) {
+            const latest = poData.find((p)=> ((p.profileName || '').trim() === original));
+            if (latest && latest.profileName) {
+              name = (latest.profileName + '').trim();
+            }
+          }
+        }
+
+        return {
+          ...item,
+          profileName: name
+        };
+      });
+
+      var profilesDetails = mergedProfiles; 
+      console.log('profilesDetails being sent:', profilesDetails)
+      console.log('Each profileName in profilesDetails:', profilesDetails.map(p => p.profileName))
       var fNameData =ServiceName;
       var SACCodeData = ServiceSACCode;
       var fIDData = ServiceID;
        setLoading(true)
        Services.Invoice.create(customer , fIDData,fNameData,SACCodeData, profilesDetails, taxdata , purchaseorder , podate, invoiceDate, 'Cheque').then(function(result) {
-          if(result.success === true){
-          setLoading(false)
-          alert.success(result.message);
-          navigation("/invoices");
-          }
-     });
+         if(result.success === true){
+         setLoading(false)
+         alert.success(result.message);
+         navigation("/invoices");
+         }
+      });
     }
-}
+ }
   const [customerlist, setCustomerList] = useState([]);
   const [poslist, setPOList] =useState([]);
   const [posDetail, setPODetail] =useState([]);
@@ -290,7 +367,14 @@ export default function Invoice_Generate() {
                     onChange={e => handleChanges(index, e, value)}
                     //onChange={handleInputChange}
                     className="form-checkbox" />
-                    <span className="ml-1 mr-3">{value.profileName}</span>
+                    <input 
+                      type="text"
+                      id={`profileName-${index}`}
+                      name="profileName"
+                      value={value.profileName || ''}
+                      onChange={e => handleProfileName(index, e, value)}
+                      className="ml-1 mr-3 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-[15rem] p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                      placeholder="Profile Name" />
                     <div className='text-red-500 text-sm'>{profileError}</div>
                   </div>
                   <div className='w-[21rem]'key={index}>
