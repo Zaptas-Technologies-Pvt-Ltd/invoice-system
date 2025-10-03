@@ -1,19 +1,24 @@
-import {HiOutlineCalculator, HiOutlineCog, 
-    HiOutlineHome, 
+import {
+    HiOutlineCalculator,
+    HiOutlineCog,
+    HiOutlineHome,
     HiOutlineQuestionMarkCircle,
     HiOutlineReceiptTax,
     HiOutlineServer,
     HiOutlineViewList,
     HiPlusCircle,
-    HiUserGroup
-
-
+    HiUserGroup,
+    HiOutlineDocumentText,
+    HiOutlineClipboardCheck,
+    HiOutlineClipboardList,
+    HiOutlineDocumentAdd,
+    HiOutlineDocumentReport,
 } from 'react-icons/hi'
 
 export const Dashboard_Sidebar_Link = [
     {
-        key: 'dashbaord',
-        label: 'Dashbaord',
+        key: 'dashboard',
+        label: 'Dashboard',
         path: '/',
         icon: <HiOutlineHome />
     },
@@ -25,7 +30,7 @@ export const Dashboard_Sidebar_Link = [
     },
     {
         key: 'services',
-        label: 'Service',
+        label: 'Services',
         path: '/services',
         icon: <HiOutlineServer />
     },
@@ -33,39 +38,40 @@ export const Dashboard_Sidebar_Link = [
         key: 'reports',
         label: 'Tax Reports',
         path: '/reports',
-        icon: <HiOutlineReceiptTax />
+        icon: <HiOutlineDocumentReport />
     },
     {
         key: 'pocreates',
         label: 'PO Create',
         path: '/pocreates',
-        icon: <HiPlusCircle />
+        icon: <HiOutlineDocumentAdd />
     },
     {
         key: 'generates',
         label: 'Invoice PO Create',
         path: '/generates',
-        icon: <HiOutlineCalculator />
+        icon: <HiOutlineClipboardCheck />
     },
     {
         key: 'withoutpogenerates',
         label: 'Invoice Create',
         path: '/withoutpogenerates',
-        icon: <HiOutlineCalculator />
+        icon: <HiOutlineClipboardList />
     },
     {
         key: 'invoices',
         label: 'Invoice List',
         path: '/invoices',
-        icon: <HiOutlineViewList />
+        icon: <HiOutlineDocumentText />
     },
     {
-        key: 'PI Performer Invoice',
+        key: 'pi',
         label: 'PI Create',
         path: '/piperformerinvoice',
-        icon: <HiOutlineViewList />
+        icon: <HiOutlineCalculator />
     },
 ]
+
 export const Dashboard_sidebar_bottom_Link = [
     {
         key: 'setting',
@@ -80,4 +86,3 @@ export const Dashboard_sidebar_bottom_Link = [
         icon: <HiOutlineQuestionMarkCircle />
     },
 ]
-    
