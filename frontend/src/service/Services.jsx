@@ -35,6 +35,7 @@ const Common = {
   tax: () => requests.get('/tax'),
   company: () => requests.get('/company'),
   invoice: (id) => requests.get('/getInvoiceByid/' + id),
+  invoiceByCustomer: (customerId) => requests.get('/getInvoiceByCustomer/' + customerId),
   quotation: (id) => requests.get('/getQuotationByid/' + id),
   allinvoice: () => requests.get('/getInvoice'),
   service_create: (object) => requests.post('/service/create', qs.stringify(object)),
@@ -99,9 +100,26 @@ const poCreate = {
   })),
 }
 
+const noteCreate = {
+  create: (customer, invoiceId, service, serviceName, serviceCode,
+    notelistData, tax, invoiceNo, invoiceDate
+  ) => requests.post('/notecreate', qs.stringify({
+    "customer": customer,
+    "invoiceId": invoiceId,
+    "service": service,
+    "serviceName": serviceName,
+    "serviceCode": serviceCode,
+    "notelistData": notelistData,
+    "tax": tax,
+    "invoiceNo": invoiceNo,
+    "invoiceDate": invoiceDate,
+  })),
+}
+
 export default {
   Common,
   Invoice,
   Quotation,
-  poCreate
+  poCreate,
+  noteCreate
 };

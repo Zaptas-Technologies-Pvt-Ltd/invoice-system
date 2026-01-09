@@ -7,6 +7,7 @@ const AuthController = require('../controller/AuthController');
 const ExportCSVController = require('../controller/ExportCSVController');
 const ExportxlsxController = require('../controller/ExportxlsxController');
 const POCreateController = require('../controller/POCreateController');
+const NoteCreateController = require('../controller/NoteCreateController');
 const CommonStatusController = require('../controller/CommonStatusController');
 
 /**
@@ -37,6 +38,7 @@ route.post('/api/invoice', controller.create);
 
 route.get('/api/getInvoice',AuthMiddlewares, controller.invoicefind);
 route.get('/api/getInvoiceByid/:id', controller.invoicefindByid);
+route.get('/api/getInvoiceByCustomer/:customerId',AuthMiddlewares, controller.invoicefindByCustomer);
 
 //Api Quotation
 route.post('/api/quotation', controller.quotationCreate);
@@ -72,6 +74,12 @@ route.post('/api/pocreate',POCreateController.createPO);
 route.get('/api/po-list',AuthMiddlewares,POCreateController.PoTotalLists);
 route.get('/api/poList/?:id',AuthMiddlewares,POCreateController.PoLists);
 route.get('/api/poDetail/:id',AuthMiddlewares,POCreateController.PoListDetail);
+
+// Note Create
+route.post('/api/notecreate',NoteCreateController.createNote);
+route.get('/api/note-list',AuthMiddlewares,NoteCreateController.NoteTotalLists);
+route.get('/api/noteList/?:id',AuthMiddlewares,NoteCreateController.NoteLists);
+route.get('/api/noteDetail/:id',AuthMiddlewares,NoteCreateController.NoteListDetail);
 
 
 ///Excel Data

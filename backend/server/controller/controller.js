@@ -28,6 +28,38 @@ exports.invoicefindByid = (req, res) => {
         })
 }
 
+// Get invoices by customer ID
+exports.invoicefindByCustomer = (req, res) => {
+    const customerId = req.params.customerId;
+    
+    if (!mongoose.Types.ObjectId.isValid(customerId)) {
+        return res.status(400).send({
+            success: false,
+            message: "Invalid customer ID"
+        });
+    }
+
+    var mysort = { _id: -1 };
+    invoicedb.find({ customer: customerId })
+        .sort(mysort)
+        .select('_id invoice customer po podate tax service_name service_code profileName_rate createdAt')
+        .populate({ path: 'customer', select: ['name', 'address', 'gstno'] })
+        .then(invoices => {
+            res.status(200).send({
+                success: invoices.length > 0,
+                message: "Data fetched successfully",
+                data: invoices,
+            });
+        })
+        .catch(err => {
+            res.status(500).send({
+                success: false,
+                message: err.message || "Error Occurred while retrieving invoice information",
+                data: null
+            });
+        });
+}
+
 
 exports.invoicefind = (req, res) => {
     var mysort = { _id: -1 };

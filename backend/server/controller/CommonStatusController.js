@@ -6,6 +6,7 @@ const taxdb = require('../model/tax');
 const invoicedb = require('../model/invoice');
 const counterdb = require('../model/counter');
 const POCreatedb = require('../model/POModel');
+const NoteCreatedb = require('../model/NoteModel');
 const dateTime = require('node-datetime');
 const dateFormat = require('dateformat');
 const excel = require('exceljs');
@@ -29,6 +30,8 @@ console.log("here")
         let dbAllow;
         if (type === 'po') {
             dbAllow = POCreatedb;
+        } else if (type === 'note') {
+            dbAllow = NoteCreatedb;
         } else {
             return res.status(400).send({
                 message: "Invalid type specified!",
@@ -83,6 +86,8 @@ exports.updateDelete = async (req, res) => {
         let dbAllow;
         if (type === 'po') {
             dbAllow = POCreatedb;
+        } else if (type === 'note') {
+            dbAllow = NoteCreatedb;
         } else {
             return res.status(400).send({
                 message: "Invalid type specified!",

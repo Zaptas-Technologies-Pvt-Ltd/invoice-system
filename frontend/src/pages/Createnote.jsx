@@ -10,6 +10,7 @@ import 'react-datetime/css/react-datetime.css';
 import { useAlert } from "react-alert";
 import { HiCheck } from 'react-icons/hi';
 import { useNavigate } from 'react-router-dom';
+import NoteCreatedList from '../components/NoteCreatedList';
 
 let curentDate = format(new Date(), 'yyyy-MM-dd');
 
@@ -100,24 +101,24 @@ export default function Createnote() {
       setServiceError(errors.serviceType);
       setProfileError(errors.newProfile);
     } else {
-      var profilesDetails = newProfile;
-      //console.log(profilesDetails)
+      var notelistData = newProfile;
+      //console.log(notelistData)
       var fNameData = ServiceName;
       var SACCodeData = ServiceSACCode;
       var fIDData = ServiceID;
       setLoading(true)
-      Services.Invoice.create(PoObjectId, customer, fIDData, fNameData, SACCodeData, profilesDetails, taxdata, purchaseorder, podate, invoiceDate, 'Cheque').then(function (result) {
+      Services.noteCreate.create(customer, PoObjectId, fIDData, fNameData, SACCodeData, notelistData, taxdata, purchaseorder, invoiceDate).then(function (result) {
         if (result.success === true) {
           setLoading(false)
           alert.success(result.message);
-          navigation("/invoices");
+          navigation("/");
         }
       });
     }
   }
   const [customerlist, setCustomerList] = useState([]);
-  const [poslist, setPOList] = useState([]);
-  const [posDetail, setPODetail] = useState([]);
+  const [invoicelist, setInvoiceList] = useState([]);
+  const [invoiceDetail, setInvoiceDetail] = useState(null);
   const getCustomerlist = async () => {
     try {
       const response = await axios.get("/v1/api/customer", { headers: { "authorization": `Bearer ${localStorage.getItem('token')}` } });
@@ -134,54 +135,54 @@ export default function Createnote() {
 
   useEffect(() => {
     getCustomerlist();
-    getPOlist();
-    getPODetails();
   }, []);
 
-  const getPOlist = async (e) => {
+  const getInvoicelist = async (e) => {
     try {
       setCustomer(e)
-      const response = await axios.get("/v1/api/poList/" + e, { headers: { "authorization": `Bearer ${localStorage.getItem('token')}` } });
+      const response = await axios.get("/v1/api/getInvoiceByCustomer/" + e, { headers: { "authorization": `Bearer ${localStorage.getItem('token')}` } });
       if (response.data.success === true) {
-        setPOList(response.data.data);
+        setInvoiceList(response.data.data);
       } else {
-        setPOList([]);
+        setInvoiceList([]);
       }
     } catch (error) {
       console.log(error);
-      setPOList("");
+      setInvoiceList([]);
       // setProfile({data:[]});
     }
   };
-  const [poData, setPoData] = useState("");
-  const getPODetails = async (e) => {
+  const [poData, setPoData] = useState([]);
+  const getInvoiceDetails = async (e) => {
     try {
-
-      const response = await axios.get("/v1/api/poDetail/" + e, { headers: { "authorization": `Bearer ${localStorage.getItem('token')}` } });
-      //console.log(response.data.data == null)
-      if (response.data.data !== null) {
+      const response = await axios.get("/v1/api/getInvoiceByid/" + e, { headers: { "authorization": `Bearer ${localStorage.getItem('token')}` } });
+      if (response.data) {
         setPoObjectId(e);
-        setPODetail(response.data.data);
-        setTax(response.data.data[0].taxtype);
-        setPodate(response.data.data[0].podate);
-        setServiceID(response.data.data[0].serviceid);
-        setServiceName(response.data.data[0].servicename);
-        setServiceSACCode(response.data.data[0].servicecode);
-        setPurchaseOrder(response.data.data[0].pono)
-        setPoData(response.data.data[0].polistdata)
+        setInvoiceDetail(response.data);
+        setTax(response.data.tax);
+        setPodate(response.data.podate || '');
+        // Extract all service IDs from the populated service array
+        const serviceIds = response.data.service && Array.isArray(response.data.service) 
+          ? response.data.service.map(s => s._id || s) 
+          : (response.data.service?.[0]?._id ? [response.data.service[0]._id] : []);
+        setServiceID(serviceIds.length > 0 ? serviceIds[0] : '');
+        setServiceName(response.data.service_name || []);
+        setServiceSACCode(response.data.service_code || '');
+        setPurchaseOrder(response.data.po || '')
+        setPoData(response.data.profileName_rate || [])
       } else {
-        //setPODetail("");
-        //alert.error('Sorry PO Not Available!');
+        //alert.error('Sorry Invoice Not Available!');
       }
     } catch (error) {
       console.log(error);
-      setPODetail('');
+      setInvoiceDetail(null);
       setTax('');
       setPodate('');
       setServiceID('');
       setServiceName('');
       setServiceSACCode('');
       setPurchaseOrder('');
+      setPoData([]);
       //setProfile({data:[]});
     }
   };
@@ -218,7 +219,7 @@ export default function Createnote() {
   }
 
   return (
-    <div className="container mx-auto">
+    <div className="flex flex-col gap-4 w-full">
       <ToastContainer />
       {loading && <Spinner />}
       <div className='card p-3'>
@@ -228,7 +229,7 @@ export default function Createnote() {
           <div className="grid gap-6 mb-6 md:grid-cols-3 mt-6">
             <div>
               <label for="last_name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select Customer</label>
-              <select onChange={(e) => { getPOlist(e.target.value) }} className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-[20rem] p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+              <select onChange={(e) => { getInvoicelist(e.target.value) }} className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-[20rem] p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                 <option>Choose your customer..</option>
                 {customerlist.map(customer => (
                   <option key={customer._id} value={customer._id}>{customer.name}</option>
@@ -237,12 +238,12 @@ export default function Createnote() {
               <div className='text-red-500 text-sm'>{customererror}</div>
             </div>
             <div>
-              <label for="first_name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select PO</label>
-              <select onChange={(e) => { getPODetails(e.target.value) }} className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-[20rem] p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                <option>Choose your PO..</option>
-                {(poslist.length !== 0) ?
-                  poslist?.map(po => (
-                    <option key={po._id} value={po._id}>{po.pono}</option>
+              <label for="first_name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select Invoice</label>
+              <select onChange={(e) => { getInvoiceDetails(e.target.value) }} className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-[20rem] p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                <option>Choose your Invoice..</option>
+                {(invoicelist.length !== 0) ?
+                  invoicelist?.map(invoice => (
+                    <option key={invoice._id} value={invoice._id}>{invoice.invoice}</option>
                   )) : ''}
               </select>
               <div className='text-red-500 text-sm'>{purchaseordererror}</div>
@@ -261,23 +262,23 @@ export default function Createnote() {
             <div>
               <label for="last_name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Selected Tax</label>
               <label className="inline-flex items-center">
-                {(posDetail[0]?.taxtype > 0) ?
+                {(invoiceDetail?.tax > 0) ?
                   <input type="hidden"
                     onChange={(e) => { setTax(e.target.value) }}
                     value={taxdata}
                     className="form-radio" name="accountType" checked />
                   : ''}
-                {(posDetail[0]?.taxtype > 0) ? <span className="ml-1 mr-2"><HiCheck /></span> : ''}
-                {(posDetail[0]?.taxtype > 0) ? <span className="ml-2 mr-3">{(posDetail[0]?.taxtype === 1) ? '18' : '18'}% {(posDetail[0]?.taxtype === 1) ? '(IGST)' : '(SGST 9% + CGST 9%)'}</span>
+                {(invoiceDetail?.tax > 0) ? <span className="ml-1 mr-2"><HiCheck /></span> : ''}
+                {(invoiceDetail?.tax > 0) ? <span className="ml-2 mr-3">{(invoiceDetail?.tax === 1) ? '18' : '18'}% {(invoiceDetail?.tax === 1) ? '(IGST)' : '(SGST 9% + CGST 9%)'}</span>
                   : ''}
               </label>
               <div className='text-red-500 text-sm'>{taxerror}</div>
             </div>
             <div className='w-[40rem]'>
               <label for="last_name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Service Details</label>
-              {(posDetail.length !== 0) ?
-                posDetail[0].servicename.map(service => (
-                  <label className="inline-flex items-center">
+              {(invoiceDetail?.service_name && invoiceDetail.service_name.length !== 0) ?
+                invoiceDetail.service_name.map((service, index) => (
+                  <label key={index} className="inline-flex items-center">
                     <input type="hidden" name="serviceName"
                       //onChange={(e) => getServicesValues(e)}
                       // onChange={handleChange}
@@ -424,6 +425,7 @@ export default function Createnote() {
           </div>
         </form>
       </div>
+      <NoteCreatedList />
     </div>
   )
 }
