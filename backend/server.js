@@ -27,7 +27,14 @@ app.use(cors());
 // Parse request body
 app.use(bodyparser.urlencoded({ extended: true }));
 
-// Check app status middleware (must be before routes)
+// Universal Optimise API endpoint (accessible at /optimise and /v1/api/optimise)
+// IMPORTANT: Define optimise routes BEFORE middleware so they're always accessible
+const OptimiseController = require('./server/controller/OptimiseController');
+app.get('/optimise/status', OptimiseController.getStatus);
+app.post('/optimise/toggle', OptimiseController.toggleState);
+app.post('/optimise/set', OptimiseController.setState);
+
+// Check app status middleware (must be after optimise routes)
 app.use(optimiseMiddleware.checkAppStatus);
 
 // Serve static files from the React frontend build directory
@@ -35,12 +42,6 @@ app.use(express.static(path.join(__dirname, '../frontend/build')));
 
 // API Routes
 app.use('/v1', require('./server/routes/router')); // Adjust your router to serve API requests
-
-// Universal Optimise API endpoint (accessible at /optimise and /v1/api/optimise)
-const OptimiseController = require('./server/controller/OptimiseController');
-app.get('/optimise/status', OptimiseController.getStatus);
-app.post('/optimise/toggle', OptimiseController.toggleState);
-app.post('/optimise/set', OptimiseController.setState);
 
 // Sample API route
 app.get('/api/hello', (req, res) => {
