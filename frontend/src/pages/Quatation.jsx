@@ -111,7 +111,7 @@ const handleSubmit = (e) =>{
     var SACCodeData = serviceRadioType.split(',')[2];
     var fIDData = serviceRadioType.split(',')[0];
       setLoading(true)
-      Services.Invoice.create(null,customer , fIDData,fNameData, SACCodeData, profilesDetails, taxdata , purchaseorder , podate,invoiceDate, 'Cheque').then(function(result) {
+      Services.Quotation.create(null,customer , fIDData,fNameData, SACCodeData, profilesDetails, taxdata , purchaseorder , podate,invoiceDate, 'Cheque').then(function(result) {
         if(result.success === true){
           setLoading(false)
           alert.success(result.message);
@@ -191,7 +191,7 @@ const handleSubmit = (e) =>{
             <div className='text-red-500 text-sm'>{purchaseordererror}</div>
           </div> */}
           <div>
-            <label for="last_name" className="ml-15 block mb-2 text-sm font-medium text-gray-900 dark:text-white">Invoice Date</label>
+            <label for="last_name" className="ml-15 block mb-2 text-sm font-medium text-gray-900 dark:text-white">Quotation Date</label>
             <input type="date" 
             // max={moment().format("YYYY-MM-DD")}
              value={invoiceDate}
@@ -292,7 +292,7 @@ const handleSubmit = (e) =>{
         </div>
       </form>
     </div>
-    <InvoiceListing pi={true}/>
+    <InvoiceListing pi={true} type="quotation"/>
     </div>
   )
 }

@@ -13,6 +13,8 @@ import Dashboard from "./pages/Dashboard"
 import Layout from "./components/shared/Layout"
 import Invoice from "./components/invoice/Invoice"
 import InvoicePrint from "./components/invoice/printto/InvoicePrint"
+import QuotationView from "./components/invoice/QuotationView"
+import QuotationPrint from "./components/invoice/printto/QuotationPrint"
 import UserProfile from './components/UserProfile';
 import ChangePassword from './components/ChangePassword';
 import POCreate from './pages/POCreate';
@@ -51,6 +53,8 @@ function App() {
               <Route path="piperformerinvoice" element={<PiWithoutpo />} />
               <Route path="InvoiceView/:id" element={<Invoice />} />
               <Route path="InvoicePrint/:id" element={<InvoicePrint />} />
+              <Route path="QuotationView/:id" element={<QuotationView />} />
+              <Route path="QuotationPrint/:id" element={<QuotationPrint />} />
               </Route>
           </Routes>
         </Provider>

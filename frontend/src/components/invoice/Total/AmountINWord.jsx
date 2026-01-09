@@ -33,16 +33,22 @@ const styles = StyleSheet.create({
   });
 export default function AmountINWord({tax,profile}) {
     //console.log(dd)
-    const amounts = profile?.map((transaction) => transaction.rate);
-    const total= amounts?.reduce((acc, item) => (Number(acc) + Number(item)), 0);
+    const amounts = profile?.map((transaction) => Number(transaction?.rate) || 0) || [];
+    const total = amounts.length > 0 ? amounts.reduce((acc, item) => (Number(acc) + Number(item)), 0) : 0;
     var wordAmount ='';
-    const toWords = new ToWords();
-    if(tax === 1){
-        //var amount =((total*18)/100)+total
-        wordAmount = toWords.convert(((total*18)/100)+total, { currency: true });
-    }else if(tax === 2){
-       // var amount =((total*18)/100)+total
-        wordAmount = toWords.convert(((total*18)/100)+total, { currency: true });
+    
+    // Only calculate if we have a valid total and tax
+    if (total > 0 && (tax === 1 || tax === 2)) {
+        try {
+            const toWords = new ToWords();
+            const amount = ((total*18)/100)+total;
+            if (!isNaN(amount) && isFinite(amount)) {
+                wordAmount = toWords.convert(amount, { currency: true });
+            }
+        } catch (error) {
+            console.error('Error converting amount to words:', error);
+            wordAmount = '';
+        }
     }
     //const toWords = new ToWords();
     // if(amount !== undefined){

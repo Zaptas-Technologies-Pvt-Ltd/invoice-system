@@ -26,24 +26,24 @@ const styles = StyleSheet.create({
     },
   });
 export default function CGST({tax,profile}) {
-    const amounts = profile?.map((transaction) => transaction.rate);
-    const total= amounts?.reduce((acc, item) => (Number(acc) + Number(item)), 0).toFixed(2);
-    var amount = '';
-    var taxtype= '';
+    const amounts = profile?.map((transaction) => Number(transaction?.rate) || 0) || [];
+    const total = amounts.length > 0 ? amounts.reduce((acc, item) => (Number(acc) + Number(item)), 0) : 0;
+    var amount = 0;
+    var taxtype= 0;
     var name = '';
     if(tax === 1){
-        amount =((total*18)/100)
+        amount = ((total*18)/100)
         taxtype= 18;
         name = 'IGST';
     }else if(tax === 2){
-        amount =((total*9)/100)
+        amount = ((total*9)/100)
         taxtype= 9;
-        name = 'SGST';
+        name = 'CGST';
     }
 return(    
     <View style={styles.row}>
         <Text style={styles.description}>{name} ({taxtype}%)</Text>
-        <Text style={styles.total}>{ Math.round(Number.parseFloat(amount)) }</Text>
+        <Text style={styles.total}>{ Math.round(Number.parseFloat(amount)) || 0 }</Text>
     </View>
 )
  

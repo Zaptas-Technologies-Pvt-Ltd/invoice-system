@@ -26,19 +26,19 @@ const styles = StyleSheet.create({
     },
   });
 export default function TaxTotal({tax,profile}) {
-    const amounts = profile?.map((transaction) => transaction.rate);
-    const total= amounts?.reduce((acc, item) => (Number(acc) + Number(item)), 0).toFixed(2);
-    var amount ='';
+    const amounts = profile?.map((transaction) => Number(transaction?.rate) || 0) || [];
+    const total = amounts.length > 0 ? amounts.reduce((acc, item) => (Number(acc) + Number(item)), 0) : 0;
+    var amount = 0;
     if(tax === 1){
-        amount =((total*18)/100)
+        amount = ((total*18)/100)
     }else if(tax === 2){
-        amount =((total*18)/100)
+        amount = ((total*18)/100)
     }
 
 return(    
     <View style={styles.row}>
         <Text style={styles.description}>Total Tax Amount</Text>
-        <Text style={styles.total}>{ Math.round(Number.parseFloat(amount)) }</Text>
+        <Text style={styles.total}>{ Math.round(Number.parseFloat(amount)) || 0 }</Text>
     </View>
 )
 }

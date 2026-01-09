@@ -6,7 +6,7 @@ import Services from "../service/Services";
 import Spinner from "../components/Spinner";
 import { Link, useNavigate } from "react-router-dom";
 
-export default function InvoiceListing({ pi }) {
+export default function InvoiceListing({ pi, type = 'invoice' }) {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
@@ -20,6 +20,7 @@ export default function InvoiceListing({ pi }) {
   const [filterPO, setFilterPO] = useState("");
   const [filterPayment, setFilterPayment] = useState("all");
   const [filterService, setFilterService] = useState("all");
+  const isQuotation = type === 'quotation';
 
   // Extract unique payment types and service names for dropdowns
   const paymentTypes = Array.from(
@@ -39,7 +40,8 @@ export default function InvoiceListing({ pi }) {
     try {
       setLoading(true);
       const piParam = typeof pi !== "undefined" ? pi : false;
-      const response = await axios.get(`/v1/api/getInvoice?pi=${piParam}`, {
+      const endpoint = isQuotation ? '/v1/api/getQuotation' : '/v1/api/getInvoice';
+      const response = await axios.get(`${endpoint}?pi=${piParam}`, {
         headers: { authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       if (response.data.success) {
@@ -74,7 +76,15 @@ export default function InvoiceListing({ pi }) {
     try {
       if (window.confirm("Do you really want to cancel?")) {
         setLoading(true);
-        await Services.Common.invoice_update(id, { status: false });
+        if (isQuotation) {
+          await axios.put(
+            `/v1/api/quotation/update/${id}`,
+            { status: false },
+            { headers: { authorization: `Bearer ${localStorage.getItem("token")}` } }
+          );
+        } else {
+          await Services.Common.invoice_update(id, { status: false });
+        }
         await getInvoiceList(); // better UX: refresh instead of navigate
       }
     } catch (error) {
@@ -97,13 +107,15 @@ export default function InvoiceListing({ pi }) {
   const handleSaveEdit = async () => {
     setLoading(true);
     try {
+      const endpoint = isQuotation 
+        ? `/v1/api/quotation/update/${editInvoice._id}`
+        : `/v1/api/invoice/update/${editInvoice._id}`;
       await axios.put(
-        `/v1/api/invoice/update/${editInvoice._id}`,
+        endpoint,
         {
           profileName_rate: editInvoice.profileName_rate,
           tax: editInvoice.ntax,
         },
-
         {
           headers: { authorization: `Bearer ${localStorage.getItem("token")}` },
         }
@@ -119,14 +131,14 @@ export default function InvoiceListing({ pi }) {
 
   const columns = [
     {
-      name: "Invoice No.",
+      name: isQuotation ? "Quotation No." : "Invoice No.",
       sortable: true,
       grow: 0.4,
-      selector: (row) => row.invoice,
+      selector: (row) => isQuotation ? row.quotation : row.invoice,
       style: { fontWeight: "bold", width: 5 },
     },
     {
-      name: "Invoice Date",
+      name: isQuotation ? "Quotation Date" : "Invoice Date",
       grow: 0.5,
       selector: (row) => Moment(row.createdAt).format("DD-MM-YYYY"),
     },
@@ -164,13 +176,13 @@ export default function InvoiceListing({ pi }) {
       cell: (row) => (
         <div>
           <Link
-            to={`/InvoiceView/${row._id}`}
+            to={isQuotation ? `/QuotationView/${row._id}` : `/InvoiceView/${row._id}`}
             className="rounded-lg px-2 py-1 bg-blue-600 text-blue-100 hover:bg-black-700 duration-300"
           >
             View
           </Link>
           <Link
-            to={`/InvoicePrint/${row._id}`}
+            to={isQuotation ? `/QuotationPrint/${row._id}` : `/InvoicePrint/${row._id}`}
             className="rounded-lg ml-2 px-2 py-1 bg-rose-500 text-blue-100 hover:bg-black-700 duration-300"
           >
             Print
@@ -194,7 +206,7 @@ export default function InvoiceListing({ pi }) {
 
   useEffect(() => {
     getInvoiceList();
-  }, []);
+  }, [type, pi]);
 
   useEffect(() => {
     let result = invoiceList;
@@ -268,7 +280,7 @@ export default function InvoiceListing({ pi }) {
       <div className="mb-4">
         <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 shadow-sm">
           <div className="mb-2 text-lg font-semibold text-gray-700">
-            Filter Invoices
+            Filter {isQuotation ? 'Quotations' : 'Invoices'}
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
             <div>
@@ -355,7 +367,7 @@ export default function InvoiceListing({ pi }) {
         </div>
       </div>
       <DataTable
-        title="Invoice List"
+        title={isQuotation ? "Quotation List" : "Invoice List"}
         columns={[...columns]}
         data={filteredInvoices}
         pagination
@@ -467,7 +479,7 @@ export default function InvoiceListing({ pi }) {
               {taxlist.length > 0 && (
                 <div className="mb-4 p-3 border rounded bg-gray-50">
                   <label className="block mb-2 text-sm font-medium text-gray-900">
-                    Select Tax for Invoice
+                    Select Tax for {isQuotation ? 'Quotation' : 'Invoice'}
                   </label>
                   <div className="flex flex-col gap-2">
                     {taxlist.map((taxes, idx) => (

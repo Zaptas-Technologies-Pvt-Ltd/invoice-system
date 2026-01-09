@@ -26,12 +26,13 @@ const styles = StyleSheet.create({
     },
   });
 export default function SubTotal({profile}) {
-    const amounts = profile?.map((transaction) => transaction.rate);
-    const total= amounts?.reduce((acc, item) => (Number(acc) + Number(item)), 0).toFixed(2);
+    const amounts = profile?.map((transaction) => Number(transaction?.rate) || 0) || [];
+    const total = amounts.length > 0 ? amounts.reduce((acc, item) => (Number(acc) + Number(item)), 0) : 0;
+    const totalFormatted = total.toFixed(2);
 return(    
     <View style={styles.row}>
         <Text style={styles.description}>SubTotal</Text>
-        <Text style={styles.total}>{ Math.round(Number.parseFloat(total)) }</Text>
+        <Text style={styles.total}>{ Math.round(Number.parseFloat(totalFormatted)) }</Text>
     </View>
 )
 }

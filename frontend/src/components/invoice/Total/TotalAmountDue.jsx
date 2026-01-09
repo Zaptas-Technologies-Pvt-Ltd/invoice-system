@@ -28,18 +28,20 @@ const styles = StyleSheet.create({
 export default function TotalAmountDue({tax,profile}) {
     // const total = dd?.map(item => item.qty * item.price)
     // .reduce((accumulator, currentValue) => accumulator + currentValue , 0)
-    const amounts = profile?.map((transaction) => transaction.rate);
-    const total= amounts?.reduce((acc, item) => (Number(acc) + Number(item)), 0);
-    var amount ='';
+    const amounts = profile?.map((transaction) => Number(transaction?.rate) || 0) || [];
+    const total = amounts.length > 0 ? amounts.reduce((acc, item) => (Number(acc) + Number(item)), 0) : 0;
+    var amount = 0;
     if(tax === 1){
-        amount =((total*18)/100)+total
+        amount = ((total*18)/100)+total
     }else if(tax === 2){
-        amount =((total*18)/100)+total
+        amount = ((total*18)/100)+total
+    } else {
+        amount = total; // Default to total if tax is not set
     }
 return(    
     <View style={styles.row}>
         <Text style={styles.description}>Total Invoice Amount</Text>
-        <Text style={styles.total}>{ Math.round(Number.parseFloat(amount)) }</Text>
+        <Text style={styles.total}>{ Math.round(Number.parseFloat(amount)) || 0 }</Text>
     </View>
 )
 }

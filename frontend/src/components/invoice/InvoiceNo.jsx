@@ -43,7 +43,12 @@ export default function InvoiceNo({ invoice }) {   // receive invoice prop here
     }, []);
 
     // choose title dynamically:
-    const title = invoice.piperformerinvoice==true ? "P.Invoice" : "Tax Invoice";
+    let title;
+    if (invoice.isQuotation) {
+        title = "Quotation";
+    } else {
+        title = invoice.piperformerinvoice==true ? "P.Invoice" : "Tax Invoice";
+    }
 
 
     return (

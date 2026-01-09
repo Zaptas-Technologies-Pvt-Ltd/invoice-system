@@ -3,6 +3,7 @@ var companydb = require('../model/company');
 var servicesdb = require('../model/services');
 var taxdb = require('../model/tax');
 var invoicedb = require('../model/invoice');
+var quotationdb = require('../model/quotation');
 var counterdb = require('../model/counter');
 var POCreatedb = require('../model/POModel');
 var dateTime = require('node-datetime');
@@ -193,6 +194,266 @@ exports.create = (req, res) => {
             });
         }
     }, piperformerinvoice);
+};
+
+async function getNextQuotationSequenceValue(callback, piperformerinvoice = false) {
+    try {
+        const Cusdate = ['01-04-2023', '01-04-2024', '01-04-2025', '01-04-2026', '01-04-2027', '01-04-2028', '01-04-2029'];
+
+        let date_time = new Date();
+        let date = ("0" + date_time.getDate()).slice(-2);
+        let month = ("0" + (date_time.getMonth() + 1)).slice(-2);
+        let year = date_time.getFullYear();
+        let currentDate = date + "-" + month + "-" + year;
+        let db = piperformerinvoice ? 'piperformerquotation' : 'quotationid';
+
+        // Check if the current date matches any of the dates in Cusdate
+        if (Cusdate.includes(currentDate)) {
+            // Reset sequence_value to 1 if a match is found
+            await counterdb.findOneAndUpdate({ _id: db }, { $set: { sequence_value: 1 } }, { upsert: true });
+            console.log('Reset quotation sequence_value to 1');
+        }
+
+        // Increment sequence_value
+        await counterdb.findOneAndUpdate({ _id: db }, { $inc: { sequence_value: 1 } }, { upsert: true });
+
+        // Retrieve the updated sequence_value
+        const result = await counterdb.findOne({ _id: db });
+
+        // Execute the callback with the updated sequence_value
+        if (result) {
+            callback(result.sequence_value);
+        } else {
+            // If no result, create one with sequence_value 1
+            await counterdb.create({ _id: db, sequence_value: 1 });
+            callback(1);
+        }
+    } catch (error) {
+        console.error("Error in getNextQuotationSequenceValue:", error);
+    }
+}
+
+// create and save new quotation
+exports.quotationCreate = (req, res) => {
+    console.log('Request body:', req.body);
+
+    if (!req.body) {
+        return res.status(400).send({ message: "Content can not be empty!" });
+    }
+
+    const piperformerinvoice = req.body.piperformerinvoice === 'piperformerinvoice' ? true : false;
+
+    getNextQuotationSequenceValue(async (data) => {
+        try {
+            var dt = dateTime.create();
+            const poId = req.body.PoObjectId;
+
+            console.log('🔍 Using poId:', poId);
+
+            const isValidPoId = mongoose.Types.ObjectId.isValid(poId);
+
+            // Step 1: mark invoiceCreated in polistdata only if poId is valid
+            if (isValidPoId) {
+                const profiles = req.body.profilesDetails;
+                console.log('📦 profilesDetails:', profiles);
+
+                for (let item of profiles) {
+                    console.log('➡ Processing profile item.id:', item.id);
+
+                    if (item.id) {
+                        const result = await POCreatedb.updateOne(
+                            {
+                                _id: new mongoose.Types.ObjectId(poId),
+                                "polistdata.id": item.id
+                            },
+                            { $set: { "polistdata.$.invoiceCreated": true } }
+                        );
+                        console.log(`✅ updateOne result for item.id=${item.id}: matchedCount=${result.matchedCount}, modifiedCount=${result.modifiedCount}`);
+                    } else {
+                        console.log('⚠ Skipped profile without item.id:', item);
+                    }
+                }
+            } else {
+                console.log('⚠ Skipping POCreatedb update: Invalid poId format');
+            }
+
+            // Step 2: create quotation
+            const quotation = new quotationdb({
+                customer: req.body.customer,
+                service: req.body.service,
+                service_name: req.body.serviceName,
+                service_code: req.body.serviceCode.toString(),
+                profileName_rate: req.body.profilesDetails,
+                tax: req.body.tax,
+                po: req.body.po,
+                podate: req.body.podate ? dateTime.create(req.body.podate).format('d-m-Y') : '',
+                createdAt: req.body.createdAt ? dateTime.create(req.body.createdAt).format('Y-m-d') : dt.format('Y-m-d'),
+                quotation: '00' + data,
+                payment: req.body.payment,
+                piperformerinvoice: piperformerinvoice
+            });
+
+            await quotation.save();
+            console.log('✅ Quotation saved successfully with number:', quotation.quotation);
+
+            // Step 3: deactivate reminders only if poId is valid
+            if (isValidPoId) {
+                const deactivateResult = await ReminderForPO.updateMany(
+                    { poId: poId, statusActive: true },
+                    { $set: { statusActive: false } }
+                );
+                console.log(`🛠 Reminders deactivated: matchedCount=${deactivateResult.matchedCount}, modifiedCount=${deactivateResult.modifiedCount}`);
+            } else {
+                console.log('⚠ Skipping ReminderForPO update: Invalid poId format');
+            }
+
+            return res.status(200).send({
+                success: true,
+                message: 'Quotation created' + (isValidPoId ? ' and reminders deactivated' : '') + ' successfully'
+            });
+
+        } catch (err) {
+            console.error("❌ Create quotation error:", err);
+            return res.status(500).send({
+                success: false,
+                message: err.message || "Some error occurred while creating quotation"
+            });
+        }
+    }, piperformerinvoice);
+};
+
+exports.quotationfindByid = (req, res) => {
+    const id = req.params.id;
+    quotationdb.findById(id).populate({ path: 'customer', select: ['name', 'address', 'gstno'] }).populate({ path: 'tax', select: 'tax' }).populate({ path: 'service', select: ['sr_name', 'price', 'qty', 'sac_code'] })
+        .then(quotation => {
+            res.send(quotation)
+        })
+        .catch(err => {
+            res.status(500).send({ message: err.message || "Error Occurred while retriving quotation information" })
+        })
+}
+
+exports.quotationfind = (req, res) => {
+    var mysort = { _id: -1 };
+    const pi = req?.query?.pi; // "true", "false", or undefined
+    const fdate = req.query.fromdate || "";
+    const ldate = req.query.todate || "";
+    const sacCode = req.query.saccode || "";
+
+    let query = {};
+
+    // Filter by date range if provided
+    if (fdate !== '' && ldate !== '') {
+        query.createdAt = {
+            $gte: fdate,
+            $lte: ldate
+        };
+    }
+
+    // Filter by service code if provided
+    if (sacCode !== '') {
+        query.service_code = sacCode;
+    }
+
+    // Filter by piperformerinvoice only if pi param is explicitly provided
+    // For quotations, if pi is provided, we still want to show all quotations
+    // since quotations may not use the piperformerinvoice field the same way as invoices
+    // Only filter if we explicitly want to filter by this field
+    if (pi !== undefined && pi !== null && pi !== '') {
+        // For quotations, show all when pi is provided (don't filter by piperformerinvoice)
+        // This allows the quotation list to display regardless of piperformerinvoice value
+        // If you want to filter quotations by piperformerinvoice, uncomment the line below:
+        // query.piperformerinvoice = pi === 'true' || pi === true;
+    }
+
+    quotationdb.find(query)
+        .sort(mysort)
+        .populate({ path: 'customer', select: ['name', 'address', 'gstno'] })
+        .populate({ path: 'tax', select: 'tax' })
+        .populate({ path: 'service', select: ['sr_name', 'price', 'qty', 'sac_code'] })
+        .then(quotation => {
+            res.status(200).send({
+                success: true,
+                message: "Data fetched successfully",
+                data: quotation,
+            });
+        })
+        .catch(err => {
+            res.status(500).send({
+                message: err.message,
+                success: false,
+                data: null,
+            });
+        });
+};
+
+exports.quotationUpdate = (req, res) => {
+    const id = req.params.id;
+
+    // Validate quotation ID
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).send({ success: false, message: "Invalid quotation ID" });
+    }
+
+    const updateFields = {};
+
+    // Handle profileName_rate if present
+    if (req.body.profileName_rate) {
+        updateFields.profileName_rate = req.body.profileName_rate;
+    }
+   
+    if (req?.body?.tax) {
+        updateFields.tax = req.body.tax;
+    }
+
+    // Handle status if present:
+    // can come as boolean, string "active"/"inactive", or string "true"/"false"
+    if (req.body.status !== undefined) {
+        if (typeof req.body.status === 'boolean') {
+            updateFields.status = req.body.status;
+        } else if (typeof req.body.status === 'string') {
+            const statusLower = req.body.status.trim().toLowerCase();
+            if (statusLower === 'active' || statusLower === 'true') {
+                updateFields.status = true;
+            } else if (statusLower === 'inactive' || statusLower === 'false') {
+                updateFields.status = false;
+            }
+            // else ignore invalid string
+        }
+    }
+
+    // If no valid fields to update, return graceful response
+    if (Object.keys(updateFields).length === 0) {
+        return res.status(200).send({
+            success: true,
+            message: 'Nothing to update',
+            data: null
+        });
+    }
+
+    // Perform the update
+    quotationdb.findByIdAndUpdate(
+        id,
+        { $set: updateFields },
+        { new: true } // return updated document
+    )
+        .then(updatedQuotation => {
+            if (!updatedQuotation) {
+                return res.status(404).send({ success: false, message: "Quotation not found" });
+            }
+            res.status(200).send({
+                success: true,
+                message: 'Quotation updated successfully',
+                data: updatedQuotation
+            });
+        })
+        .catch(error => {
+            console.error('Error updating quotation:', error);
+            res.status(500).send({
+                success: false,
+                message: error.message || "Some error occurred while updating the quotation"
+            });
+        });
 };
 
 

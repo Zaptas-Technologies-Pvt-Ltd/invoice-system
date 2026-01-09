@@ -35,6 +35,7 @@ const Common = {
   tax: () => requests.get('/tax'),
   company: () => requests.get('/company'),
   invoice: (id) => requests.get('/getInvoiceByid/' + id),
+  quotation: (id) => requests.get('/getQuotationByid/' + id),
   allinvoice: () => requests.get('/getInvoice'),
   service_create: (object) => requests.post('/service/create', qs.stringify(object)),
   service_update: (id, object) => requests.put('/service/update/' + id, qs.stringify(object)),
@@ -67,6 +68,22 @@ const Invoice = {
       "piperformerinvoice":piperformerinvoice
     })),
 }
+const Quotation = {
+  create: (PoObjectId,customer , service , serviceName ,serviceCode, profilesDetails, tax , po , podate, invoiceDate,  payment,piperformerinvoice) => requests.post('/quotation', qs.stringify({ 
+    "PoObjectId":PoObjectId,  
+    "customer":customer,
+      "service": service,
+      "serviceName":serviceName,
+      "serviceCode":serviceCode,
+      "profilesDetails": profilesDetails,
+      "tax":tax,
+      "po": po,
+      "podate": podate,
+      "payment":payment,
+      "createdAt":invoiceDate,
+      "piperformerinvoice":piperformerinvoice
+    })),
+}
 const poCreate = {
   create: (customer, service, serviceName, serviceCode,
     polistData, tax, ponuber, podate
@@ -85,5 +102,6 @@ const poCreate = {
 export default {
   Common,
   Invoice,
+  Quotation,
   poCreate
 };

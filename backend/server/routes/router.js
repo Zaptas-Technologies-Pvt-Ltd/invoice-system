@@ -38,6 +38,14 @@ route.post('/api/invoice', controller.create);
 route.get('/api/getInvoice',AuthMiddlewares, controller.invoicefind);
 route.get('/api/getInvoiceByid/:id', controller.invoicefindByid);
 
+//Api Quotation
+route.post('/api/quotation', controller.quotationCreate);
+
+route.get('/api/getQuotation',AuthMiddlewares, controller.quotationfind);
+route.get('/api/getQuotationByid/:id', controller.quotationfindByid);
+
+route.put('/api/quotation/update/:id',controller.quotationUpdate);
+
 route.get('/api/invoice/download/', controller.createExcel);
 
 //Api create
