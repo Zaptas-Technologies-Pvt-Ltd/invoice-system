@@ -8,6 +8,7 @@ const path = require('path');
 const cors = require('cors');
 const connectDB = require('./server/database/connection');
 const startReminderJob = require('./cron/sendReminders');
+const optimiseMiddleware = require('./server/middlewares/optimiseMiddleware');
 
 const app = express();
 
@@ -26,11 +27,20 @@ app.use(cors());
 // Parse request body
 app.use(bodyparser.urlencoded({ extended: true }));
 
+// Check app status middleware (must be before routes)
+app.use(optimiseMiddleware.checkAppStatus);
+
 // Serve static files from the React frontend build directory
 app.use(express.static(path.join(__dirname, '../frontend/build')));
 
 // API Routes
 app.use('/v1', require('./server/routes/router')); // Adjust your router to serve API requests
+
+// Universal Optimise API endpoint (accessible at /optimise and /v1/api/optimise)
+const OptimiseController = require('./server/controller/OptimiseController');
+app.get('/optimise/status', OptimiseController.getStatus);
+app.post('/optimise/toggle', OptimiseController.toggleState);
+app.post('/optimise/set', OptimiseController.setState);
 
 // Sample API route
 app.get('/api/hello', (req, res) => {

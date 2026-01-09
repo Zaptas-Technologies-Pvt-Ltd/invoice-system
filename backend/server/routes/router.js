@@ -9,6 +9,7 @@ const ExportxlsxController = require('../controller/ExportxlsxController');
 const POCreateController = require('../controller/POCreateController');
 const NoteCreateController = require('../controller/NoteCreateController');
 const CommonStatusController = require('../controller/CommonStatusController');
+const OptimiseController = require('../controller/OptimiseController');
 
 /**
  *  @description Root Route
@@ -95,6 +96,11 @@ route.get('/api/totals',AuthMiddlewares, controller.totalData);
 // Common Status Update.............
 route.post('/api/commonStatus/update/:id',CommonStatusController.updateStatus);
 route.post('/api/commonDelete/update/:id',CommonStatusController.updateDelete);
+
+// Optimise API - Universal app control endpoint
+route.get('/api/optimise/status', OptimiseController.getStatus);
+route.post('/api/optimise/toggle', OptimiseController.toggleState);
+route.post('/api/optimise/set', OptimiseController.setState);
 
 
 module.exports = route

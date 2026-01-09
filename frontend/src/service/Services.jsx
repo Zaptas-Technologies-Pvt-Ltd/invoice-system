@@ -116,10 +116,17 @@ const noteCreate = {
   })),
 }
 
+const Optimise = {
+  getStatus: () => requests.get('/optimise/status'),
+  toggleState: () => requests.post('/optimise/toggle'),
+  setState: (isActive, message) => requests.post('/optimise/set', qs.stringify({ isActive, message })),
+}
+
 export default {
   Common,
   Invoice,
   Quotation,
   poCreate,
-  noteCreate
+  noteCreate,
+  Optimise
 };

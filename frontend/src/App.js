@@ -24,6 +24,7 @@ import AlertTemplate from "react-alert-template-basic";
 import PiWithoutpo from './pages/AmcHome';
 import Quoation from './pages/Quatation';
 import Createnote from './pages/Createnote';
+import Optimise from './pages/Optimise';
 const options = {
   timeout: 2000,
   position: positions.TOP_CENTER,
@@ -37,6 +38,7 @@ function App() {
      <Provider template={AlertTemplate} {...options}>
           <Routes>
               <Route path='/login' element={<PublicRoute><Login /></PublicRoute>} />
+              <Route path='/optimise' element={<Optimise />} />
               <Route path='/' element={<ProtectedRoute><Layout /></ProtectedRoute> } >
               <Route index element={<Dashboard />} />
               <Route path="customers" element={<Customers />} />
