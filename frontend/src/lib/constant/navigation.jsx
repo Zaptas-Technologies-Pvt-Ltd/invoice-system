@@ -13,6 +13,8 @@ import {
     HiOutlineClipboardList,
     HiOutlineDocumentAdd,
     HiOutlineDocumentReport,
+    HiOutlineDocumentDuplicate,   // New: for Quotation
+    HiOutlinePencilAlt,           // New: for Create Note
 } from 'react-icons/hi'
 
 export const Dashboard_Sidebar_Link = [
@@ -69,6 +71,18 @@ export const Dashboard_Sidebar_Link = [
         label: 'PI Create',
         path: '/piperformerinvoice',
         icon: <HiOutlineCalculator />
+    },
+    {
+        key: 'quotation',
+        label: 'Quotation',
+        path: '/quotation',
+        icon: <HiOutlineDocumentDuplicate />
+    },
+    {
+        key: 'createnote',
+        label: 'Create-Note',
+        path: '/Create-Note',
+        icon: <HiOutlinePencilAlt />
     },
 ]
 

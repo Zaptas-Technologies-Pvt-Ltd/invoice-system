@@ -20,6 +20,8 @@ import { positions, Provider } from "react-alert";
 import AlertTemplate from "react-alert-template-basic";
 
 import PiWithoutpo from './pages/AmcHome';
+import Quoation from './pages/Quatation';
+import Createnote from './pages/Createnote';
 const options = {
   timeout: 2000,
   position: positions.TOP_CENTER,
@@ -43,6 +45,8 @@ function App() {
               <Route path="pocreates" element={<POCreate />} />
               <Route path="generates" element={<Generate />} />
               <Route path="withoutpogenerates" element={<WithoutPOGenerate />} />
+              <Route path="Create-Note" element={<Createnote />} />
+               <Route path="quotation" element={<Quoation />} />
               <Route path="invoices" element={<Invoices />} />
               <Route path="piperformerinvoice" element={<PiWithoutpo />} />
               <Route path="InvoiceView/:id" element={<Invoice />} />
