@@ -80,7 +80,7 @@ export const Dashboard_Sidebar_Link = [
     },
     {
         key: 'createnote',
-        label: 'Create-Note',
+        label: 'Credit Note',
         path: '/Create-Note',
         icon: <HiOutlinePencilAlt />
     },

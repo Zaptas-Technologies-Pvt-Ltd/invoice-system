@@ -223,7 +223,7 @@ export default function Createnote() {
       <ToastContainer />
       {loading && <Spinner />}
       <div className='card p-3'>
-        <h1 className='text-lg'> Affiliate (Create Note)</h1>
+        <h1 className='text-lg'> Affiliate (Credit Note)</h1>
         <hr />
         <form onSubmit={handlesubmit}>
           <div className="grid gap-6 mb-6 md:grid-cols-3 mt-6">
@@ -421,7 +421,7 @@ export default function Createnote() {
           </div>
           <div className="button-section">
             <button type="submit"
-              className="flex flex-nowrap text-white text-bg-color active:bg-purple-200 font-bold uppercase text-sm px-4 py-2.5 rounded w-[10rem] shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1"> Create Note</button>
+              className="flex flex-nowrap text-white text-bg-color active:bg-purple-200 font-bold uppercase text-sm px-4 py-2.5 rounded w-[10rem] shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1"> Credit Note</button>
           </div>
         </form>
       </div>
