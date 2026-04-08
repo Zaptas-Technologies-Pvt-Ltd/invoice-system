@@ -106,34 +106,27 @@ exports.invoicefind = (req, res) => {
             });
         });
 };
+function getFinancialYearStartYear(dateObj = new Date()) {
+    const month = dateObj.getMonth() + 1; // 1-12
+    const year = dateObj.getFullYear();
+    // Financial year: Apr 1 -> Mar 31
+    return month >= 4 ? year : year - 1;
+}
+
 async function getNextSequenceValue(callback, piperformerinvoice = false) {
     try {
-        const Cusdate = ['01-04-2023', '01-04-2024', '01-04-2025', '01-04-2026', '01-04-2027', '01-04-2028', '01-04-2029'];
+        const fyStartYear = getFinancialYearStartYear(new Date());
+        const baseId = piperformerinvoice ? 'piperformerinvoice' : 'invoiceid';
+        const counterId = `${baseId}_${fyStartYear}`;
 
-        let date_time = new Date();
-        let date = ("0" + date_time.getDate()).slice(-2);
-        let month = ("0" + (date_time.getMonth() + 1)).slice(-2);
-        let year = date_time.getFullYear();
-        let currentDate = date + "-" + month + "-" + year;
-        let db = piperformerinvoice ? 'piperformerinvoice' : 'invoiceid';
+        // Atomic increment, auto-creates new FY counter (starts from 1)
+        const result = await counterdb.findOneAndUpdate(
+            { _id: counterId },
+            { $inc: { sequence_value: 1 } },
+            { new: true, upsert: true }
+        );
 
-        // Check if the current date matches any of the dates in Cusdate
-        if (Cusdate.includes(currentDate)) {
-            // Reset sequence_value to 1 if a match is found
-            await counterdb.findOneAndUpdate({ _id: db }, { $set: { sequence_value: 1 } });
-            console.log('Reset sequence_value to 1');
-        }
-
-        // Increment sequence_value
-        await counterdb.findOneAndUpdate({ _id: db }, { $inc: { sequence_value: 1 } });
-
-        // Retrieve the updated sequence_value
-        const result = await counterdb.findOne({ _id: db });
-
-        // Execute the callback with the updated sequence_value
-        if (result) {
-            callback(result.sequence_value);
-        }
+        callback(result?.sequence_value ?? 1);
     } catch (error) {
         console.error("Error in getNextSequenceValue:", error);
     }
@@ -230,36 +223,17 @@ exports.create = (req, res) => {
 
 async function getNextQuotationSequenceValue(callback, piperformerinvoice = false) {
     try {
-        const Cusdate = ['01-04-2023', '01-04-2024', '01-04-2025', '01-04-2026', '01-04-2027', '01-04-2028', '01-04-2029'];
+        const fyStartYear = getFinancialYearStartYear(new Date());
+        const baseId = piperformerinvoice ? 'piperformerquotation' : 'quotationid';
+        const counterId = `${baseId}_${fyStartYear}`;
 
-        let date_time = new Date();
-        let date = ("0" + date_time.getDate()).slice(-2);
-        let month = ("0" + (date_time.getMonth() + 1)).slice(-2);
-        let year = date_time.getFullYear();
-        let currentDate = date + "-" + month + "-" + year;
-        let db = piperformerinvoice ? 'piperformerquotation' : 'quotationid';
+        const result = await counterdb.findOneAndUpdate(
+            { _id: counterId },
+            { $inc: { sequence_value: 1 } },
+            { new: true, upsert: true }
+        );
 
-        // Check if the current date matches any of the dates in Cusdate
-        if (Cusdate.includes(currentDate)) {
-            // Reset sequence_value to 1 if a match is found
-            await counterdb.findOneAndUpdate({ _id: db }, { $set: { sequence_value: 1 } }, { upsert: true });
-            console.log('Reset quotation sequence_value to 1');
-        }
-
-        // Increment sequence_value
-        await counterdb.findOneAndUpdate({ _id: db }, { $inc: { sequence_value: 1 } }, { upsert: true });
-
-        // Retrieve the updated sequence_value
-        const result = await counterdb.findOne({ _id: db });
-
-        // Execute the callback with the updated sequence_value
-        if (result) {
-            callback(result.sequence_value);
-        } else {
-            // If no result, create one with sequence_value 1
-            await counterdb.create({ _id: db, sequence_value: 1 });
-            callback(1);
-        }
+        callback(result?.sequence_value ?? 1);
     } catch (error) {
         console.error("Error in getNextQuotationSequenceValue:", error);
     }
