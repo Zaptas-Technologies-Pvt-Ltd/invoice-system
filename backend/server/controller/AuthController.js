@@ -105,7 +105,8 @@ exports.companyUpdate =async  (req , res)=>{
 /// Login ............../
 exports.login = async (req , res)=>{
     try{
-        const userExit = await authdb.findOne({userName: req.body.userName });
+        const userExit = await authdb.findOne({ userName: req.body.userName });
+        console.log("fiifid",'userExit',userExit);
         if(!userExit){
             return res.json({
                 message: "User don't exit",
